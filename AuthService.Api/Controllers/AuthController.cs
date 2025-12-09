@@ -54,12 +54,13 @@ public class AuthController : ControllerBase
             if (!result.RequiresTwoFactor && !string.IsNullOrEmpty(result.RefreshToken))
             {
                 // Set RefreshToken in HttpOnly secure cookie (7 days)
+                // Using SameSite=None for cross-origin gateway support
                 Response.Cookies.Append("refreshToken", result.RefreshToken, new CookieOptions
                 {
                     HttpOnly = true,
                     Secure = true,
-                    SameSite = SameSiteMode.Lax,  // Changed from Strict to Lax for gateway compatibility
-                    Path = "/",  // Explicit path to ensure cookie is sent with all requests
+                    SameSite = SameSiteMode.None,  // Required for cross-origin (gateway) cookie support
+                    Path = "/",
                     Expires = DateTimeOffset.UtcNow.AddDays(7)
                 });
                 
@@ -68,11 +69,11 @@ public class AuthController : ControllerBase
                 {
                     Response.Cookies.Append("accessToken", result.AccessToken, new CookieOptions
                     {
-                        HttpOnly = false,  // Accessible by JavaScript
+                        HttpOnly = false,
                         Secure = true,
-                        SameSite = SameSiteMode.Lax,  // Changed from Strict to Lax for gateway compatibility
-                        Path = "/",  // Explicit path to ensure cookie is sent with all requests
-                        Expires = DateTimeOffset.UtcNow.AddMinutes(15)  // 15 min expiry
+                        SameSite = SameSiteMode.None,  // Required for cross-origin (gateway) cookie support
+                        Path = "/",
+                        Expires = DateTimeOffset.UtcNow.AddMinutes(15)
                     });
                 }
             }
@@ -106,8 +107,8 @@ public class AuthController : ControllerBase
                 {
                     HttpOnly = true,
                     Secure = true,
-                    SameSite = SameSiteMode.Lax,  // Changed from Strict to Lax for gateway compatibility
-                    Path = "/",  // Explicit path to ensure cookie is sent with all requests
+                    SameSite = SameSiteMode.None,  // Required for cross-origin (gateway) cookie support
+                    Path = "/",
                     Expires = DateTimeOffset.UtcNow.AddDays(7)
                 });
                 
@@ -116,11 +117,11 @@ public class AuthController : ControllerBase
                 {
                     Response.Cookies.Append("accessToken", result.AccessToken, new CookieOptions
                     {
-                        HttpOnly = false,  // Accessible by JavaScript
+                        HttpOnly = false,
                         Secure = true,
-                        SameSite = SameSiteMode.Lax,  // Changed from Strict to Lax for gateway compatibility
-                        Path = "/",  // Explicit path to ensure cookie is sent with all requests
-                        Expires = DateTimeOffset.UtcNow.AddMinutes(15)  // 15 min expiry
+                        SameSite = SameSiteMode.None,  // Required for cross-origin (gateway) cookie support
+                        Path = "/",
+                        Expires = DateTimeOffset.UtcNow.AddMinutes(15)
                     });
                 }
             }
@@ -170,7 +171,7 @@ public class AuthController : ControllerBase
         {
             HttpOnly = true,
             Secure = true,
-            SameSite = SameSiteMode.Lax,
+            SameSite = SameSiteMode.None,  // Must match how cookie was set
             Path = "/"
         });
         
@@ -179,7 +180,7 @@ public class AuthController : ControllerBase
         {
             HttpOnly = false,
             Secure = true,
-            SameSite = SameSiteMode.Lax,
+            SameSite = SameSiteMode.None,  // Must match how cookie was set
             Path = "/"
         });
         
@@ -271,19 +272,19 @@ public class AuthController : ControllerBase
             {
                 HttpOnly = true,
                 Secure = true,
-                SameSite = SameSiteMode.Lax,  // Changed from Strict to Lax for gateway compatibility
-                Path = "/",  // Explicit path to ensure cookie is sent with all requests
+                SameSite = SameSiteMode.None,  // Required for cross-origin (gateway) cookie support
+                Path = "/",
                 Expires = DateTimeOffset.UtcNow.AddDays(7)
             });
             
             // Set AccessToken in regular cookie (accessible by JavaScript for API calls)
             Response.Cookies.Append("accessToken", result.AccessToken, new CookieOptions
             {
-                HttpOnly = false,  // Accessible by JavaScript
+                HttpOnly = false,
                 Secure = true,
-                SameSite = SameSiteMode.Lax,  // Changed from Strict to Lax for gateway compatibility
-                Path = "/",  // Explicit path to ensure cookie is sent with all requests
-                Expires = DateTimeOffset.UtcNow.AddMinutes(15)  // 15 min expiry
+                SameSite = SameSiteMode.None,  // Required for cross-origin (gateway) cookie support
+                Path = "/",
+                Expires = DateTimeOffset.UtcNow.AddMinutes(15)
             });
             
             return Ok(ApiResponse<RefreshTokenResultDto>.SuccessResponse(result, "Token refreshed."));
@@ -309,7 +310,7 @@ public class AuthController : ControllerBase
             {
                 HttpOnly = true,
                 Secure = true,
-                SameSite = SameSiteMode.Lax,
+                SameSite = SameSiteMode.None,  // Must match how cookie was set
                 Path = "/"
             });
             return Ok(ApiResponse<string>.SuccessResponse("OK", "Refresh token revoked."));

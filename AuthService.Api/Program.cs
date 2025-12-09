@@ -62,21 +62,24 @@ builder.Services.Configure<GzipCompressionProviderOptions>(options =>
 // ============================================
 builder.Services.AddResponseCaching();
 
-// CORS Configuration - Allow Blazor WebAssembly client
+// CORS Configuration - Allow Blazor WebAssembly client and Gateway
+// CRITICAL: AllowCredentials is required for HttpOnly cookie support
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowBlazorClient", policy =>
     {
         policy.WithOrigins(
-    "https://localhost:22500",  // Blazor WebAssembly
-    "https://localhost:25650",  // Gateway
-    "http://localhost:22400",   // HTTP fallback
-    "http://localhost:25600"    // HTTP fallback
-)
+            "https://localhost:22500",  // Blazor WebAssembly
+            "https://localhost:25650",  // Gateway
+            "http://localhost:22400",   // HTTP fallback
+            "http://localhost:25600",   // HTTP fallback
+            "https://localhost:22501",  // Additional dev ports
+            "http://localhost:22401"
+        )
         .AllowAnyMethod()
         .AllowAnyHeader()
-        .AllowCredentials()
-        .WithExposedHeaders("X-Pagination"); // For pagination headers
+        .AllowCredentials()  // CRITICAL: Required for HttpOnly cookies
+        .WithExposedHeaders("X-Pagination", "Set-Cookie"); // Expose headers
     });
 });
 
