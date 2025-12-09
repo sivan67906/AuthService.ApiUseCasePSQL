@@ -13,9 +13,11 @@ public sealed class GetAllPageFeatureMappingsQueryHandler : IRequestHandler<GetA
     public async Task<List<PageFeatureMappingDto>> Handle(GetAllPageFeatureMappingsQuery request, CancellationToken cancellationToken)
     {
         var entities = await _db.PageFeatureMappings.AsNoTracking()
+            .Include(x => x.Page)
+            .Include(x => x.Feature)
             .Where(x => !x.IsDeleted)
-            .OrderBy(x => x.CreatedAt)
+            .OrderByDescending(x => x.UpdatedAt ?? x.CreatedAt)
             .ToListAsync(cancellationToken);
         return entities.Adapt<List<PageFeatureMappingDto>>();
-}
+    }
 }

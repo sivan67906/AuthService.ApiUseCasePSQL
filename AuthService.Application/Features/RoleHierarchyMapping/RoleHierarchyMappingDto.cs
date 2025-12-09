@@ -3,6 +3,8 @@ namespace AuthService.Application.Features.RoleHierarchyMapping;
 public sealed record RoleHierarchyMappingDto
 {
     public Guid Id { get; init; }
+    public Guid DepartmentId { get; init; }
+    public string DepartmentName { get; init; } = string.Empty;
     public Guid ParentRoleId { get; init; }
     public string ParentRoleName { get; init; } = string.Empty;
     public Guid? ParentDepartmentId { get; init; }

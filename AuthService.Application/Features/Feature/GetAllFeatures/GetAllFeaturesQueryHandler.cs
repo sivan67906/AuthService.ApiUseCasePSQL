@@ -15,7 +15,7 @@ public sealed class GetAllFeaturesQueryHandler : IRequestHandler<GetAllFeaturesQ
         var entities = await _db.Features.AsNoTracking()
             .Include(x => x.ParentFeature)
             .Where(x => !x.IsDeleted)
-            .OrderBy(x => x.DisplayOrder)
+            .OrderByDescending(x => x.UpdatedAt ?? x.CreatedAt)
             .ToListAsync(cancellationToken);
         return entities.Select(x => new FeatureDto(
             x.Id,

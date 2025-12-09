@@ -11,13 +11,23 @@ public sealed class CreatePageCommandHandler : IRequestHandler<CreatePageCommand
     }
     public async Task<PageDto> Handle(CreatePageCommand request, CancellationToken cancellationToken)
     {
-        // Check for duplicate name
-        var exists = await _db.Pages
-            .AnyAsync(x => x.Name == request.Name && !x.IsDeleted, cancellationToken);
-        if (exists)
+        // Check for duplicate name (case-insensitive) - including soft-deleted records
+        var existing = await _db.Pages
+            .IgnoreQueryFilters() // Include deleted records
+            .FirstOrDefaultAsync(x => x.Name.ToLower() == request.Name.ToLower(), cancellationToken);
+            
+        if (existing != null)
         {
-            throw new InvalidOperationException($"Page with name '{request.Name}' already exists");
+            if (existing.IsDeleted)
+            {
+                throw new InvalidOperationException($"A page with name '{request.Name}' already exists in deactivated mode. Please use a different name.");
+            }
+            else
+            {
+                throw new InvalidOperationException($"Page with name '{request.Name}' already exists");
+            }
         }
+        
         var entity = new Domain.Entities.Page
         {
             Name = request.Name,

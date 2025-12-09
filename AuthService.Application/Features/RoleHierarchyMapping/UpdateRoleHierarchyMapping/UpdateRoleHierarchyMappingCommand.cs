@@ -23,11 +23,27 @@ public sealed class UpdateRoleHierarchyMappingCommandHandler : IRequestHandler<U
             .Include(rh => rh.ParentRole)
                 .ThenInclude(r => r.Department)
             .Include(rh => rh.ChildRole)
-            .FirstOrDefaultAsync(rh => rh.Id == request.Id, cancellationToken);
+            .Include(rh => rh.Department)
+            .FirstOrDefaultAsync(rh => rh.Id == request.Id && !rh.IsDeleted, cancellationToken);
         if (entity == null)
         {
             throw new InvalidOperationException("Role hierarchy mapping not found");
         }
+        
+        // Check if any changes were made
+        bool hasChanges = false;
+        if (entity.ParentRoleId != request.ParentRoleId || 
+            entity.ChildRoleId != request.ChildRoleId || 
+            entity.Level != request.Level)
+        {
+            hasChanges = true;
+        }
+        
+        if (!hasChanges)
+        {
+            throw new InvalidOperationException("No changes detected. Please modify the data before updating.");
+        }
+        
         // Validate that roles exist
         var parentRole = await _db.Roles
             .Include(r => r.Department)
@@ -64,8 +80,9 @@ public sealed class UpdateRoleHierarchyMappingCommandHandler : IRequestHandler<U
         {
             throw new InvalidOperationException("A role cannot be its own parent");
         }
-        // Check for duplicate mapping (excluding current)
+        // Check for duplicate mapping (excluding current and soft-deleted)
         var duplicateMapping = await _db.RoleHierarchies
+            .Where(rh => !rh.IsDeleted)
             .FirstOrDefaultAsync(rh => rh.Id != request.Id && 
                                       rh.ParentRoleId == request.ParentRoleId && 
                                       rh.ChildRoleId == request.ChildRoleId, cancellationToken);
@@ -83,6 +100,8 @@ public sealed class UpdateRoleHierarchyMappingCommandHandler : IRequestHandler<U
         return new RoleHierarchyMappingDto
         {
             Id = entity.Id,
+            DepartmentId = entity.DepartmentId,
+            DepartmentName = entity.Department?.Name ?? string.Empty,
             ParentRoleId = entity.ParentRoleId,
             ParentRoleName = parentRole.Name ?? string.Empty,
             ParentDepartmentId = parentRole.DepartmentId,

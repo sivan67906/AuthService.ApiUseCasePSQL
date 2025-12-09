@@ -11,13 +11,23 @@ public sealed class CreatePageFeatureMappingCommandHandler : IRequestHandler<Cre
     }
     public async Task<PageFeatureMappingDto> Handle(CreatePageFeatureMappingCommand request, CancellationToken cancellationToken)
     {
-        // Check if mapping already exists
-        var exists = await _db.PageFeatureMappings
-            .AnyAsync(x => x.PageId == request.PageId && x.FeatureId == request.FeatureId, cancellationToken);
-        if (exists)
+        // Check if mapping already exists - including soft-deleted
+        var existing = await _db.PageFeatureMappings
+            .IgnoreQueryFilters() // Include deleted records
+            .FirstOrDefaultAsync(x => x.PageId == request.PageId && x.FeatureId == request.FeatureId, cancellationToken);
+            
+        if (existing != null)
         {
-            throw new InvalidOperationException("This page-feature mapping already exists");
+            if (existing.IsDeleted)
+            {
+                throw new InvalidOperationException("This page-feature mapping already exists in deactivated mode. Please restore the deactivated mapping instead of creating a new one.");
+            }
+            else
+            {
+                throw new InvalidOperationException("This page-feature mapping already exists");
+            }
         }
+        
         var entity = new Domain.Entities.PageFeatureMapping
         {
             PageId = request.PageId,

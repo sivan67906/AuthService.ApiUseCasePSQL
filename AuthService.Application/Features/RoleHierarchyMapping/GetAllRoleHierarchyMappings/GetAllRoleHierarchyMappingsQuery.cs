@@ -14,12 +14,15 @@ public sealed class GetAllRoleHierarchyMappingsQueryHandler : IRequestHandler<Ge
     public async Task<List<RoleHierarchyMappingDto>> Handle(GetAllRoleHierarchyMappingsQuery request, CancellationToken cancellationToken)
     {
         return await _db.RoleHierarchies
+            .Include(rh => rh.Department) // Include the main Department
             .Include(rh => rh.ParentRole)
                 .ThenInclude(r => r.Department)
             .Include(rh => rh.ChildRole)
             .Select(rh => new RoleHierarchyMappingDto
             {
                 Id = rh.Id,
+                DepartmentId = rh.DepartmentId,
+                DepartmentName = rh.Department.Name,
                 ParentRoleId = rh.ParentRoleId,
                 ParentRoleName = rh.ParentRole.Name ?? string.Empty,
                 ParentDepartmentId = rh.ParentRole.DepartmentId,
@@ -33,9 +36,7 @@ public sealed class GetAllRoleHierarchyMappingsQueryHandler : IRequestHandler<Ge
                 CreatedAt = rh.CreatedAt,
                 UpdatedAt = rh.UpdatedAt
             })
-            .OrderBy(rh => rh.Level)
-            .ThenBy(rh => rh.ParentDepartmentName)
-            .ThenBy(rh => rh.ParentRoleName)
+            .OrderByDescending(rh => rh.UpdatedAt ?? rh.CreatedAt)
             .ToListAsync(cancellationToken);
 }
 

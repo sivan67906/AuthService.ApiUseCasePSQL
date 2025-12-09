@@ -13,30 +13,41 @@ public sealed class UpdatePageFeatureMappingCommandHandler : IRequestHandler<Upd
     public async Task<PageFeatureMappingDto> Handle(UpdatePageFeatureMappingCommand request, CancellationToken cancellationToken)
     {
         var entity = await _db.PageFeatureMappings
-            .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
+            .FirstOrDefaultAsync(x => x.Id == request.Id && !x.IsDeleted, cancellationToken);
         if (entity == null)
         {
-            throw new InvalidOperationException($"PageFeatureMapping with ID {request.Id} not found");
+            throw new InvalidOperationException($"Page-Feature mapping with ID {request.Id} not found");
         }
-        // Check if new mapping already exists (if changing)
+        
+        // Check if any changes were made
+        bool hasChanges = false;
         if (entity.PageId != request.PageId || entity.FeatureId != request.FeatureId)
         {
-            var exists = await _db.PageFeatureMappings
-                .AnyAsync(x => x.PageId == request.PageId && x.FeatureId == request.FeatureId && x.Id != request.Id, cancellationToken);
-            if (exists)
-            {
-                throw new InvalidOperationException("This page-feature mapping already exists");
-            }
+            hasChanges = true;
         }
+        
+        if (!hasChanges)
+        {
+            throw new InvalidOperationException("No changes detected. Please modify the data before updating.");
+        }
+        
+        // Check for duplicate mapping (excluding current and soft-deleted)
+        var duplicateExists = await _db.PageFeatureMappings
+            .Where(x => !x.IsDeleted && x.Id != request.Id)
+            .AnyAsync(x => x.PageId == request.PageId && x.FeatureId == request.FeatureId, cancellationToken);
+            
+        if (duplicateExists)
+        {
+            throw new InvalidOperationException("This page-feature mapping already exists");
+        }
+        
         entity.PageId = request.PageId;
         entity.FeatureId = request.FeatureId;
         entity.UpdatedAt = DateTime.UtcNow;
         
-        // Explicitly mark as modified to ensure EF tracks the changes
         _db.Set<Domain.Entities.PageFeatureMapping>().Update(entity);
         
-        var savedCount = await _db.SaveChangesAsync(cancellationToken);
-        Console.WriteLine($"[UpdatePageFeatureMappingHandler] Saved {savedCount} entities for PageFeatureMapping ID: {request.Id}");
+        await _db.SaveChangesAsync(cancellationToken);
         return entity.Adapt<PageFeatureMappingDto>();
     }
 }

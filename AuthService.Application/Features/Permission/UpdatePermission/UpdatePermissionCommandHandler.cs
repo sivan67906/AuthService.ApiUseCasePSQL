@@ -18,13 +18,29 @@ public sealed class UpdatePermissionCommandHandler : IRequestHandler<UpdatePermi
         {
             throw new InvalidOperationException($"Permission with ID {request.Id} not found");
         }
-        // Check for duplicate name
-        var exists = await _db.Permissions
-            .AnyAsync(x => x.Name == request.Name && x.Id != request.Id && !x.IsDeleted, cancellationToken);
-        if (exists)
+        
+        // Check if any changes were made
+        bool hasChanges = false;
+        if (entity.Name != request.Name || entity.Description != request.Description)
+        {
+            hasChanges = true;
+        }
+        
+        if (!hasChanges)
+        {
+            throw new InvalidOperationException("No changes detected. Please modify the data before updating.");
+        }
+        
+        // Check for duplicate name (case-insensitive) excluding current record and soft-deleted records
+        var duplicateExists = await _db.Permissions
+            .Where(x => !x.IsDeleted && x.Id != request.Id)
+            .AnyAsync(x => x.Name.ToLower() == request.Name.ToLower(), cancellationToken);
+            
+        if (duplicateExists)
         {
             throw new InvalidOperationException($"Permission with name '{request.Name}' already exists");
         }
+        
         entity.Name = request.Name;
         entity.Description = request.Description;
         entity.UpdatedAt = DateTime.UtcNow;

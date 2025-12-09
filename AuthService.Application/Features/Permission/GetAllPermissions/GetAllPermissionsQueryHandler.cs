@@ -14,8 +14,8 @@ public sealed class GetAllPermissionsQueryHandler : IRequestHandler<GetAllPermis
     {
         var entities = await _db.Permissions.AsNoTracking()
             .Where(x => !x.IsDeleted)
-            .OrderBy(x => x.CreatedAt)
+            .OrderByDescending(x => x.UpdatedAt ?? x.CreatedAt)
             .ToListAsync(cancellationToken);
         return entities.Adapt<List<PermissionDto>>();
-}
+    }
 }

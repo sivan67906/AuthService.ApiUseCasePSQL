@@ -73,7 +73,7 @@ public sealed class GetAllDepartmentsQueryHandler : IRequestHandler<GetAllDepart
         }
 
         var entities = await query
-            .OrderBy(x => x.CreatedAt)
+            .OrderByDescending(x => x.UpdatedAt ?? x.CreatedAt)
             .ToListAsync(cancellationToken);
 
         return entities.Adapt<List<DepartmentDto>>();

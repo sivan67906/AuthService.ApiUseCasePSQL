@@ -14,8 +14,8 @@ public sealed class GetAllPagesQueryHandler : IRequestHandler<GetAllPagesQuery, 
     {
         var entities = await _db.Pages.AsNoTracking()
             .Where(x => !x.IsDeleted)
-            .OrderBy(x => x.CreatedAt)
+            .OrderByDescending(x => x.UpdatedAt ?? x.CreatedAt)
             .ToListAsync(cancellationToken);
         return entities.Adapt<List<PageDto>>();
-}
+    }
 }

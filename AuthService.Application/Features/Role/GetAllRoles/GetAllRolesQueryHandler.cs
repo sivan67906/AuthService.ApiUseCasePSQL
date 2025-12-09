@@ -17,7 +17,7 @@ public sealed class GetAllRolesQueryHandler : IRequestHandler<GetAllRolesQuery, 
     {
         var roles = await _roleManager.Roles.AsNoTracking()
             .Include(r => r.Department)
-            .OrderBy(r => r.Name)
+            .OrderByDescending(r => r.UpdatedAt ?? r.CreatedAt)
             .ToListAsync(cancellationToken);
         return roles.Select(r => new RoleDto(
             r.Id,

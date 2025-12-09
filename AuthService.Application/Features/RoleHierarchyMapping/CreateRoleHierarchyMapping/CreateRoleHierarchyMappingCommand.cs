@@ -56,8 +56,9 @@ public sealed class CreateRoleHierarchyMappingCommandHandler
             throw new InvalidOperationException("At least one role must belong to a department. Role hierarchies cannot be created between two system roles.");
         }
 
-        // Check if mapping already exists
+        // Check if mapping already exists (excluding soft-deleted)
         var existingMapping = await _db.RoleHierarchies
+            .Where(rh => !rh.IsDeleted)
             .FirstOrDefaultAsync(rh => rh.ParentRoleId == request.ParentRoleId &&
                                        rh.ChildRoleId == request.ChildRoleId, cancellationToken);
 
@@ -88,6 +89,8 @@ public sealed class CreateRoleHierarchyMappingCommandHandler
         return new RoleHierarchyMappingDto
         {
             Id = entity.Id,
+            DepartmentId = entity.DepartmentId,
+            DepartmentName = parentRole.Department?.Name ?? string.Empty,
             ParentRoleId = entity.ParentRoleId,
             ParentRoleName = parentRole.Name ?? string.Empty,
             ParentDepartmentId = parentRole.DepartmentId,

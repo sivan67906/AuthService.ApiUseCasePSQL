@@ -23,11 +23,21 @@ public sealed class CreateRoleCommandHandler : IRequestHandler<CreateRoleCommand
 
     public async Task<RoleDto> Handle(CreateRoleCommand request, CancellationToken cancellationToken)
     {
-        // Check if role already exists
-        var existingRole = await _roleManager.FindByNameAsync(request.Name);
+        // Check if role already exists (case-insensitive) - including soft-deleted records
+        var existingRole = await _db.ApplicationRoles
+            .IgnoreQueryFilters() // Include deleted records
+            .FirstOrDefaultAsync(r => r.Name!.ToLower() == request.Name.ToLower(), cancellationToken);
+            
         if (existingRole != null)
         {
-            throw new InvalidOperationException($"Role with name '{request.Name}' already exists");
+            if (existingRole.IsDeleted)
+            {
+                throw new InvalidOperationException($"A role with name '{request.Name}' already exists in deactivated mode. Please use a different name.");
+            }
+            else
+            {
+                throw new InvalidOperationException($"Role with name '{request.Name}' already exists");
+            }
         }
 
         // Validate department if provided
