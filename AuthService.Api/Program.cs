@@ -295,7 +295,7 @@ app.Use(async (context, next) =>
             : "An error occurred while processing your request";
         
         var errorDetails = app.Environment.IsDevelopment()
-    ? new List<string> { ex.ToString() }
+    ? new List<string> { ex.Message.ToString() }
     : new List<string> { "Internal server error" };
 
         var errorResponse = new

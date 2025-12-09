@@ -43,17 +43,40 @@ public static class DependencyInjection
 
         // Register single unified DbContext interface
         services.AddScoped<IAppDbContext>(sp => sp.GetRequiredService<AppDbContext>());
+        //services
+        //    .AddIdentity<ApplicationUser, ApplicationRole>(options =>
+        //    {
+        //        options.SignIn.RequireConfirmedEmail = true;
+        //        options.Lockout.AllowedForNewUsers = true;
+        //        options.Lockout.MaxFailedAccessAttempts = 5;
+        //        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+        //        options.User.RequireUniqueEmail = true;
+        //    })
+        //    .AddEntityFrameworkStores<AppDbContext>()
+        //    .AddDefaultTokenProviders();
         services
-            .AddIdentity<ApplicationUser, ApplicationRole>(options =>
-            {
-                options.SignIn.RequireConfirmedEmail = true;
-                options.Lockout.AllowedForNewUsers = true;
-                options.Lockout.MaxFailedAccessAttempts = 5;
-                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
-                options.User.RequireUniqueEmail = true;
-            })
-            .AddEntityFrameworkStores<AppDbContext>()
-            .AddDefaultTokenProviders();
+    .AddIdentity<ApplicationUser, ApplicationRole>(options =>
+    {
+        //  Sign-in settings
+        options.SignIn.RequireConfirmedEmail = true;
+
+        //  Lockout settings
+        options.Lockout.AllowedForNewUsers = true;
+        options.Lockout.MaxFailedAccessAttempts = 5;
+        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+
+        //  User settings
+        options.User.RequireUniqueEmail = true;
+
+        //  Password settings (complexity rules)
+        options.Password.RequireDigit = true;              // must contain at least one digit
+        options.Password.RequireLowercase = true;          // must contain at least one lowercase letter
+        options.Password.RequireUppercase = true;          // must contain at least one uppercase letter
+        options.Password.RequireNonAlphanumeric = true;    // must contain at least one special character
+        options.Password.RequiredLength = 6;               // minimum length
+    })
+    .AddEntityFrameworkStores<AppDbContext>()
+    .AddDefaultTokenProviders();
         // Email settings configuration
         services.Configure<EmailSettings>(config.GetSection("EmailSettings"));
         services.AddScoped<IUserRepository, UserRepository>();

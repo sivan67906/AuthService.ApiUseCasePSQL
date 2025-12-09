@@ -4,13 +4,25 @@ public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
 {
     public RegisterCommandValidator()
     {
-        RuleFor(x => x.Email).NotEmpty().EmailAddress();
-        RuleFor(x => x.Password).NotEmpty().MinimumLength(6);
-        RuleFor(x => x.FirstName).NotEmpty();
-        RuleFor(x => x.LastName).NotEmpty();
+        RuleFor(x => x.Email)
+            .NotEmpty()
+            .EmailAddress();
+
+        RuleFor(x => x.Password)
+            .NotEmpty().WithMessage("Password is required.")
+            .MinimumLength(6);
+
+        RuleFor(x => x.FirstName)
+            .NotEmpty().WithMessage("First name is required.")
+            .MaximumLength(25).WithMessage("First name cannot exceed 25 characters.");
+
+        RuleFor(x => x.LastName)
+            .NotEmpty().WithMessage("Last name is required.")
+            .MaximumLength(25).WithMessage("Last name cannot exceed 25 characters.");
+
         RuleFor(x => x.PhoneNumber)
             .NotEmpty().WithMessage("Phone number is required.")
-            .Matches(@"^[\+]?[(]?[0-9]{1,4}[)]?[-\s\./0-9]*$")
-            .WithMessage("Please enter a valid phone number.");
+            .Length(10).WithMessage("Phone number must be exactly 10 digits.")
+            .Matches(@"^\d{10}$").WithMessage("Please enter a valid 10-digit phone number.");
     }
 }
