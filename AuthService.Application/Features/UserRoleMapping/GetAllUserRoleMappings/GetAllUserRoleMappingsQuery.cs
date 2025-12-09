@@ -18,6 +18,7 @@ public sealed class GetAllUserRoleMappingsQueryHandler : IRequestHandler<GetAllU
             .Include(urm => urm.Role)
                 .ThenInclude(r => r.Department)
             .Include(urm => urm.Department)
+            .OrderByDescending(urm => urm.UpdatedAt ?? urm.CreatedAt)
             .ToListAsync(cancellationToken);
         return mappings.Select(urm => new UserRoleMappingDto
         {
@@ -34,11 +35,7 @@ public sealed class GetAllUserRoleMappingsQueryHandler : IRequestHandler<GetAllU
             IsActive = urm.IsActive,
             CreatedAt = urm.CreatedAt,
             UpdatedAt = urm.UpdatedAt
-        })
-        .OrderBy(urm => urm.DepartmentName ?? string.Empty)
-        .ThenBy(urm => urm.RoleName)
-        .ThenBy(urm => urm.UserName)
-        .ToList();
+        }).ToList();
 }
 
 }

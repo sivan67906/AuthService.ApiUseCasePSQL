@@ -97,6 +97,10 @@ public class RoleFeatureMappingController : ControllerBase
         {
             return NotFound(ApiResponse<RoleFeatureMappingDto>.FailResponse(ex.Message));
         }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ApiResponse<RoleFeatureMappingDto>.FailResponse(ex.Message));
+        }
         catch (Exception ex)
         {
             return StatusCode(500, ApiResponse<RoleFeatureMappingDto>.FailResponse("Internal server error", new() { ex.Message }));

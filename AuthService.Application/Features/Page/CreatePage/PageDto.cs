@@ -9,6 +9,7 @@ public sealed record PageDto(
     string Url,
     string? Description,
     int DisplayOrder,
+    string? MenuContext,
     bool IsActive,
     DateTime CreatedAt,
     DateTime? UpdatedAt

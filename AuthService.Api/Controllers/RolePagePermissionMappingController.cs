@@ -100,6 +100,10 @@ public class RolePagePermissionMappingController : ControllerBase
         {
             return NotFound(ApiResponse<RolePagePermissionMappingDto>.FailResponse(ex.Message));
         }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ApiResponse<RolePagePermissionMappingDto>.FailResponse(ex.Message));
+        }
         catch (Exception ex)
         {
             return StatusCode(500, ApiResponse<RolePagePermissionMappingDto>.FailResponse("Internal server error", new() { ex.Message }));
