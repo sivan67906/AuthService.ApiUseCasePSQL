@@ -143,17 +143,17 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("resend-2fa-login")]
-    public async Task<ActionResult<ApiResponse<string>>> ResendTwoFactorLoginCode([FromBody] ResendTwoFactorLoginRequest request)
+    public async Task<ActionResult<ApiResponse<ResendTwoFactorCodeResultDto>>> ResendTwoFactorLoginCode([FromBody] ResendTwoFactorLoginRequest request)
     {
         try
         {
             var command = new ResendTwoFactorLoginCodeCommand(request.Email, request.TwoFactorToken);
-            await _mediator.Send(command);
-            return Ok(ApiResponse<string>.SuccessResponse("OK", "Two-factor code resent successfully."));
+            var result = await _mediator.Send(command);
+            return Ok(ApiResponse<ResendTwoFactorCodeResultDto>.SuccessResponse(result, result.Message));
         }
         catch (Exception ex)
         {
-            return BadRequest(ApiResponse<string>.FailResponse("Failed to resend code.", new() { ex.Message }));
+            return BadRequest(ApiResponse<ResendTwoFactorCodeResultDto>.FailResponse("Failed to resend code.", new() { ex.Message }));
         }
     }
 

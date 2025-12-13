@@ -26,6 +26,12 @@ public class ChangePasswordCommandHandler : IRequestHandler<ChangePasswordComman
         var user = await _userManager.FindByIdAsync(request.UserId)
             ?? throw new InvalidOperationException("User not found.");
 
+        // Issue #9: Validate that new password is different from current password
+        if (request.NewPassword == request.CurrentPassword)
+        {
+            throw new InvalidOperationException("New password must be different from current password.");
+        }
+
         var result = await _userManager.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
         if (!result.Succeeded)
         {

@@ -69,12 +69,18 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowBlazorClient", policy =>
     {
         policy.WithOrigins(
+            // Development ports
             "https://localhost:22500",  // Blazor WebAssembly
             "https://localhost:25650",  // Gateway
             "http://localhost:22400",   // HTTP fallback
             "http://localhost:25600",   // HTTP fallback
             "https://localhost:22501",  // Additional dev ports
-            "http://localhost:22401"
+            "http://localhost:22401",
+            // Docker ports
+            "https://localhost:27704",  // BlazorUI HTTPS
+            "http://localhost:27707",   // BlazorUI HTTP
+            "https://localhost:27705",  // Gateway HTTPS
+            "http://localhost:27708"    // Gateway HTTP
         )
         .AllowAnyMethod()
         .AllowAnyHeader()
@@ -82,6 +88,7 @@ builder.Services.AddCors(options =>
         .WithExposedHeaders("X-Pagination", "Set-Cookie"); // Expose headers
     });
 });
+
 
 builder.Services.AddEndpointsApiExplorer();
 
@@ -314,7 +321,25 @@ app.Use(async (context, next) =>
 // OPTIMIZATION: Middleware order is important for performance
 // ============================================
 app.UseResponseCompression(); // Must be first
-app.UseHttpsRedirection();
+
+// Configure forwarded headers for reverse proxy (Docker/Ocelot Gateway)
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedFor | 
+                       Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto
+});
+
+// Only use HTTPS redirection when not behind a reverse proxy
+// In Docker, the Gateway handles HTTPS termination
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ASPNETCORE_FORWARDEDHEADERS_ENABLED")))
+{
+    // Skip HTTPS redirection when behind reverse proxy
+}
+else
+{
+    app.UseHttpsRedirection();
+}
+
 app.UseResponseCaching(); // Before static files and CORS
 app.UseCors("AllowBlazorClient");
 app.UseAuthentication();

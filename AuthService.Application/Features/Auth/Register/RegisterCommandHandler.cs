@@ -16,19 +16,22 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, RegisterR
     private readonly IEmailService _emailService;
     private readonly IConfiguration _configuration;
     private readonly ILogger<RegisterCommandHandler> _logger;
+    private readonly IEmailConfirmationTokenTracker _tokenTracker;
 
     public RegisterCommandHandler(
         UserManager<ApplicationUser> userManager,
         IAppDbContext db,
         IEmailService emailService,
         IConfiguration configuration,
-        ILogger<RegisterCommandHandler> logger)
+        ILogger<RegisterCommandHandler> logger,
+        IEmailConfirmationTokenTracker tokenTracker)
     {
         _userManager = userManager;
         _db = db;
         _emailService = emailService;
         _configuration = configuration;
         _logger = logger;
+        _tokenTracker = tokenTracker;
     }
 
     public async Task<RegisterResultDto> Handle(RegisterCommand request, CancellationToken cancellationToken)
@@ -71,9 +74,17 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, RegisterR
     {
         try
         {
-            // Generate email confirmation token
-            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            var encodedToken = WebUtility.UrlEncode(token);
+            // Generate email confirmation token with tracking
+            var standardToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            var tokenTimestamp = DateTime.UtcNow;
+            var expiryTime = tokenTimestamp.AddHours(1);
+            
+            // Track this as the latest token for this user
+            _tokenTracker.StoreLatestToken(user.Email!, tokenTimestamp);
+            
+            // Create custom token with timestamp: userId|tokenTimestamp|expiryTimestamp|standardToken
+            var customToken = $"{user.Id}|{tokenTimestamp:O}|{expiryTime:O}|{standardToken}";
+            var encodedToken = WebUtility.UrlEncode(customToken);
 
             // Get callback URL from configuration
             var callbackBaseUrl = _configuration["Email:ConfirmationCallbackUrl"]

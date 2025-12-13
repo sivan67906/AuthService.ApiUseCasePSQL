@@ -82,6 +82,16 @@ public static class DependencyInjection
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<IUserAuthorizationService, UserAuthorizationService>();
+        
+        // Add Email Resend Throttling Service (Issue #2)
+        services.AddSingleton<IEmailResendThrottlingService, EmailResendThrottlingService>();
+        
+        // Add Email Confirmation Token Tracker (Issue #4)
+        services.AddSingleton<IEmailConfirmationTokenTracker, EmailConfirmationTokenTracker>();
+        
+        // Add 2FA Code Throttling Service (Issue #5)
+        services.AddSingleton<ITwoFactorCodeThrottlingService, TwoFactorCodeThrottlingService>();
+        
         return services;
     }
 }
