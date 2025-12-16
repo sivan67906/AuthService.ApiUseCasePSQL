@@ -53,7 +53,9 @@ public class GetGroupedRolePagePermissionsQueryHandler
                         PermissionName = m.Permission.Name,
                         PermissionCode = GetPermissionCode(m.Permission.Name),
                         BadgeColor = GetBadgeColor(m.Permission.Name)
-                    }).ToList()
+                    })
+                    .OrderBy(p => GetPermissionOrder(p.PermissionName))
+                    .ToList()
                 };
             })
             .OrderBy(g => g.DepartmentName)
@@ -85,6 +87,19 @@ public class GetGroupedRolePagePermissionsQueryHandler
             "edit" => "warning",
             "delete" => "danger",
             _ => "secondary"
+        };
+    }
+
+    private static int GetPermissionOrder(string permissionName)
+    {
+        return permissionName.ToLower() switch
+        {
+            "view" => 1,
+            "create" => 2,
+            "update" => 3,
+            "edit" => 3,
+            "delete" => 4,
+            _ => 99
         };
     }
 }
