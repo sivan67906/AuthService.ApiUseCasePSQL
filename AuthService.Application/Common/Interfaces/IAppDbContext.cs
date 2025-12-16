@@ -1,4 +1,5 @@
 using AuthService.Domain.Entities;
+using AuthService.Domain.Entities.Masters;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -32,6 +33,14 @@ public interface IAppDbContext
     // Additional entities
     DbSet<UserAddress> UserAddresses { get; }
     DbSet<UserRefreshToken> RefreshTokens { get; }
+    // Company Module entities
+    DbSet<Company> Companies { get; }
+    DbSet<Country> Countries { get; }
+    DbSet<State> States { get; }
+    DbSet<City> Cities { get; }
+    DbSet<Currency> Currencies { get; }
+    DbSet<TimeZoneMaster> TimeZones { get; }
+    DbSet<CountryTimeZone> CountryTimeZones { get; }
     // Generic Set accessor
     DbSet<T> Set<T>() where T : class;
     // Database operations

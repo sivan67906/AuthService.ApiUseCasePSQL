@@ -27,6 +27,9 @@ public static class DatabaseSeeder
             await context.Database.MigrateAsync();
             logger.LogInformation("Database migrations completed successfully");
             
+            // Seed master data for Company module (Countries, States, Cities, Currencies, TimeZones)
+            await MasterDataSeed.SeedMasterDataAsync(context, logger);
+            
             // Use comprehensive seed data that matches USER_MAPPING_EXPLAINED.md structure
             await ComprehensiveSeedData.InitializeAsync(serviceProvider);
             

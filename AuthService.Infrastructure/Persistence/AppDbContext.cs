@@ -1,6 +1,7 @@
 using System.Linq;
 using AuthService.Application.Common.Interfaces;
 using AuthService.Domain.Entities;
+using AuthService.Domain.Entities.Masters;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -57,6 +58,15 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
     public DbSet<RoleDepartmentMapping> RoleDepartmentMappings => Set<RoleDepartmentMapping>();
     public DbSet<RoleFeatureMapping> RoleFeatureMappings => Set<RoleFeatureMapping>();
     public DbSet<RolePagePermissionMapping> RolePagePermissionMappings => Set<RolePagePermissionMapping>();
+
+    // Company Module entities
+    public DbSet<Company> Companies => Set<Company>();
+    public DbSet<Country> Countries => Set<Country>();
+    public DbSet<State> States => Set<State>();
+    public DbSet<City> Cities => Set<City>();
+    public DbSet<Currency> Currencies => Set<Currency>();
+    public DbSet<TimeZoneMaster> TimeZones => Set<TimeZoneMaster>();
+    public DbSet<CountryTimeZone> CountryTimeZones => Set<CountryTimeZone>();
 
     // IAppDbContext properties for compatibility
     public new DbSet<IdentityUserRole<Guid>> UserRoles => Set<IdentityUserRole<Guid>>();
@@ -407,6 +417,193 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
         builder.Entity<UserRefreshToken>(b =>
         {
             b.ToTable("UserRefreshTokens");
+            // Global query filter for soft delete
+            b.HasQueryFilter(e => !e.IsDeleted);
+        });
+
+        // ========================
+        // Company Module Entities
+        // ========================
+
+        // Configure Country
+        builder.Entity<Country>(b =>
+        {
+            b.ToTable("Countries");
+            b.Property(e => e.Name).IsRequired().HasMaxLength(100);
+            b.Property(e => e.Code).IsRequired().HasMaxLength(2);
+            b.Property(e => e.Code3).HasMaxLength(3);
+            b.Property(e => e.NumericCode).HasMaxLength(3);
+            b.Property(e => e.PhoneCode).HasMaxLength(10);
+            b.Property(e => e.CurrencyCode).HasMaxLength(3);
+            b.HasIndex(e => e.Code).IsUnique();
+            b.HasIndex(e => e.Name);
+            b.HasQueryFilter(e => !e.IsDeleted);
+        });
+
+        // Configure State
+        builder.Entity<State>(b =>
+        {
+            b.ToTable("States");
+            b.Property(e => e.Name).IsRequired().HasMaxLength(100);
+            b.Property(e => e.Code).IsRequired().HasMaxLength(10);
+            b.HasOne(e => e.Country)
+                .WithMany(c => c.States)
+                .HasForeignKey(e => e.CountryId)
+                .OnDelete(DeleteBehavior.Restrict);
+            b.HasIndex(e => new { e.CountryId, e.Code }).IsUnique();
+            b.HasIndex(e => e.Name);
+            b.HasQueryFilter(e => !e.IsDeleted);
+        });
+
+        // Configure City
+        builder.Entity<City>(b =>
+        {
+            b.ToTable("Cities");
+            b.Property(e => e.Name).IsRequired().HasMaxLength(100);
+            b.Property(e => e.PostalCode).HasMaxLength(20);
+            b.HasOne(e => e.State)
+                .WithMany(s => s.Cities)
+                .HasForeignKey(e => e.StateId)
+                .OnDelete(DeleteBehavior.Restrict);
+            b.HasIndex(e => new { e.StateId, e.Name });
+            b.HasQueryFilter(e => !e.IsDeleted);
+        });
+
+        // Configure Currency
+        builder.Entity<Currency>(b =>
+        {
+            b.ToTable("Currencies");
+            b.Property(e => e.Code).IsRequired().HasMaxLength(3);
+            b.Property(e => e.Name).IsRequired().HasMaxLength(100);
+            b.Property(e => e.Symbol).IsRequired().HasMaxLength(10);
+            b.HasIndex(e => e.Code).IsUnique();
+            b.HasQueryFilter(e => !e.IsDeleted);
+        });
+
+        // Configure TimeZoneMaster
+        builder.Entity<TimeZoneMaster>(b =>
+        {
+            b.ToTable("TimeZones");
+            b.Property(e => e.Name).IsRequired().HasMaxLength(100);
+            b.Property(e => e.Identifier).IsRequired().HasMaxLength(100);
+            b.Property(e => e.Offset).IsRequired().HasMaxLength(20);
+            b.Property(e => e.DisplayName).HasMaxLength(200);
+            b.HasIndex(e => e.Identifier).IsUnique();
+            b.HasQueryFilter(e => !e.IsDeleted);
+        });
+
+        // Configure Company
+        builder.Entity<Company>(b =>
+        {
+            b.ToTable("Companies");
+            
+            // Identity fields
+            b.Property(e => e.CompanyCode).IsRequired().HasMaxLength(10);
+            b.Property(e => e.LegalName).IsRequired().HasMaxLength(200);
+            b.Property(e => e.TradeName).HasMaxLength(150);
+            b.Property(e => e.ShortName).HasMaxLength(50);
+            
+            // Registration fields
+            b.Property(e => e.RegistrationNumber).HasMaxLength(50);
+            b.Property(e => e.PANNumber).HasMaxLength(10);
+            b.Property(e => e.GSTIN).HasMaxLength(15);
+            b.Property(e => e.TANNumber).HasMaxLength(10);
+            b.Property(e => e.OtherTaxId).HasMaxLength(50);
+            
+            // Address fields
+            b.Property(e => e.AddressLine1).IsRequired().HasMaxLength(200);
+            b.Property(e => e.AddressLine2).HasMaxLength(200);
+            b.Property(e => e.PostalCode).IsRequired().HasMaxLength(20);
+            
+            // Contact fields
+            b.Property(e => e.PrimaryContactName).HasMaxLength(100);
+            b.Property(e => e.PrimaryEmail).HasMaxLength(150);
+            b.Property(e => e.PrimaryPhone).HasMaxLength(30);
+            b.Property(e => e.WebsiteUrl).HasMaxLength(200);
+            // LogoFileUrl - supports base64 encoded images (no max length)
+            
+            // Notes
+            b.Property(e => e.Notes).HasMaxLength(1000);
+
+            // Indexes
+            b.HasIndex(e => e.CompanyCode).IsUnique();
+            b.HasIndex(e => e.LegalName);
+            b.HasIndex(e => e.Status);
+            b.HasIndex(e => e.PANNumber).IsUnique().HasFilter("\"PANNumber\" IS NOT NULL");
+            b.HasIndex(e => e.GSTIN).IsUnique().HasFilter("\"GSTIN\" IS NOT NULL");
+
+            // Self-referencing relationship for parent company
+            b.HasOne(e => e.ParentCompany)
+                .WithMany(e => e.ChildCompanies)
+                .HasForeignKey(e => e.ParentCompanyId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Registration country/state relationships
+            b.HasOne(e => e.RegistrationCountry)
+                .WithMany(c => c.RegisteredCompanies)
+                .HasForeignKey(e => e.RegistrationCountryId)
+                .OnDelete(DeleteBehavior.Restrict);
+            
+            b.HasOne(e => e.RegistrationState)
+                .WithMany(s => s.RegisteredCompanies)
+                .HasForeignKey(e => e.RegistrationStateId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Address relationships
+            b.HasOne(e => e.AddressCountry)
+                .WithMany(c => c.AddressCompanies)
+                .HasForeignKey(e => e.CountryId)
+                .OnDelete(DeleteBehavior.Restrict);
+            
+            b.HasOne(e => e.AddressState)
+                .WithMany(s => s.AddressCompanies)
+                .HasForeignKey(e => e.StateId)
+                .OnDelete(DeleteBehavior.Restrict);
+            
+            b.HasOne(e => e.City)
+                .WithMany(c => c.AddressCompanies)
+                .HasForeignKey(e => e.CityId)
+                .OnDelete(DeleteBehavior.Restrict);
+            
+            b.HasOne(e => e.TimeZone)
+                .WithMany(t => t.Companies)
+                .HasForeignKey(e => e.TimeZoneId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Currency relationships
+            b.HasOne(e => e.BaseCurrency)
+                .WithMany(c => c.BaseCurrencyCompanies)
+                .HasForeignKey(e => e.BaseCurrencyId)
+                .OnDelete(DeleteBehavior.Restrict);
+            
+            b.HasOne(e => e.ReportingCurrency)
+                .WithMany(c => c.ReportingCurrencyCompanies)
+                .HasForeignKey(e => e.ReportingCurrencyId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Global query filter for soft delete
+            b.HasQueryFilter(e => !e.IsDeleted);
+        });
+
+        // Configure CountryTimeZone
+        builder.Entity<CountryTimeZone>(b =>
+        {
+            b.ToTable("CountryTimeZones");
+            
+            b.HasOne(ctz => ctz.Country)
+                .WithMany()
+                .HasForeignKey(ctz => ctz.CountryId)
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            b.HasOne(ctz => ctz.TimeZoneEntity)
+                .WithMany()
+                .HasForeignKey(ctz => ctz.TimeZoneId)
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            b.HasIndex(ctz => ctz.CountryId);
+            b.HasIndex(ctz => ctz.TimeZoneId);
+            b.HasIndex(ctz => new { ctz.CountryId, ctz.TimeZoneId }).IsUnique();
+            
             // Global query filter for soft delete
             b.HasQueryFilter(e => !e.IsDeleted);
         });

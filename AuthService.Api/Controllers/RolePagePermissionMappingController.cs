@@ -7,6 +7,8 @@ using AuthService.Application.Features.RolePagePermissionMapping.GetRolePagePerm
 using AuthService.Application.Features.RolePagePermissionMapping.GetRolePagePermissionMappingsByRole;
 using AuthService.Application.Features.RolePagePermissionMapping.GetRolePagePermissionMappingsByRoleAndPage;
 using AuthService.Application.Features.RolePagePermissionMapping.UpdateRolePagePermissionMapping;
+using AuthService.Application.Features.RolePagePermissionMapping.GetGroupedRolePagePermissions;
+using AuthService.Application.Features.RolePagePermissionMapping.CreateOrUpdateBatch;
 
 namespace AuthService.Api.Controllers;
 
@@ -122,6 +124,10 @@ public class RolePagePermissionMappingController : ControllerBase
         {
             return NotFound(ApiResponse<bool>.FailResponse(ex.Message, new() { ex.Message }));
         }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ApiResponse<bool>.FailResponse(ex.Message, new() { ex.Message }));
+        }
         catch (Exception ex)
         {
             return StatusCode(500, ApiResponse<bool>.FailResponse("Internal server error", new() { ex.Message }));
@@ -163,6 +169,50 @@ public class RolePagePermissionMappingController : ControllerBase
         {
             var result = await _mediator.Send(new GetRolePagePermissionMappingsByRoleAndPageQuery(roleId, pageId));
             return Ok(ApiResponse<List<RolePagePermissionMappingDto>>.SuccessResponse(result, "Role page permission mappings retrieved successfully"));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ApiResponse<List<RolePagePermissionMappingDto>>.FailResponse("Internal server error", new() { ex.Message }));
+        }
+    }
+
+    /// <summary>
+    /// Get grouped role page permission mappings (Department-Role-Page with all permissions)
+    /// </summary>
+    [HttpGet("grouped")]
+    public async Task<ActionResult<ApiResponse<List<RolePagePermissionGroupDto>>>> GetGrouped()
+    {
+        try
+        {
+            var result = await _mediator.Send(new GetGroupedRolePagePermissionsQuery());
+            return Ok(ApiResponse<List<RolePagePermissionGroupDto>>.SuccessResponse(result, "Grouped role page permission mappings retrieved successfully"));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ApiResponse<List<RolePagePermissionGroupDto>>.FailResponse("Internal server error", new() { ex.Message }));
+        }
+    }
+
+    /// <summary>
+    /// Create or update permissions in batch for a Department-Role-Page combination
+    /// </summary>
+    [HttpPost("batch")]
+    public async Task<ActionResult<ApiResponse<List<RolePagePermissionMappingDto>>>> CreateOrUpdateBatch([FromBody] CreateOrUpdatePermissionBatchDto dto)
+    {
+        try
+        {
+            var command = new CreateOrUpdateRolePagePermissionBatchCommand(
+                dto.DepartmentId,
+                dto.RoleId,
+                dto.PageId,
+                dto.PermissionIds
+            );
+            var result = await _mediator.Send(command);
+            return Ok(ApiResponse<List<RolePagePermissionMappingDto>>.SuccessResponse(result, "Permissions updated successfully"));
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ApiResponse<List<RolePagePermissionMappingDto>>.FailResponse(ex.Message));
         }
         catch (Exception ex)
         {

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AuthService.Domain.Constants;
 using AuthService.Domain.Entities;
+using AuthService.Domain.Entities.Masters;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -125,7 +126,10 @@ public static class ComprehensiveSeedData
             // 10. Create Role Hierarchies
             await SeedRoleHierarchies(context, departmentRoles, departments, logger);
 
-            // 11. Create Test Users
+            // 11. Create CountryTimeZones mappings (only if Countries and TimeZones exist)
+            await SeedCountryTimeZones(context, logger);
+
+            // 12. Create Test Users
             await SeedTestUsers(userManager, context, systemRoles, departmentRoles, departments, logger);
 
             await context.SaveChangesAsync();
@@ -512,7 +516,8 @@ public static class ComprehensiveSeedData
         var financeSubmenus = new[]
         {
             ("Test Categories", "Test Categories Management", 1, "/testcategories", "ri-folder-line"),
-            ("Test Products", "Test Products Management", 2, "/testproducts", "ri-shopping-bag-line")
+            ("Test Products", "Test Products Management", 2, "/testproducts", "ri-shopping-bag-line"),
+            ("Company Management", "Company Master Management", 3, "/company", "ri-building-2-line")
         };
 
         foreach (var (name, desc, order, route, icon) in financeSubmenus)
@@ -565,6 +570,7 @@ public static class ComprehensiveSeedData
             // Finance
             "Test Categories" => "ri-folder-line",
             "Test Products" => "ri-shopping-bag-line",
+            "Company Management" => "ri-building-2-line",
             _ => "ri-circle-line"
         };
     }
@@ -601,7 +607,8 @@ public static class ComprehensiveSeedData
             
             // Finance Management Pages
             ("Test Categories", "/testcategories", "Finance test categories page", "Finance Management", "/api/testcategories", "GET", 16),
-            ("Test Products", "/testproducts", "Finance test products page", "Finance Management", "/api/testproducts", "GET", 17)
+            ("Test Products", "/testproducts", "Finance test products page", "Finance Management", "/api/testproducts", "GET", 17),
+            ("Company List", "/company", "Company management page", "Finance Management", "/api/company", "GET", 18)
         };
 
         foreach (var (name, url, desc, menuContext, apiEndpoint, httpMethod, order) in pageList)
@@ -664,7 +671,8 @@ public static class ComprehensiveSeedData
             
             // Finance
             ("Test Categories", "Test Categories"),
-            ("Test Products", "Test Products")
+            ("Test Products", "Test Products"),
+            ("Company List", "Company Management")
         };
 
         foreach (var (pageName, featureName) in mappings)
@@ -745,7 +753,7 @@ public static class ComprehensiveSeedData
 
         // Finance roles get Dashboard + RBAC Management + Finance Management features
         var financeFeatures = new[] { "Dashboard", "RBAC Management", "Departments", "Roles", "Features", "Pages",
-            "Permissions", "Role Hierarchy", "User Role Assignment", "Finance Management", "Test Categories", "Test Products" };
+            "Permissions", "Role Hierarchy", "User Role Assignment", "Finance Management", "Test Categories", "Test Products", "Company Management" };
 
         foreach (var roleName in new[] { "FinanceManager", "FinanceSupervisor", "FinanceStaff", "FinanceIntern" })
         {
@@ -833,7 +841,7 @@ public static class ComprehensiveSeedData
         var departmentPageName = "Department List";
         var otherRbacPages = new[] { "Dashboard", "Role List", "Feature List", "Page List",
             "Permission List", "Role Hierarchy", "User Role Assignment" };
-        var financePages = new[] { "Test Categories", "Test Products" };
+        var financePages = new[] { "Test Categories", "Test Products", "Company List" };
 
         // Finance DepartmentAdmin: VIEW ONLY on Department List
         if (pages.ContainsKey(departmentPageName))
@@ -1269,5 +1277,225 @@ public static class ComprehensiveSeedData
 
         await context.SaveChangesAsync();
         logger.LogInformation("Created 6 test users with proper role mappings");
+    }
+
+    private static async Task SeedCountryTimeZones(AppDbContext context, ILogger logger)
+    {
+        logger.LogInformation("Creating CountryTimeZones mappings...");
+
+        // Check if Countries and TimeZones exist
+        if (!await context.Countries.AnyAsync() || !await context.TimeZones.AnyAsync())
+        {
+            logger.LogWarning("Countries or TimeZones not found. Skipping CountryTimeZones seeding.");
+            return;
+        }
+
+        // Get country IDs - FIXED: Using Code3 instead of Code for 3-letter codes
+        var indiaId = await context.Countries.Where(c => c.Code3 == "IND").Select(c => c.Id).FirstOrDefaultAsync();
+        var usaId = await context.Countries.Where(c => c.Code3 == "USA").Select(c => c.Id).FirstOrDefaultAsync();
+        var ukId = await context.Countries.Where(c => c.Code3 == "GBR").Select(c => c.Id).FirstOrDefaultAsync();
+        var australiaId = await context.Countries.Where(c => c.Code3 == "AUS").Select(c => c.Id).FirstOrDefaultAsync();
+        var canadaId = await context.Countries.Where(c => c.Code3 == "CAN").Select(c => c.Id).FirstOrDefaultAsync();
+        var chinaId = await context.Countries.Where(c => c.Code3 == "CHN").Select(c => c.Id).FirstOrDefaultAsync();
+        var japanId = await context.Countries.Where(c => c.Code3 == "JPN").Select(c => c.Id).FirstOrDefaultAsync();
+        var singaporeId = await context.Countries.Where(c => c.Code3 == "SGP").Select(c => c.Id).FirstOrDefaultAsync();
+        var germanyId = await context.Countries.Where(c => c.Code3 == "DEU").Select(c => c.Id).FirstOrDefaultAsync();
+        var franceId = await context.Countries.Where(c => c.Code3 == "FRA").Select(c => c.Id).FirstOrDefaultAsync();
+
+        var mappings = new List<CountryTimeZone>();
+
+        // India - Single Timezone
+        if (indiaId != Guid.Empty)
+        {
+            var timezone = await context.TimeZones.FirstOrDefaultAsync(tz => tz.Identifier == "Asia/Kolkata");
+            if (timezone != null)
+            {
+                mappings.Add(new CountryTimeZone
+                {
+                    Id = Guid.NewGuid(),
+                    CountryId = indiaId,
+                    TimeZoneId = timezone.Id,
+                    IsDefault = true,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                });
+            }
+        }
+
+        // USA - 6 Timezones
+        if (usaId != Guid.Empty)
+        {
+            var usaTimezones = new[] { "America/New_York", "America/Chicago", "America/Denver", "America/Los_Angeles", "America/Anchorage", "Pacific/Honolulu" };
+            var timezones = await context.TimeZones.Where(tz => usaTimezones.Contains(tz.Identifier)).ToListAsync();
+            foreach (var tz in timezones)
+            {
+                mappings.Add(new CountryTimeZone
+                {
+                    Id = Guid.NewGuid(),
+                    CountryId = usaId,
+                    TimeZoneId = tz.Id,
+                    IsDefault = tz.Identifier == "America/New_York", // Eastern is default
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                });
+            }
+        }
+
+        // UK - Single Timezone
+        if (ukId != Guid.Empty)
+        {
+            var timezone = await context.TimeZones.FirstOrDefaultAsync(tz => tz.Identifier == "Europe/London");
+            if (timezone != null)
+            {
+                mappings.Add(new CountryTimeZone
+                {
+                    Id = Guid.NewGuid(),
+                    CountryId = ukId,
+                    TimeZoneId = timezone.Id,
+                    IsDefault = true,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                });
+            }
+        }
+
+        // Australia - 6 Timezones
+        if (australiaId != Guid.Empty)
+        {
+            var ausTimezones = new[] { "Australia/Sydney", "Australia/Melbourne", "Australia/Brisbane", "Australia/Adelaide", "Australia/Perth", "Australia/Darwin" };
+            var timezones = await context.TimeZones.Where(tz => ausTimezones.Contains(tz.Identifier)).ToListAsync();
+            foreach (var tz in timezones)
+            {
+                mappings.Add(new CountryTimeZone
+                {
+                    Id = Guid.NewGuid(),
+                    CountryId = australiaId,
+                    TimeZoneId = tz.Id,
+                    IsDefault = tz.Identifier == "Australia/Sydney", // Sydney is default
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                });
+            }
+        }
+
+        // Canada - 6 Timezones
+        if (canadaId != Guid.Empty)
+        {
+            var canTimezones = new[] { "America/Toronto", "America/Winnipeg", "America/Edmonton", "America/Vancouver", "America/Halifax", "America/St_Johns" };
+            var timezones = await context.TimeZones.Where(tz => canTimezones.Contains(tz.Identifier)).ToListAsync();
+            foreach (var tz in timezones)
+            {
+                mappings.Add(new CountryTimeZone
+                {
+                    Id = Guid.NewGuid(),
+                    CountryId = canadaId,
+                    TimeZoneId = tz.Id,
+                    IsDefault = tz.Identifier == "America/Toronto", // Eastern is default
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                });
+            }
+        }
+
+        // China - Single Timezone
+        if (chinaId != Guid.Empty)
+        {
+            var timezone = await context.TimeZones.FirstOrDefaultAsync(tz => tz.Identifier == "Asia/Shanghai");
+            if (timezone != null)
+            {
+                mappings.Add(new CountryTimeZone
+                {
+                    Id = Guid.NewGuid(),
+                    CountryId = chinaId,
+                    TimeZoneId = timezone.Id,
+                    IsDefault = true,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                });
+            }
+        }
+
+        // Japan - Single Timezone
+        if (japanId != Guid.Empty)
+        {
+            var timezone = await context.TimeZones.FirstOrDefaultAsync(tz => tz.Identifier == "Asia/Tokyo");
+            if (timezone != null)
+            {
+                mappings.Add(new CountryTimeZone
+                {
+                    Id = Guid.NewGuid(),
+                    CountryId = japanId,
+                    TimeZoneId = timezone.Id,
+                    IsDefault = true,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                });
+            }
+        }
+
+        // Singapore - Single Timezone
+        if (singaporeId != Guid.Empty)
+        {
+            var timezone = await context.TimeZones.FirstOrDefaultAsync(tz => tz.Identifier == "Asia/Singapore");
+            if (timezone != null)
+            {
+                mappings.Add(new CountryTimeZone
+                {
+                    Id = Guid.NewGuid(),
+                    CountryId = singaporeId,
+                    TimeZoneId = timezone.Id,
+                    IsDefault = true,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                });
+            }
+        }
+
+        // Germany - Single Timezone
+        if (germanyId != Guid.Empty)
+        {
+            var timezone = await context.TimeZones.FirstOrDefaultAsync(tz => tz.Identifier == "Europe/Berlin");
+            if (timezone != null)
+            {
+                mappings.Add(new CountryTimeZone
+                {
+                    Id = Guid.NewGuid(),
+                    CountryId = germanyId,
+                    TimeZoneId = timezone.Id,
+                    IsDefault = true,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                });
+            }
+        }
+
+        // France - Single Timezone
+        if (franceId != Guid.Empty)
+        {
+            var timezone = await context.TimeZones.FirstOrDefaultAsync(tz => tz.Identifier == "Europe/Paris");
+            if (timezone != null)
+            {
+                mappings.Add(new CountryTimeZone
+                {
+                    Id = Guid.NewGuid(),
+                    CountryId = franceId,
+                    TimeZoneId = timezone.Id,
+                    IsDefault = true,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                });
+            }
+        }
+
+        if (mappings.Any())
+        {
+            context.CountryTimeZones.AddRange(mappings);
+            await context.SaveChangesAsync();
+            logger.LogInformation($"Created {mappings.Count} CountryTimeZone mappings");
+        }
+        else
+        {
+            logger.LogWarning("No CountryTimeZone mappings created. Required Countries or TimeZones may be missing.");
+        }
     }
 }
