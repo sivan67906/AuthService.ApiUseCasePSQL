@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,30 +13,28 @@ using Microsoft.Extensions.Logging;
 namespace AuthService.Infrastructure.Persistence;
 
 /// <summary>
-/// Comprehensive seed data - REMOVED: RolePermissionMapping, PagePermissionMapping, RoleDepartmentMapping, Addresses
+/// Comprehensive seed data for RBAC system
 /// Creates:
 /// - Departments (Finance, Marketing)
 /// - System Roles (SuperAdmin, DepartmentAdmin, PendingUser)
 /// - Department Roles (FinanceManager, FinanceSupervisor, FinanceStaff, FinanceIntern, etc.)
-/// - 6 Test Users with proper UserRoleMappings
+/// - 20 Test Users with proper UserRoleMappings and EmailConfirmed
 /// - Complete RBAC structure with Features (menus), Pages, RoleFeatureMapping, RolePagePermissionMapping
 /// - RoleHierarchy for departments
 /// - Permissions (Create, View, Update, Delete)
 /// 
-/// REMOVED ITEMS (4 total):
-/// 1. RolePermissionMapping (seeding - table was never populated)
-/// 2. PagePermissionMapping (seeding - table will not be populated)
-/// 3. "Role Permission Mapping" menu and page
-/// 4. "Page Permission Mapping" menu and page
-/// 5. "Role Department Mapping" menu and page (redundant - ApplicationRole.DepartmentId already provides this)
-/// 6. "Addresses" menu and page from Account Settings
+/// Menu Structure (CORRECT HIERARCHY):
+/// 1. Dashboard (Main Menu) → /dashboard (direct page)
+/// 2. RBAC Management (Main Menu) → pages directly: /department, /role, /feature, /page, /permission
+/// 3. Mappings (Main Menu) → pages directly: /rolehierarchymapping, /userrolemapping, /rolefeaturemapping, /pagefeaturemapping, /rolepagepermissionmapping
+/// 4. Account Settings (Main Menu) → pages directly: /profile, /change-password
+/// 5. Finance Management (Main Menu) → Company (SubMenu) → /company, /testcategories, /testproducts
 /// 
-/// TOTAL FEATURES: 26 (originally 30, removed 4: RolePermissionMapping, PagePermissionMapping, RoleDepartmentMapping, Addresses)
-/// TOTAL PAGES: 17 (originally 21, removed 4: RolePermissionMapping, PagePermissionMapping, RoleDepartmentMapping, Addresses)
-/// MAPPINGS SUBMENU: 5 items (originally 8, removed 3: RolePermissionMapping, PagePermissionMapping, RoleDepartmentMapping)
-/// 
-/// NOTE: ApplicationRole already has DepartmentId field, making RoleDepartmentMapping table redundant.
-///       The many-to-many relationship is not used in this architecture.
+/// Permission Matrix for Finance/Marketing Department Roles (5 pages: /profile, /change-password, /company, /testcategories, /testproducts):
+/// - Manager: All permissions (Create, View, Update, Delete)
+/// - Supervisor: No Delete permission
+/// - Staff: View and Create only
+/// - Intern: View only
 /// </summary>
 public static class ComprehensiveSeedData
 {
@@ -64,13 +62,65 @@ public static class ComprehensiveSeedData
         public static readonly Guid MarketingStaffRoleId = Guid.Parse("20000000-0000-0000-0000-000000000004");
         public static readonly Guid MarketingInternRoleId = Guid.Parse("20000000-0000-0000-0000-000000000005");
 
-        // Test Users
+        // Users - SuperAdmin
         public static readonly Guid SuperAdminUserId = Guid.Parse("99999999-9999-9999-9999-000000000001");
+        
+        // Users - Finance Department (6 users)
         public static readonly Guid FinanceAdminUserId = Guid.Parse("99999999-9999-9999-9999-000000000002");
         public static readonly Guid FinanceManagerUserId = Guid.Parse("99999999-9999-9999-9999-000000000003");
         public static readonly Guid FinanceSupervisorUserId = Guid.Parse("99999999-9999-9999-9999-000000000004");
         public static readonly Guid FinanceStaffUserId = Guid.Parse("99999999-9999-9999-9999-000000000005");
         public static readonly Guid FinanceInternUserId = Guid.Parse("99999999-9999-9999-9999-000000000006");
+        public static readonly Guid FinanceStaff2UserId = Guid.Parse("99999999-9999-9999-9999-000000000007");
+        
+        // Users - Marketing Department (6 users)
+        public static readonly Guid MarketingAdminUserId = Guid.Parse("99999999-9999-9999-9999-000000000008");
+        public static readonly Guid MarketingManagerUserId = Guid.Parse("99999999-9999-9999-9999-000000000009");
+        public static readonly Guid MarketingSupervisorUserId = Guid.Parse("99999999-9999-9999-9999-000000000010");
+        public static readonly Guid MarketingStaffUserId = Guid.Parse("99999999-9999-9999-9999-000000000011");
+        public static readonly Guid MarketingInternUserId = Guid.Parse("99999999-9999-9999-9999-000000000012");
+        public static readonly Guid MarketingStaff2UserId = Guid.Parse("99999999-9999-9999-9999-000000000013");
+        
+        // Additional Users (7 more to make 20 total)
+        public static readonly Guid FinanceIntern2UserId = Guid.Parse("99999999-9999-9999-9999-000000000014");
+        public static readonly Guid FinanceSupervisor2UserId = Guid.Parse("99999999-9999-9999-9999-000000000015");
+        public static readonly Guid MarketingIntern2UserId = Guid.Parse("99999999-9999-9999-9999-000000000016");
+        public static readonly Guid MarketingSupervisor2UserId = Guid.Parse("99999999-9999-9999-9999-000000000017");
+        public static readonly Guid FinanceManager2UserId = Guid.Parse("99999999-9999-9999-9999-000000000018");
+        public static readonly Guid MarketingManager2UserId = Guid.Parse("99999999-9999-9999-9999-000000000019");
+        public static readonly Guid SuperAdmin2UserId = Guid.Parse("99999999-9999-9999-9999-000000000020");
+
+        // Fixed Feature IDs for consistency
+        public static readonly Guid DashboardFeatureId = Guid.Parse("F0000000-0000-0000-0000-000000000001");
+        public static readonly Guid RbacManagementFeatureId = Guid.Parse("F0000000-0000-0000-0000-000000000002");
+        public static readonly Guid MappingsFeatureId = Guid.Parse("F0000000-0000-0000-0000-000000000003");
+        public static readonly Guid AccountSettingsFeatureId = Guid.Parse("F0000000-0000-0000-0000-000000000004");
+        public static readonly Guid FinanceManagementFeatureId = Guid.Parse("F0000000-0000-0000-0000-000000000005");
+        public static readonly Guid CompanySubMenuFeatureId = Guid.Parse("F0000000-0000-0000-0000-000000000006");
+
+        // Fixed Page IDs
+        public static readonly Guid DashboardPageId = Guid.Parse("A0000000-0000-0000-0000-000000000001");
+        public static readonly Guid DepartmentPageId = Guid.Parse("A0000000-0000-0000-0000-000000000002");
+        public static readonly Guid RolePageId = Guid.Parse("A0000000-0000-0000-0000-000000000003");
+        public static readonly Guid FeaturePageId = Guid.Parse("A0000000-0000-0000-0000-000000000004");
+        public static readonly Guid PagePageId = Guid.Parse("A0000000-0000-0000-0000-000000000005");
+        public static readonly Guid PermissionPageId = Guid.Parse("A0000000-0000-0000-0000-000000000006");
+        public static readonly Guid RoleHierarchyMappingPageId = Guid.Parse("A0000000-0000-0000-0000-000000000007");
+        public static readonly Guid UserRoleMappingPageId = Guid.Parse("A0000000-0000-0000-0000-000000000008");
+        public static readonly Guid RoleFeatureMappingPageId = Guid.Parse("A0000000-0000-0000-0000-000000000009");
+        public static readonly Guid PageFeatureMappingPageId = Guid.Parse("A0000000-0000-0000-0000-000000000010");
+        public static readonly Guid RolePagePermissionMappingPageId = Guid.Parse("A0000000-0000-0000-0000-000000000011");
+        public static readonly Guid ProfilePageId = Guid.Parse("A0000000-0000-0000-0000-000000000012");
+        public static readonly Guid ChangePasswordPageId = Guid.Parse("A0000000-0000-0000-0000-000000000013");
+        public static readonly Guid CompanyPageId = Guid.Parse("A0000000-0000-0000-0000-000000000014");
+        public static readonly Guid TestCategoriesPageId = Guid.Parse("A0000000-0000-0000-0000-000000000015");
+        public static readonly Guid TestProductsPageId = Guid.Parse("A0000000-0000-0000-0000-000000000016");
+
+        // Fixed Permission IDs
+        public static readonly Guid CreatePermissionId = Guid.Parse("B0000000-0000-0000-0000-000000000001");
+        public static readonly Guid ViewPermissionId = Guid.Parse("B0000000-0000-0000-0000-000000000002");
+        public static readonly Guid UpdatePermissionId = Guid.Parse("B0000000-0000-0000-0000-000000000003");
+        public static readonly Guid DeletePermissionId = Guid.Parse("B0000000-0000-0000-0000-000000000004");
     }
 
     public static async Task InitializeAsync(IServiceProvider serviceProvider)
@@ -108,13 +158,13 @@ public static class ComprehensiveSeedData
             // 4. Create Department-specific Roles
             var departmentRoles = await SeedDepartmentRoles(roleManager, departments, logger);
 
-            // 5. Create Features (Menu structure)
+            // 5. Create Features (Menu structure) - CORRECTED HIERARCHY
             var features = await SeedFeatures(context, logger);
 
             // 6. Create Pages
             var pages = await SeedPages(context, logger);
 
-            // 7. Create Page-Feature Mappings
+            // 7. Create Page-Feature Mappings - CORRECTED to map pages directly to main menus
             await SeedPageFeatureMappings(context, features, pages, logger);
 
             // 8. Create Role-Feature Mappings (with department scope)
@@ -129,15 +179,14 @@ public static class ComprehensiveSeedData
             // 11. Create CountryTimeZones mappings (only if Countries and TimeZones exist)
             await SeedCountryTimeZones(context, logger);
 
-            // 12. Create Test Users
-            await SeedTestUsers(userManager, context, systemRoles, departmentRoles, departments, logger);
+            // 12. Create 20 Test Users
+            await SeedUsers(userManager, context, systemRoles, departmentRoles, departments, logger);
 
-            await context.SaveChangesAsync();
-            logger.LogInformation("Comprehensive database seeding completed successfully");
+            logger.LogInformation("Comprehensive database seeding completed successfully!");
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error during database seeding");
+            logger.LogError(ex, "An error occurred while seeding the database");
             throw;
         }
     }
@@ -149,19 +198,18 @@ public static class ComprehensiveSeedData
 
         var permissionList = new[]
         {
-            ("Create", "Permission to create records"),
-            ("View", "Permission to view records"),
-            ("Update", "Permission to update records"),
-            ("Delete", "Permission to delete records")
+            (FixedGuids.CreatePermissionId, "Create", "Permission to create new records"),
+            (FixedGuids.ViewPermissionId, "View", "Permission to view records"),
+            (FixedGuids.UpdatePermissionId, "Update", "Permission to update existing records"),
+            (FixedGuids.DeletePermissionId, "Delete", "Permission to delete records")
         };
 
-        foreach (var (name, description) in permissionList)
+        foreach (var (id, name, description) in permissionList)
         {
-            var permId = Guid.NewGuid();
-            permissions[name] = permId;
+            permissions[name] = id;
             context.Permissions.Add(new Permission
             {
-                Id = permId,
+                Id = id,
                 Name = name,
                 Description = description,
                 IsActive = true,
@@ -178,51 +226,48 @@ public static class ComprehensiveSeedData
     private static async Task<Dictionary<string, Guid>> SeedDepartments(AppDbContext context, ILogger logger)
     {
         logger.LogInformation("Creating departments...");
-        var departments = new Dictionary<string, Guid>
+        var departments = new Dictionary<string, Guid>();
+
+        var deptList = new[]
         {
-            ["Finance"] = FixedGuids.FinanceDeptId,
-            ["Marketing"] = FixedGuids.MarketingDeptId
+            (FixedGuids.FinanceDeptId, "Finance", "Finance Department"),
+            (FixedGuids.MarketingDeptId, "Marketing", "Marketing Department")
         };
 
-        context.Departments.AddRange(
-            new Department
+        foreach (var (id, name, description) in deptList)
+        {
+            departments[name] = id;
+            context.Departments.Add(new Department
             {
-                Id = FixedGuids.FinanceDeptId,
-                Name = "Finance",
-                Description = "Finance Department - Manages financial operations, budgeting, accounting, and financial reporting",
+                Id = id,
+                Name = name,
+                Description = description,
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
-            },
-            new Department
-            {
-                Id = FixedGuids.MarketingDeptId,
-                Name = "Marketing",
-                Description = "Marketing Department - Manages marketing campaigns, branding, and customer engagement",
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            }
-        );
+            });
+        }
 
         await context.SaveChangesAsync();
         logger.LogInformation("Created {Count} departments", departments.Count);
         return departments;
     }
 
-    private static async Task<Dictionary<string, Guid>> SeedSystemRoles(RoleManager<ApplicationRole> roleManager, ILogger logger)
+    private static async Task<Dictionary<string, Guid>> SeedSystemRoles(
+        RoleManager<ApplicationRole> roleManager,
+        ILogger logger)
     {
         logger.LogInformation("Creating system roles...");
         var roles = new Dictionary<string, Guid>();
 
-        var systemRolesList = new[]
+        var roleList = new[]
         {
-            (FixedGuids.SuperAdminRoleId, SystemRoles.SuperAdmin, "Global administrator with unrestricted access"),
-            (FixedGuids.DepartmentAdminRoleId, SystemRoles.DepartmentAdmin, "Department administrator with full access within their department"),
-            (FixedGuids.PendingUserRoleId, SystemRoles.PendingUser, "Newly registered user awaiting role assignment")
+            (FixedGuids.SuperAdminRoleId, "SuperAdmin", "Super Administrator with global access"),
+            (FixedGuids.DepartmentAdminRoleId, "DepartmentAdmin", "Department Administrator with full access within department"),
+            (FixedGuids.PendingUserRoleId, "PendingUser", "Default role for newly registered users")
         };
 
-        foreach (var (id, name, description) in systemRolesList)
+        foreach (var (id, name, description) in roleList)
         {
             var role = new ApplicationRole
             {
@@ -303,19 +348,25 @@ public static class ComprehensiveSeedData
         return departmentRoles;
     }
 
+    /// <summary>
+    /// Creates Features (Menu structure) with CORRECT hierarchy:
+    /// - Dashboard, RBAC Management, Mappings, Account Settings are Main Menus (Level 0) 
+    ///   with pages mapped DIRECTLY (no submenus)
+    /// - Finance Management is Main Menu with Company SubMenu which has pages
+    /// </summary>
     private static async Task<Dictionary<string, Guid>> SeedFeatures(AppDbContext context, ILogger logger)
     {
         logger.LogInformation("Creating features (menu structure)...");
         var features = new Dictionary<string, Guid>();
 
         // ============================================
-        // 1. Dashboard (Main Menu)
+        // 1. Dashboard (Main Menu) - Level 0
+        //    Pages: /dashboard (mapped directly to this menu)
         // ============================================
-        var dashboardId = Guid.NewGuid();
-        features["Dashboard"] = dashboardId;
+        features["Dashboard"] = FixedGuids.DashboardFeatureId;
         context.Features.Add(new Feature
         {
-            Id = dashboardId,
+            Id = FixedGuids.DashboardFeatureId,
             Name = "Dashboard",
             Description = "Dashboard and Home",
             IsMainMenu = true,
@@ -323,20 +374,21 @@ public static class ComprehensiveSeedData
             DisplayOrder = 1,
             Icon = "ri-dashboard-line",
             IsActive = true,
-            RouteUrl = "/",
+            RouteUrl = "/dashboard", // Direct route for single-page menu
             Level = 0,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         });
 
         // ============================================
-        // 2. RBAC Management (Main Menu)
+        // 2. RBAC Management (Main Menu) - Level 0
+        //    Pages: /department, /role, /feature, /page, /permission
+        //    (pages mapped directly, NO submenus)
         // ============================================
-        var rbacId = Guid.NewGuid();
-        features["RBAC Management"] = rbacId;
+        features["RBAC Management"] = FixedGuids.RbacManagementFeatureId;
         context.Features.Add(new Feature
         {
-            Id = rbacId,
+            Id = FixedGuids.RbacManagementFeatureId,
             Name = "RBAC Management",
             Description = "Role-Based Access Control Management",
             IsMainMenu = true,
@@ -344,53 +396,22 @@ public static class ComprehensiveSeedData
             DisplayOrder = 2,
             Icon = "ri-shield-user-line",
             IsActive = true,
-            RouteUrl = null,
+            RouteUrl = null, // Container menu, no direct route
             Level = 0,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         });
-        await context.SaveChangesAsync();
-
-        // RBAC Submenus
-        var rbacSubmenus = new[]
-        {
-            ("Departments", "Department Management", 1, "/department", "ri-building-line"),
-            ("Roles", "Role Management", 2, "/role", "ri-user-settings-line"),
-            ("Features", "Feature Management", 3, "/feature", "ri-function-line"),
-            ("Pages", "Page Management", 4, "/page", "ri-file-list-line"),
-            ("Permissions", "Permission Management", 5, "/permission", "ri-key-2-line")
-        };
-
-        foreach (var (name, desc, order, route, icon) in rbacSubmenus)
-        {
-            var featureId = Guid.NewGuid();
-            features[name] = featureId;
-            context.Features.Add(new Feature
-            {
-                Id = featureId,
-                Name = name,
-                Description = desc,
-                IsMainMenu = false,
-                ParentFeatureId = rbacId,
-                DisplayOrder = order,
-                Icon = icon,
-                IsActive = true,
-                RouteUrl = route,
-                Level = 1,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            });
-        }
-        await context.SaveChangesAsync();
 
         // ============================================
-        // 3. Mappings (Main Menu)
+        // 3. Mappings (Main Menu) - Level 0
+        //    Pages: /rolehierarchymapping, /userrolemapping, /rolefeaturemapping, 
+        //           /pagefeaturemapping, /rolepagepermissionmapping
+        //    (pages mapped directly, NO submenus)
         // ============================================
-        var mappingsId = Guid.NewGuid();
-        features["Mappings"] = mappingsId;
+        features["Mappings"] = FixedGuids.MappingsFeatureId;
         context.Features.Add(new Feature
         {
-            Id = mappingsId,
+            Id = FixedGuids.MappingsFeatureId,
             Name = "Mappings",
             Description = "Role and Permission Mappings",
             IsMainMenu = true,
@@ -398,53 +419,21 @@ public static class ComprehensiveSeedData
             DisplayOrder = 3,
             Icon = "ri-links-line",
             IsActive = true,
-            RouteUrl = null,
+            RouteUrl = null, // Container menu, no direct route
             Level = 0,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         });
-        await context.SaveChangesAsync();
-
-        // Mappings Submenus
-        var mappingsSubmenus = new[]
-        {
-            ("User Role Mapping", "Assign roles to users", 1, "/userrolemapping", "ri-user-add-line"),
-            ("Role Hierarchy", "Manage role hierarchy", 2, "/rolehierarchymapping", "ri-organization-chart"),
-            ("Role Feature Mapping", "Map roles to features", 3, "/rolefeaturemapping", "ri-menu-add-line"),
-            ("Role Page Permission Mapping", "Map roles to page permissions", 4, "/rolepagepermissionmapping", "ri-file-shield-line"),
-            ("Page Feature Mapping", "Map pages to features", 5, "/pagefeaturemapping", "ri-pages-line")
-        };
-
-        foreach (var (name, desc, order, route, icon) in mappingsSubmenus)
-        {
-            var featureId = Guid.NewGuid();
-            features[name] = featureId;
-            context.Features.Add(new Feature
-            {
-                Id = featureId,
-                Name = name,
-                Description = desc,
-                IsMainMenu = false,
-                ParentFeatureId = mappingsId,
-                DisplayOrder = order,
-                Icon = icon,
-                IsActive = true,
-                RouteUrl = route,
-                Level = 1,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            });
-        }
-        await context.SaveChangesAsync();
 
         // ============================================
-        // 4. Account Settings (Main Menu)
+        // 4. Account Settings (Main Menu) - Level 0
+        //    Pages: /profile, /change-password
+        //    (pages mapped directly, NO submenus)
         // ============================================
-        var accountSettingsId = Guid.NewGuid();
-        features["Account Settings"] = accountSettingsId;
+        features["Account Settings"] = FixedGuids.AccountSettingsFeatureId;
         context.Features.Add(new Feature
         {
-            Id = accountSettingsId,
+            Id = FixedGuids.AccountSettingsFeatureId,
             Name = "Account Settings",
             Description = "User Account Settings",
             IsMainMenu = true,
@@ -452,52 +441,20 @@ public static class ComprehensiveSeedData
             DisplayOrder = 4,
             Icon = "ri-user-settings-line",
             IsActive = true,
-            RouteUrl = null,
+            RouteUrl = null, // Container menu, no direct route
             Level = 0,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         });
-        await context.SaveChangesAsync();
-
-        // Account Settings Submenus
-        var accountSubmenus = new[]
-        {
-            ("Profile", "View and edit profile", 1, "/profile", "ri-user-line"),
-            ("Change Password", "Change account password", 2, "/change-password", "ri-lock-password-line"),
-            ("Two-Factor Authentication", "Two-factor authentication settings", 3, "/two-factor", "ri-shield-check-line"),
-            ("Authenticator Setup", "Setup authenticator app", 4, "/authenticator-setup", "ri-qr-code-line")
-        };
-
-        foreach (var (name, desc, order, route, icon) in accountSubmenus)
-        {
-            var featureId = Guid.NewGuid();
-            features[name] = featureId;
-            context.Features.Add(new Feature
-            {
-                Id = featureId,
-                Name = name,
-                Description = desc,
-                IsMainMenu = false,
-                ParentFeatureId = accountSettingsId,
-                DisplayOrder = order,
-                Icon = icon,
-                IsActive = true,
-                RouteUrl = route,
-                Level = 1,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            });
-        }
-        await context.SaveChangesAsync();
 
         // ============================================
-        // 5. Finance Management (Main Menu)
+        // 5. Finance Management (Main Menu) - Level 0
+        //    This one HAS a SubMenu: Company
         // ============================================
-        var financeId = Guid.NewGuid();
-        features["Finance Management"] = financeId;
+        features["Finance Management"] = FixedGuids.FinanceManagementFeatureId;
         context.Features.Add(new Feature
         {
-            Id = financeId,
+            Id = FixedGuids.FinanceManagementFeatureId,
             Name = "Finance Management",
             Description = "Finance Department Operations",
             IsMainMenu = true,
@@ -505,74 +462,34 @@ public static class ComprehensiveSeedData
             DisplayOrder = 5,
             Icon = "ri-money-dollar-circle-line",
             IsActive = true,
-            RouteUrl = null,
+            RouteUrl = null, // Container menu, no direct route
             Level = 0,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         });
-        await context.SaveChangesAsync();
 
-        // Finance Submenus
-        var financeSubmenus = new[]
+        // Company SubMenu (Level 1) under Finance Management
+        // This is the ONLY submenu - pages /company, /testcategories, /testproducts go under here
+        features["Company"] = FixedGuids.CompanySubMenuFeatureId;
+        context.Features.Add(new Feature
         {
-            ("Test Categories", "Test Categories Management", 1, "/testcategories", "ri-folder-line"),
-            ("Test Products", "Test Products Management", 2, "/testproducts", "ri-shopping-bag-line"),
-            ("Company Management", "Company Master Management", 3, "/company", "ri-building-2-line")
-        };
-
-        foreach (var (name, desc, order, route, icon) in financeSubmenus)
-        {
-            var featureId = Guid.NewGuid();
-            features[name] = featureId;
-            context.Features.Add(new Feature
-            {
-                Id = featureId,
-                Name = name,
-                Description = desc,
-                IsMainMenu = false,
-                ParentFeatureId = financeId,
-                DisplayOrder = order,
-                Icon = icon,
-                IsActive = true,
-                RouteUrl = route,
-                Level = 1,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            });
-        }
+            Id = FixedGuids.CompanySubMenuFeatureId,
+            Name = "Company",
+            Description = "Company Management SubMenu",
+            IsMainMenu = false,
+            ParentFeatureId = FixedGuids.FinanceManagementFeatureId,
+            DisplayOrder = 1,
+            Icon = "ri-building-2-line",
+            IsActive = true,
+            RouteUrl = null, // Submenu container, no direct route
+            Level = 1,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        });
 
         await context.SaveChangesAsync();
         logger.LogInformation("Created {Count} features", features.Count);
         return features;
-    }
-
-    private static string GetIconForFeature(string featureName)
-    {
-        return featureName switch
-        {
-            // RBAC Management
-            "Departments" => "ri-building-line",
-            "Roles" => "ri-user-settings-line",
-            "Features" => "ri-function-line",
-            "Pages" => "ri-file-list-line",
-            "Permissions" => "ri-key-2-line",
-            // Mappings
-            "User Role Mapping" => "ri-user-add-line",
-            "Role Hierarchy" => "ri-organization-chart",
-            "Role Feature Mapping" => "ri-menu-add-line",
-            "Role Page Permission Mapping" => "ri-file-shield-line",
-            "Page Feature Mapping" => "ri-pages-line",
-            // Account Settings
-            "Profile" => "ri-user-line",
-            "Change Password" => "ri-lock-password-line",
-            "Two-Factor Authentication" => "ri-shield-check-line",
-            "Authenticator Setup" => "ri-qr-code-line",
-            // Finance
-            "Test Categories" => "ri-folder-line",
-            "Test Products" => "ri-shopping-bag-line",
-            "Company Management" => "ri-building-2-line",
-            _ => "ri-circle-line"
-        };
     }
 
     private static async Task<Dictionary<string, Guid>> SeedPages(AppDbContext context, ILogger logger)
@@ -580,44 +497,42 @@ public static class ComprehensiveSeedData
         logger.LogInformation("Creating pages...");
         var pages = new Dictionary<string, Guid>();
 
+        // All pages with fixed IDs
         var pageList = new[]
         {
-            // Dashboard
-            ("Dashboard", "/", "Dashboard page", "Dashboard", "/api/dashboard", "GET", 1),
+            // Dashboard - mapped to Dashboard menu
+            (FixedGuids.DashboardPageId, "Dashboard", "/dashboard", "Dashboard page", "Dashboard", "/api/dashboard", "GET", 1),
             
-            // RBAC Management Pages
-            ("Department List", "/department", "Department management page", "RBAC Management", "/api/department", "GET", 2),
-            ("Role List", "/role", "Role management page", "RBAC Management", "/api/role", "GET", 3),
-            ("Feature List", "/feature", "Feature management page", "RBAC Management", "/api/feature", "GET", 4),
-            ("Page List", "/page", "Page management page", "RBAC Management", "/api/page", "GET", 5),
-            ("Permission List", "/permission", "Permission management page", "RBAC Management", "/api/permission", "GET", 6),
+            // RBAC Management Pages - mapped directly to RBAC Management menu
+            (FixedGuids.DepartmentPageId, "Department", "/department", "Department management page", "RBAC Management", "/api/department", "GET", 2),
+            (FixedGuids.RolePageId, "Role", "/role", "Role management page", "RBAC Management", "/api/role", "GET", 3),
+            (FixedGuids.FeaturePageId, "Feature", "/feature", "Feature management page", "RBAC Management", "/api/feature", "GET", 4),
+            (FixedGuids.PagePageId, "Page", "/page", "Page management page", "RBAC Management", "/api/page", "GET", 5),
+            (FixedGuids.PermissionPageId, "Permission", "/permission", "Permission management page", "RBAC Management", "/api/permission", "GET", 6),
             
-            // Mapping Pages
-            ("User Role Mapping", "/userrolemapping", "User role assignment page", "Mappings", "/api/userrolemapping", "GET", 7),
-            ("Role Hierarchy Mapping", "/rolehierarchymapping", "Role hierarchy management", "Mappings", "/api/rolehierarchymapping", "GET", 8),
-            ("Role Feature Mapping", "/rolefeaturemapping", "Role feature mapping page", "Mappings", "/api/rolefeaturemapping", "GET", 9),
-            ("Role Page Permission Mapping", "/rolepagepermissionmapping", "Role page permission mapping page", "Mappings", "/api/rolepagepermissionmapping", "GET", 10),
-            ("Page Feature Mapping", "/pagefeaturemapping", "Page feature mapping page", "Mappings", "/api/pagefeaturemapping", "GET", 11),
+            // Mapping Pages - mapped directly to Mappings menu
+            (FixedGuids.RoleHierarchyMappingPageId, "Role Hierarchy Mapping", "/rolehierarchymapping", "Role hierarchy management", "Mappings", "/api/rolehierarchymapping", "GET", 7),
+            (FixedGuids.UserRoleMappingPageId, "User Role Mapping", "/userrolemapping", "User role assignment page", "Mappings", "/api/userrolemapping", "GET", 8),
+            (FixedGuids.RoleFeatureMappingPageId, "Role Feature Mapping", "/rolefeaturemapping", "Role feature mapping page", "Mappings", "/api/rolefeaturemapping", "GET", 9),
+            (FixedGuids.PageFeatureMappingPageId, "Page Feature Mapping", "/pagefeaturemapping", "Page feature mapping page", "Mappings", "/api/pagefeaturemapping", "GET", 10),
+            (FixedGuids.RolePagePermissionMappingPageId, "Role Page Permission Mapping", "/rolepagepermissionmapping", "Role page permission mapping page", "Mappings", "/api/rolepagepermissionmapping", "GET", 11),
             
-            // Account Settings Pages
-            ("Profile", "/profile", "User profile page", "Account Settings", "/api/profile", "GET", 12),
-            ("Change Password", "/change-password", "Change password page", "Account Settings", "/api/auth/change-password", "POST", 13),
-            ("Two-Factor Authentication", "/two-factor", "Two-factor authentication settings", "Account Settings", "/api/auth/twofactor", "GET", 14),
-            ("Authenticator Setup", "/authenticator-setup", "Authenticator app setup", "Account Settings", "/api/auth/authenticator", "GET", 15),
+            // Account Settings Pages - mapped directly to Account Settings menu
+            (FixedGuids.ProfilePageId, "Profile", "/profile", "User profile page", "Account Settings", "/api/profile", "GET", 12),
+            (FixedGuids.ChangePasswordPageId, "Change Password", "/change-password", "Change password page", "Account Settings", "/api/auth/change-password", "POST", 13),
             
-            // Finance Management Pages
-            ("Test Categories", "/testcategories", "Finance test categories page", "Finance Management", "/api/testcategories", "GET", 16),
-            ("Test Products", "/testproducts", "Finance test products page", "Finance Management", "/api/testproducts", "GET", 17),
-            ("Company List", "/company", "Company management page", "Finance Management", "/api/company", "GET", 18)
+            // Finance Management - Company Pages - mapped to Company submenu
+            (FixedGuids.CompanyPageId, "Company", "/company", "Company management page", "Company", "/api/company", "GET", 14),
+            (FixedGuids.TestCategoriesPageId, "Test Categories", "/testcategories", "Test categories page", "Company", "/api/testcategories", "GET", 15),
+            (FixedGuids.TestProductsPageId, "Test Products", "/testproducts", "Test products page", "Company", "/api/testproducts", "GET", 16)
         };
 
-        foreach (var (name, url, desc, menuContext, apiEndpoint, httpMethod, order) in pageList)
+        foreach (var (id, name, url, desc, menuContext, apiEndpoint, httpMethod, order) in pageList)
         {
-            var pageId = Guid.NewGuid();
-            pages[name] = pageId;
+            pages[name] = id;
             context.Pages.Add(new Page
             {
-                Id = pageId,
+                Id = id,
                 Name = name,
                 Url = url,
                 Description = desc,
@@ -636,58 +551,69 @@ public static class ComprehensiveSeedData
         return pages;
     }
 
+    /// <summary>
+    /// Creates Page-Feature Mappings with CORRECT hierarchy:
+    /// - Dashboard page → Dashboard menu (direct)
+    /// - RBAC pages → RBAC Management menu (direct, NO intermediate submenus)
+    /// - Mapping pages → Mappings menu (direct, NO intermediate submenus)
+    /// - Account pages → Account Settings menu (direct, NO intermediate submenus)
+    /// - Company pages → Company submenu (under Finance Management)
+    /// </summary>
     private static async Task SeedPageFeatureMappings(
         AppDbContext context,
         Dictionary<string, Guid> features,
         Dictionary<string, Guid> pages,
         ILogger logger)
     {
-        logger.LogInformation("Creating page-feature mappings...");
+        logger.LogInformation("Creating page-feature mappings with CORRECT hierarchy...");
 
+        // Page Name -> Feature Name (menu it belongs to)
         var mappings = new[]
         {
-            // Dashboard
+            // Dashboard page → Dashboard menu
             ("Dashboard", "Dashboard"),
             
-            // RBAC Management
-            ("Department List", "Departments"),
-            ("Role List", "Roles"),
-            ("Feature List", "Features"),
-            ("Page List", "Pages"),
-            ("Permission List", "Permissions"),
+            // RBAC Management pages → RBAC Management menu (DIRECTLY, no submenus)
+            ("Department", "RBAC Management"),
+            ("Role", "RBAC Management"),
+            ("Feature", "RBAC Management"),
+            ("Page", "RBAC Management"),
+            ("Permission", "RBAC Management"),
             
-            // Mappings
-            ("User Role Mapping", "User Role Mapping"),
-            ("Role Hierarchy Mapping", "Role Hierarchy"),
-            ("Role Feature Mapping", "Role Feature Mapping"),
-            ("Role Page Permission Mapping", "Role Page Permission Mapping"),
-            ("Page Feature Mapping", "Page Feature Mapping"),
+            // Mappings pages → Mappings menu (DIRECTLY, no submenus)
+            ("Role Hierarchy Mapping", "Mappings"),
+            ("User Role Mapping", "Mappings"),
+            ("Role Feature Mapping", "Mappings"),
+            ("Page Feature Mapping", "Mappings"),
+            ("Role Page Permission Mapping", "Mappings"),
             
-            // Account Settings
-            ("Profile", "Profile"),
-            ("Change Password", "Change Password"),
-            ("Two-Factor Authentication", "Two-Factor Authentication"),
-            ("Authenticator Setup", "Authenticator Setup"),
+            // Account Settings pages → Account Settings menu (DIRECTLY, no submenus)
+            ("Profile", "Account Settings"),
+            ("Change Password", "Account Settings"),
             
-            // Finance
-            ("Test Categories", "Test Categories"),
-            ("Test Products", "Test Products"),
-            ("Company List", "Company Management")
+            // Company pages → Company submenu (under Finance Management)
+            ("Company", "Company"),
+            ("Test Categories", "Company"),
+            ("Test Products", "Company")
         };
 
         foreach (var (pageName, featureName) in mappings)
         {
-            if (pages.ContainsKey(pageName) && features.ContainsKey(featureName))
+            if (pages.TryGetValue(pageName, out var pageId) && features.TryGetValue(featureName, out var featureId))
             {
                 context.PageFeatureMappings.Add(new PageFeatureMapping
                 {
                     Id = Guid.NewGuid(),
-                    PageId = pages[pageName],
-                    FeatureId = features[featureName],
+                    PageId = pageId,
+                    FeatureId = featureId,
                     IsActive = true,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
                 });
+            }
+            else
+            {
+                logger.LogWarning("Could not create page-feature mapping: Page '{Page}' or Feature '{Feature}' not found", pageName, featureName);
             }
         }
 
@@ -705,97 +631,62 @@ public static class ComprehensiveSeedData
     {
         logger.LogInformation("Creating role-feature mappings...");
 
-        // SuperAdmin gets ALL features with NULL department
-        foreach (var (featureName, featureId) in features)
+        // SuperAdmin gets ALL features (no department restriction)
+        foreach (var feature in features)
         {
             context.RoleFeatureMappings.Add(new RoleFeatureMapping
             {
                 Id = Guid.NewGuid(),
-                RoleId = systemRoles[SystemRoles.SuperAdmin],
-                FeatureId = featureId,
-                DepartmentId = null, // SuperAdmin has no department restriction
+                RoleId = systemRoles["SuperAdmin"],
+                FeatureId = feature.Value,
+                DepartmentId = null, // No department restriction for SuperAdmin
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             });
         }
 
-        // CRITICAL FIX: DepartmentAdmin gets ALL features but scoped to their department
-        // For Finance Department Admin
-        foreach (var (featureName, featureId) in features)
+        // DepartmentAdmin gets ALL features but scoped to their department
+        foreach (var deptName in new[] { "Finance", "Marketing" })
         {
-            context.RoleFeatureMappings.Add(new RoleFeatureMapping
+            foreach (var feature in features)
             {
-                Id = Guid.NewGuid(),
-                RoleId = systemRoles[SystemRoles.DepartmentAdmin],
-                FeatureId = featureId,
-                DepartmentId = departments["Finance"], // Scoped to Finance department
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            });
-        }
-
-        // For Marketing Department Admin
-        foreach (var (featureName, featureId) in features)
-        {
-            context.RoleFeatureMappings.Add(new RoleFeatureMapping
-            {
-                Id = Guid.NewGuid(),
-                RoleId = systemRoles[SystemRoles.DepartmentAdmin],
-                FeatureId = featureId,
-                DepartmentId = departments["Marketing"], // Scoped to Marketing department
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            });
-        }
-
-        // Finance roles get Dashboard + RBAC Management + Finance Management features
-        var financeFeatures = new[] { "Dashboard", "RBAC Management", "Departments", "Roles", "Features", "Pages",
-            "Permissions", "Role Hierarchy", "User Role Assignment", "Finance Management", "Test Categories", "Test Products", "Company Management" };
-
-        foreach (var roleName in new[] { "FinanceManager", "FinanceSupervisor", "FinanceStaff", "FinanceIntern" })
-        {
-            foreach (var featureName in financeFeatures)
-            {
-                if (features.ContainsKey(featureName) && departmentRoles["Finance"].ContainsKey(roleName))
+                context.RoleFeatureMappings.Add(new RoleFeatureMapping
                 {
-                    context.RoleFeatureMappings.Add(new RoleFeatureMapping
-                    {
-                        Id = Guid.NewGuid(),
-                        RoleId = departmentRoles["Finance"][roleName],
-                        FeatureId = features[featureName],
-                        DepartmentId = departments["Finance"], // Scoped to Finance department
-                        IsActive = true,
-                        CreatedAt = DateTime.UtcNow,
-                        UpdatedAt = DateTime.UtcNow
-                    });
-                }
+                    Id = Guid.NewGuid(),
+                    RoleId = systemRoles["DepartmentAdmin"],
+                    FeatureId = feature.Value,
+                    DepartmentId = departments[deptName],
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                });
             }
         }
 
-        // Marketing roles get Dashboard + RBAC Management + Marketing Management features
-        // (Add Marketing features when you create them)
-        var marketingFeatures = new[] { "Dashboard", "RBAC Management", "Departments", "Roles", "Features", "Pages",
-            "Permissions", "Role Hierarchy", "User Role Assignment" };
-
-        foreach (var roleName in new[] { "MarketingManager", "MarketingSupervisor", "MarketingStaff", "MarketingIntern" })
+        // Department roles get only specific features
+        // They can access: Dashboard, Account Settings, Finance Management (with Company submenu)
+        var deptRoleFeatures = new[] { "Dashboard", "Account Settings", "Finance Management", "Company" };
+        
+        foreach (var deptName in new[] { "Finance", "Marketing" })
         {
-            foreach (var featureName in marketingFeatures)
+            foreach (var roleName in departmentRoles[deptName].Keys)
             {
-                if (features.ContainsKey(featureName) && departmentRoles["Marketing"].ContainsKey(roleName))
+                foreach (var featureName in deptRoleFeatures)
                 {
-                    context.RoleFeatureMappings.Add(new RoleFeatureMapping
+                    if (features.TryGetValue(featureName, out var featureId))
                     {
-                        Id = Guid.NewGuid(),
-                        RoleId = departmentRoles["Marketing"][roleName],
-                        FeatureId = features[featureName],
-                        DepartmentId = departments["Marketing"], // Scoped to Marketing department
-                        IsActive = true,
-                        CreatedAt = DateTime.UtcNow,
-                        UpdatedAt = DateTime.UtcNow
-                    });
+                        context.RoleFeatureMappings.Add(new RoleFeatureMapping
+                        {
+                            Id = Guid.NewGuid(),
+                            RoleId = departmentRoles[deptName][roleName],
+                            FeatureId = featureId,
+                            DepartmentId = departments[deptName],
+                            IsActive = true,
+                            CreatedAt = DateTime.UtcNow,
+                            UpdatedAt = DateTime.UtcNow
+                        });
+                    }
                 }
             }
         }
@@ -815,18 +706,18 @@ public static class ComprehensiveSeedData
     {
         logger.LogInformation("Creating role-page-permission mappings...");
 
-        // SuperAdmin gets ALL permissions on ALL pages with NULL department
-        foreach (var (pageName, pageId) in pages)
+        // SuperAdmin gets ALL permissions on ALL pages (no department restriction)
+        foreach (var page in pages)
         {
-            foreach (var (permName, permId) in permissions)
+            foreach (var permission in permissions)
             {
                 context.RolePagePermissionMappings.Add(new RolePagePermissionMapping
                 {
                     Id = Guid.NewGuid(),
-                    RoleId = systemRoles[SystemRoles.SuperAdmin],
-                    PageId = pageId,
-                    PermissionId = permId,
-                    DepartmentId = null, // SuperAdmin has no department restriction
+                    RoleId = systemRoles["SuperAdmin"],
+                    PageId = page.Value,
+                    PermissionId = permission.Value,
+                    DepartmentId = null, // No department restriction
                     IsActive = true,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
@@ -834,202 +725,126 @@ public static class ComprehensiveSeedData
             }
         }
 
-        // CRITICAL FIX: DepartmentAdmin permissions structure
-        // 1. Department List: VIEW ONLY (can see their department but not edit/delete/create)
-        // 2. Other RBAC pages: FULL PERMISSIONS (can manage roles, features, pages, etc. within their department)
-
-        var departmentPageName = "Department List";
-        var otherRbacPages = new[] { "Dashboard", "Role List", "Feature List", "Page List",
-            "Permission List", "Role Hierarchy", "User Role Assignment" };
-        var financePages = new[] { "Test Categories", "Test Products", "Company List" };
-
-        // Finance DepartmentAdmin: VIEW ONLY on Department List
-        if (pages.ContainsKey(departmentPageName))
+        // DepartmentAdmin gets all permissions on all pages EXCEPT Department page (View only)
+        foreach (var deptName in new[] { "Finance", "Marketing" })
         {
-            var pageId = pages[departmentPageName];
-            if (permissions.ContainsKey("View"))
+            foreach (var page in pages)
             {
-                context.RolePagePermissionMappings.Add(new RolePagePermissionMapping
+                if (page.Key == "Department")
                 {
-                    Id = Guid.NewGuid(),
-                    RoleId = systemRoles[SystemRoles.DepartmentAdmin],
-                    PageId = pageId,
-                    PermissionId = permissions["View"],  // ← ONLY View permission!
-                    DepartmentId = departments["Finance"],
-                    IsActive = true,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                });
-            }
-        }
-
-        // Finance DepartmentAdmin: FULL PERMISSIONS on other RBAC pages
-        foreach (var pageName in otherRbacPages)
-        {
-            if (pages.ContainsKey(pageName))
-            {
-                var pageId = pages[pageName];
-                foreach (var (permName, permId) in permissions)
-                {
+                    // Department page - View only for DepartmentAdmin
                     context.RolePagePermissionMappings.Add(new RolePagePermissionMapping
                     {
                         Id = Guid.NewGuid(),
-                        RoleId = systemRoles[SystemRoles.DepartmentAdmin],
-                        PageId = pageId,
-                        PermissionId = permId,
-                        DepartmentId = departments["Finance"],
-                        IsActive = true,
-                        CreatedAt = DateTime.UtcNow,
-                        UpdatedAt = DateTime.UtcNow
-                    });
-                }
-            }
-        }
-
-        // Finance DepartmentAdmin: Full permissions on Finance pages
-        foreach (var pageName in financePages)
-        {
-            if (pages.ContainsKey(pageName))
-            {
-                var pageId = pages[pageName];
-                foreach (var (permName, permId) in permissions)
-                {
-                    context.RolePagePermissionMappings.Add(new RolePagePermissionMapping
-                    {
-                        Id = Guid.NewGuid(),
-                        RoleId = systemRoles[SystemRoles.DepartmentAdmin],
-                        PageId = pageId,
-                        PermissionId = permId,
-                        DepartmentId = departments["Finance"], // Scoped to Finance
-                        IsActive = true,
-                        CreatedAt = DateTime.UtcNow,
-                        UpdatedAt = DateTime.UtcNow
-                    });
-                }
-            }
-        }
-
-        // Marketing DepartmentAdmin: VIEW ONLY on Department List
-        if (pages.ContainsKey(departmentPageName))
-        {
-            var pageId = pages[departmentPageName];
-            if (permissions.ContainsKey("View"))
-            {
-                context.RolePagePermissionMappings.Add(new RolePagePermissionMapping
-                {
-                    Id = Guid.NewGuid(),
-                    RoleId = systemRoles[SystemRoles.DepartmentAdmin],
-                    PageId = pageId,
-                    PermissionId = permissions["View"],  // ← ONLY View permission!
-                    DepartmentId = departments["Marketing"],
-                    IsActive = true,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                });
-            }
-        }
-
-        // Marketing DepartmentAdmin: FULL PERMISSIONS on other RBAC pages
-        foreach (var pageName in otherRbacPages)
-        {
-            if (pages.ContainsKey(pageName))
-            {
-                var pageId = pages[pageName];
-                foreach (var (permName, permId) in permissions)
-                {
-                    context.RolePagePermissionMappings.Add(new RolePagePermissionMapping
-                    {
-                        Id = Guid.NewGuid(),
-                        RoleId = systemRoles[SystemRoles.DepartmentAdmin],
-                        PageId = pageId,
-                        PermissionId = permId,
-                        DepartmentId = departments["Marketing"],
-                        IsActive = true,
-                        CreatedAt = DateTime.UtcNow,
-                        UpdatedAt = DateTime.UtcNow
-                    });
-                }
-            }
-        }
-
-        // Finance roles - specific permissions per role
-        // FinanceManager: Full permissions (Create, View, Update, Delete)
-        // Reusing financePages array from above
-        foreach (var pageName in financePages)
-        {
-            if (pages.ContainsKey(pageName))
-            {
-                var pageId = pages[pageName];
-
-                // FinanceManager - All permissions
-                foreach (var (permName, permId) in permissions)
-                {
-                    context.RolePagePermissionMappings.Add(new RolePagePermissionMapping
-                    {
-                        Id = Guid.NewGuid(),
-                        RoleId = departmentRoles["Finance"]["FinanceManager"],
-                        PageId = pageId,
-                        PermissionId = permId,
-                        DepartmentId = departments["Finance"],
-                        IsActive = true,
-                        CreatedAt = DateTime.UtcNow,
-                        UpdatedAt = DateTime.UtcNow
-                    });
-                }
-
-                // FinanceSupervisor - All except Delete
-                foreach (var permName in new[] { "Create", "View", "Update" })
-                {
-                    if (permissions.ContainsKey(permName))
-                    {
-                        context.RolePagePermissionMappings.Add(new RolePagePermissionMapping
-                        {
-                            Id = Guid.NewGuid(),
-                            RoleId = departmentRoles["Finance"]["FinanceSupervisor"],
-                            PageId = pageId,
-                            PermissionId = permissions[permName],
-                            DepartmentId = departments["Finance"],
-                            IsActive = true,
-                            CreatedAt = DateTime.UtcNow,
-                            UpdatedAt = DateTime.UtcNow
-                        });
-                    }
-                }
-
-                // FinanceStaff - View and Create only
-                foreach (var permName in new[] { "View", "Create" })
-                {
-                    if (permissions.ContainsKey(permName))
-                    {
-                        context.RolePagePermissionMappings.Add(new RolePagePermissionMapping
-                        {
-                            Id = Guid.NewGuid(),
-                            RoleId = departmentRoles["Finance"]["FinanceStaff"],
-                            PageId = pageId,
-                            PermissionId = permissions[permName],
-                            DepartmentId = departments["Finance"],
-                            IsActive = true,
-                            CreatedAt = DateTime.UtcNow,
-                            UpdatedAt = DateTime.UtcNow
-                        });
-                    }
-                }
-
-                // FinanceIntern - View only
-                if (permissions.ContainsKey("View"))
-                {
-                    context.RolePagePermissionMappings.Add(new RolePagePermissionMapping
-                    {
-                        Id = Guid.NewGuid(),
-                        RoleId = departmentRoles["Finance"]["FinanceIntern"],
-                        PageId = pageId,
+                        RoleId = systemRoles["DepartmentAdmin"],
+                        PageId = page.Value,
                         PermissionId = permissions["View"],
-                        DepartmentId = departments["Finance"],
+                        DepartmentId = departments[deptName],
                         IsActive = true,
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow
                     });
                 }
+                else
+                {
+                    // All other pages - full permissions
+                    foreach (var permission in permissions)
+                    {
+                        context.RolePagePermissionMappings.Add(new RolePagePermissionMapping
+                        {
+                            Id = Guid.NewGuid(),
+                            RoleId = systemRoles["DepartmentAdmin"],
+                            PageId = page.Value,
+                            PermissionId = permission.Value,
+                            DepartmentId = departments[deptName],
+                            IsActive = true,
+                            CreatedAt = DateTime.UtcNow,
+                            UpdatedAt = DateTime.UtcNow
+                        });
+                    }
+                }
+            }
+        }
+
+        // Department roles only have access to 5 pages: Profile, Change Password, Company, Test Categories, Test Products
+        var deptRolePages = new[] { "Profile", "Change Password", "Company", "Test Categories", "Test Products" };
+
+        // Permission matrix:
+        // Manager: Create, View, Update, Delete (all)
+        // Supervisor: Create, View, Update (no Delete)
+        // Staff: View, Create
+        // Intern: View only
+
+        foreach (var deptName in new[] { "Finance", "Marketing" })
+        {
+            var rolePrefix = deptName;
+            
+            foreach (var pageName in deptRolePages)
+            {
+                if (!pages.TryGetValue(pageName, out var pageId)) continue;
+
+                // Manager - all permissions
+                foreach (var perm in permissions)
+                {
+                    context.RolePagePermissionMappings.Add(new RolePagePermissionMapping
+                    {
+                        Id = Guid.NewGuid(),
+                        RoleId = departmentRoles[deptName][$"{rolePrefix}Manager"],
+                        PageId = pageId,
+                        PermissionId = perm.Value,
+                        DepartmentId = departments[deptName],
+                        IsActive = true,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    });
+                }
+
+                // Supervisor - no Delete
+                var supervisorPerms = new[] { "Create", "View", "Update" };
+                foreach (var permName in supervisorPerms)
+                {
+                    context.RolePagePermissionMappings.Add(new RolePagePermissionMapping
+                    {
+                        Id = Guid.NewGuid(),
+                        RoleId = departmentRoles[deptName][$"{rolePrefix}Supervisor"],
+                        PageId = pageId,
+                        PermissionId = permissions[permName],
+                        DepartmentId = departments[deptName],
+                        IsActive = true,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    });
+                }
+
+                // Staff - View and Create only
+                var staffPerms = new[] { "View", "Create" };
+                foreach (var permName in staffPerms)
+                {
+                    context.RolePagePermissionMappings.Add(new RolePagePermissionMapping
+                    {
+                        Id = Guid.NewGuid(),
+                        RoleId = departmentRoles[deptName][$"{rolePrefix}Staff"],
+                        PageId = pageId,
+                        PermissionId = permissions[permName],
+                        DepartmentId = departments[deptName],
+                        IsActive = true,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    });
+                }
+
+                // Intern - View only
+                context.RolePagePermissionMappings.Add(new RolePagePermissionMapping
+                {
+                    Id = Guid.NewGuid(),
+                    RoleId = departmentRoles[deptName][$"{rolePrefix}Intern"],
+                    PageId = pageId,
+                    PermissionId = permissions["View"],
+                    DepartmentId = departments[deptName],
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                });
             }
         }
 
@@ -1045,47 +860,46 @@ public static class ComprehensiveSeedData
     {
         logger.LogInformation("Creating role hierarchies...");
 
-        // Finance Department Hierarchy
-        // FinanceManager (Level 0) -> FinanceSupervisor (Level 1) -> FinanceStaff (Level 2) -> FinanceIntern (Level 3)
+        // Finance Department hierarchy: Manager -> Supervisor -> Staff -> Intern
         var financeHierarchy = new[]
         {
-            ("FinanceManager", "FinanceSupervisor", 0, 1),
-            ("FinanceSupervisor", "FinanceStaff", 1, 2),
-            ("FinanceStaff", "FinanceIntern", 2, 3)
+            ("FinanceManager", "FinanceSupervisor", 0),
+            ("FinanceSupervisor", "FinanceStaff", 1),
+            ("FinanceStaff", "FinanceIntern", 2)
         };
 
-        foreach (var (parentRole, childRole, parentLevel, childLevel) in financeHierarchy)
+        foreach (var (parentRole, childRole, level) in financeHierarchy)
         {
             context.RoleHierarchies.Add(new RoleHierarchy
             {
                 Id = Guid.NewGuid(),
-                DepartmentId = departments["Finance"],
                 ParentRoleId = departmentRoles["Finance"][parentRole],
                 ChildRoleId = departmentRoles["Finance"][childRole],
-                Level = childLevel,
+                DepartmentId = departments["Finance"],
+                Level = level,  // FIXED: Changed from HierarchyLevel to Level
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             });
         }
 
-        // Marketing Department Hierarchy (similar structure)
+        // Marketing Department hierarchy: Manager -> Supervisor -> Staff -> Intern
         var marketingHierarchy = new[]
         {
-            ("MarketingManager", "MarketingSupervisor", 0, 1),
-            ("MarketingSupervisor", "MarketingStaff", 1, 2),
-            ("MarketingStaff", "MarketingIntern", 2, 3)
+            ("MarketingManager", "MarketingSupervisor", 0),
+            ("MarketingSupervisor", "MarketingStaff", 1),
+            ("MarketingStaff", "MarketingIntern", 2)
         };
 
-        foreach (var (parentRole, childRole, parentLevel, childLevel) in marketingHierarchy)
+        foreach (var (parentRole, childRole, level) in marketingHierarchy)
         {
             context.RoleHierarchies.Add(new RoleHierarchy
             {
                 Id = Guid.NewGuid(),
-                DepartmentId = departments["Marketing"],
                 ParentRoleId = departmentRoles["Marketing"][parentRole],
                 ChildRoleId = departmentRoles["Marketing"][childRole],
-                Level = childLevel,
+                DepartmentId = departments["Marketing"],
+                Level = level,  // FIXED: Changed from HierarchyLevel to Level
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
@@ -1096,7 +910,60 @@ public static class ComprehensiveSeedData
         logger.LogInformation("Created role hierarchies");
     }
 
-    private static async Task SeedTestUsers(
+    private static async Task SeedCountryTimeZones(AppDbContext context, ILogger logger)
+    {
+        logger.LogInformation("Checking for CountryTimeZone seed data...");
+
+        // Check if Countries and TimeZones exist
+        var countriesExist = await context.Set<Country>().AnyAsync();
+        var timeZonesExist = await context.Set<TimeZoneMaster>().AnyAsync();
+        
+        if (!countriesExist || !timeZonesExist)
+        {
+            logger.LogInformation("Countries or TimeZones not found, skipping CountryTimeZone seeding");
+            return;
+        }
+
+        // Check if mappings already exist
+        var mappingsExist = await context.Set<CountryTimeZone>().AnyAsync();
+        if (mappingsExist)
+        {
+            logger.LogInformation("CountryTimeZone mappings already exist, skipping");
+            return;
+        }
+
+        // Get sample countries and timezones for mapping
+        var countries = await context.Set<Country>().Take(5).ToListAsync();
+        var timeZones = await context.Set<TimeZoneMaster>().Take(10).ToListAsync();
+
+        if (countries.Count == 0 || timeZones.Count == 0)
+        {
+            logger.LogInformation("No countries or timezones to map");
+            return;
+        }
+
+        // Create sample mappings - each country gets 2-3 timezones
+        foreach (var country in countries)
+        {
+            var countryTimeZones = timeZones.Take(Math.Min(3, timeZones.Count)).ToList();
+            foreach (var tz in countryTimeZones)
+            {
+                context.Set<CountryTimeZone>().Add(new CountryTimeZone
+                {
+                    Id = Guid.NewGuid(),
+                    CountryId = country.Id,
+                    TimeZoneId = tz.Id,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                });
+            }
+        }
+
+        await context.SaveChangesAsync();
+        logger.LogInformation("Created CountryTimeZone mappings");
+    }
+
+    private static async Task SeedUsers(
         UserManager<ApplicationUser> userManager,
         AppDbContext context,
         Dictionary<string, Guid> systemRoles,
@@ -1104,398 +971,85 @@ public static class ComprehensiveSeedData
         Dictionary<string, Guid> departments,
         ILogger logger)
     {
-        logger.LogInformation("Creating test users...");
+        logger.LogInformation("Creating 20 test users...");
 
-        // 1. SuperAdmin User
-        var superAdmin = new ApplicationUser
+        // User definitions: (Id, Email, FirstName, LastName, RoleName, DepartmentId, RoleId, Password)
+        // NOTE: ApplicationUser does NOT have DepartmentId - department association is through UserRoleMapping
+        var users = new[]
         {
-            Id = FixedGuids.SuperAdminUserId,
-            UserName = "superadmin@company.com",
-            Email = "superadmin@company.com",
-            EmailConfirmed = true,
-            FirstName = "Super",
-            LastName = "Admin",
-            IsActive = true,
-            CreatedAt = DateTime.UtcNow
+            // SuperAdmin users (2)
+            (FixedGuids.SuperAdminUserId, "superadmin@company.com", "Super", "Admin", "SuperAdmin", (Guid?)null, systemRoles["SuperAdmin"], "SuperAdmin@123"),
+            (FixedGuids.SuperAdmin2UserId, "superadmin2@company.com", "Super", "Admin2", "SuperAdmin", (Guid?)null, systemRoles["SuperAdmin"], "SuperAdmin@123"),
+            
+            // Finance Department users (9)
+            (FixedGuids.FinanceAdminUserId, "finance.admin@company.com", "Finance", "Admin", "DepartmentAdmin", (Guid?)departments["Finance"], systemRoles["DepartmentAdmin"], "Finance@123"),
+            (FixedGuids.FinanceManagerUserId, "finance.manager@company.com", "Finance", "Manager", "FinanceManager", (Guid?)departments["Finance"], departmentRoles["Finance"]["FinanceManager"], "Finance@123"),
+            (FixedGuids.FinanceManager2UserId, "finance.manager2@company.com", "Finance", "Manager2", "FinanceManager", (Guid?)departments["Finance"], departmentRoles["Finance"]["FinanceManager"], "Finance@123"),
+            (FixedGuids.FinanceSupervisorUserId, "finance.supervisor@company.com", "Finance", "Supervisor", "FinanceSupervisor", (Guid?)departments["Finance"], departmentRoles["Finance"]["FinanceSupervisor"], "Finance@123"),
+            (FixedGuids.FinanceSupervisor2UserId, "finance.supervisor2@company.com", "Finance", "Supervisor2", "FinanceSupervisor", (Guid?)departments["Finance"], departmentRoles["Finance"]["FinanceSupervisor"], "Finance@123"),
+            (FixedGuids.FinanceStaffUserId, "finance.staff@company.com", "Finance", "Staff", "FinanceStaff", (Guid?)departments["Finance"], departmentRoles["Finance"]["FinanceStaff"], "Finance@123"),
+            (FixedGuids.FinanceStaff2UserId, "finance.staff2@company.com", "Finance", "Staff2", "FinanceStaff", (Guid?)departments["Finance"], departmentRoles["Finance"]["FinanceStaff"], "Finance@123"),
+            (FixedGuids.FinanceInternUserId, "finance.intern@company.com", "Finance", "Intern", "FinanceIntern", (Guid?)departments["Finance"], departmentRoles["Finance"]["FinanceIntern"], "Finance@123"),
+            (FixedGuids.FinanceIntern2UserId, "finance.intern2@company.com", "Finance", "Intern2", "FinanceIntern", (Guid?)departments["Finance"], departmentRoles["Finance"]["FinanceIntern"], "Finance@123"),
+            
+            // Marketing Department users (9)
+            (FixedGuids.MarketingAdminUserId, "marketing.admin@company.com", "Marketing", "Admin", "DepartmentAdmin", (Guid?)departments["Marketing"], systemRoles["DepartmentAdmin"], "Marketing@123"),
+            (FixedGuids.MarketingManagerUserId, "marketing.manager@company.com", "Marketing", "Manager", "MarketingManager", (Guid?)departments["Marketing"], departmentRoles["Marketing"]["MarketingManager"], "Marketing@123"),
+            (FixedGuids.MarketingManager2UserId, "marketing.manager2@company.com", "Marketing", "Manager2", "MarketingManager", (Guid?)departments["Marketing"], departmentRoles["Marketing"]["MarketingManager"], "Marketing@123"),
+            (FixedGuids.MarketingSupervisorUserId, "marketing.supervisor@company.com", "Marketing", "Supervisor", "MarketingSupervisor", (Guid?)departments["Marketing"], departmentRoles["Marketing"]["MarketingSupervisor"], "Marketing@123"),
+            (FixedGuids.MarketingSupervisor2UserId, "marketing.supervisor2@company.com", "Marketing", "Supervisor2", "MarketingSupervisor", (Guid?)departments["Marketing"], departmentRoles["Marketing"]["MarketingSupervisor"], "Marketing@123"),
+            (FixedGuids.MarketingStaffUserId, "marketing.staff@company.com", "Marketing", "Staff", "MarketingStaff", (Guid?)departments["Marketing"], departmentRoles["Marketing"]["MarketingStaff"], "Marketing@123"),
+            (FixedGuids.MarketingStaff2UserId, "marketing.staff2@company.com", "Marketing", "Staff2", "MarketingStaff", (Guid?)departments["Marketing"], departmentRoles["Marketing"]["MarketingStaff"], "Marketing@123"),
+            (FixedGuids.MarketingInternUserId, "marketing.intern@company.com", "Marketing", "Intern", "MarketingIntern", (Guid?)departments["Marketing"], departmentRoles["Marketing"]["MarketingIntern"], "Marketing@123"),
+            (FixedGuids.MarketingIntern2UserId, "marketing.intern2@company.com", "Marketing", "Intern2", "MarketingIntern", (Guid?)departments["Marketing"], departmentRoles["Marketing"]["MarketingIntern"], "Marketing@123")
         };
-        await userManager.CreateAsync(superAdmin, "SuperAdmin@123");
-        await userManager.AddToRoleAsync(superAdmin, SystemRoles.SuperAdmin);
 
-        // Add to UserRoleMapping
-        context.UserRoleMappings.Add(new UserRoleMapping
+        foreach (var (id, email, firstName, lastName, roleName, departmentId, roleId, password) in users)
         {
-            Id = Guid.NewGuid(),
-            UserId = superAdmin.Id,
-            RoleId = systemRoles[SystemRoles.SuperAdmin],
-            DepartmentId = null, // SuperAdmin has no department
-            AssignedByEmail = "system@company.com",
-            AssignedAt = DateTime.UtcNow,
-            IsActive = true,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
-        });
+            // FIXED: ApplicationUser does NOT have DepartmentId property
+            // Department association is through UserRoleMapping only
+            var user = new ApplicationUser
+            {
+                Id = id,
+                UserName = email,
+                NormalizedUserName = email.ToUpper(),
+                Email = email,
+                NormalizedEmail = email.ToUpper(),
+                EmailConfirmed = true,
+                FirstName = firstName,
+                LastName = lastName,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
 
-        // 2. Finance Admin (DepartmentAdmin for Finance)
-        var financeAdmin = new ApplicationUser
-        {
-            Id = FixedGuids.FinanceAdminUserId,
-            UserName = "financeadmin@company.com",
-            Email = "financeadmin@company.com",
-            EmailConfirmed = true,
-            FirstName = "Finance",
-            LastName = "Admin",
-            IsActive = true,
-            CreatedAt = DateTime.UtcNow
-        };
-        await userManager.CreateAsync(financeAdmin, "FinanceAdmin@123");
-        await userManager.AddToRoleAsync(financeAdmin, SystemRoles.DepartmentAdmin);
-
-        context.UserRoleMappings.Add(new UserRoleMapping
-        {
-            Id = Guid.NewGuid(),
-            UserId = financeAdmin.Id,
-            RoleId = systemRoles[SystemRoles.DepartmentAdmin],
-            DepartmentId = departments["Finance"],
-            AssignedByEmail = "superadmin@company.com",
-            AssignedAt = DateTime.UtcNow,
-            IsActive = true,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
-        });
-
-        // 3. Finance Manager
-        var financeManager = new ApplicationUser
-        {
-            Id = FixedGuids.FinanceManagerUserId,
-            UserName = "financemanager@company.com",
-            Email = "financemanager@company.com",
-            EmailConfirmed = true,
-            FirstName = "Finance",
-            LastName = "Manager",
-            IsActive = true,
-            CreatedAt = DateTime.UtcNow
-        };
-        await userManager.CreateAsync(financeManager, "FinanceManager@123");
-        await userManager.AddToRoleAsync(financeManager, "FinanceManager");
-
-        context.UserRoleMappings.Add(new UserRoleMapping
-        {
-            Id = Guid.NewGuid(),
-            UserId = financeManager.Id,
-            RoleId = departmentRoles["Finance"]["FinanceManager"],
-            DepartmentId = departments["Finance"],
-            AssignedByEmail = "financeadmin@company.com",
-            AssignedAt = DateTime.UtcNow,
-            IsActive = true,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
-        });
-
-        // 4. Finance Supervisor
-        var financeSupervisor = new ApplicationUser
-        {
-            Id = FixedGuids.FinanceSupervisorUserId,
-            UserName = "financesupervisor@company.com",
-            Email = "financesupervisor@company.com",
-            EmailConfirmed = true,
-            FirstName = "Finance",
-            LastName = "Supervisor",
-            IsActive = true,
-            CreatedAt = DateTime.UtcNow
-        };
-        await userManager.CreateAsync(financeSupervisor, "FinanceSupervisor@123");
-        await userManager.AddToRoleAsync(financeSupervisor, "FinanceSupervisor");
-
-        context.UserRoleMappings.Add(new UserRoleMapping
-        {
-            Id = Guid.NewGuid(),
-            UserId = financeSupervisor.Id,
-            RoleId = departmentRoles["Finance"]["FinanceSupervisor"],
-            DepartmentId = departments["Finance"],
-            AssignedByEmail = "financeadmin@company.com",
-            AssignedAt = DateTime.UtcNow,
-            IsActive = true,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
-        });
-
-        // 5. Finance Staff
-        var financeStaff = new ApplicationUser
-        {
-            Id = FixedGuids.FinanceStaffUserId,
-            UserName = "financestaff@company.com",
-            Email = "financestaff@company.com",
-            EmailConfirmed = true,
-            FirstName = "Finance",
-            LastName = "Staff",
-            IsActive = true,
-            CreatedAt = DateTime.UtcNow
-        };
-        await userManager.CreateAsync(financeStaff, "FinanceStaff@123");
-        await userManager.AddToRoleAsync(financeStaff, "FinanceStaff");
-
-        context.UserRoleMappings.Add(new UserRoleMapping
-        {
-            Id = Guid.NewGuid(),
-            UserId = financeStaff.Id,
-            RoleId = departmentRoles["Finance"]["FinanceStaff"],
-            DepartmentId = departments["Finance"],
-            AssignedByEmail = "financeadmin@company.com",
-            AssignedAt = DateTime.UtcNow,
-            IsActive = true,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
-        });
-
-        // 6. Finance Intern
-        var financeIntern = new ApplicationUser
-        {
-            Id = FixedGuids.FinanceInternUserId,
-            UserName = "financeintern@company.com",
-            Email = "financeintern@company.com",
-            EmailConfirmed = true,
-            FirstName = "Finance",
-            LastName = "Intern",
-            IsActive = true,
-            CreatedAt = DateTime.UtcNow
-        };
-        await userManager.CreateAsync(financeIntern, "FinanceIntern@123");
-        await userManager.AddToRoleAsync(financeIntern, "FinanceIntern");
-
-        context.UserRoleMappings.Add(new UserRoleMapping
-        {
-            Id = Guid.NewGuid(),
-            UserId = financeIntern.Id,
-            RoleId = departmentRoles["Finance"]["FinanceIntern"],
-            DepartmentId = departments["Finance"],
-            AssignedByEmail = "financeadmin@company.com",
-            AssignedAt = DateTime.UtcNow,
-            IsActive = true,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
-        });
+            var result = await userManager.CreateAsync(user, password);
+            if (result.Succeeded)
+            {
+                // Add to role using UserManager
+                await userManager.AddToRoleAsync(user, roleName);
+                
+                // Create UserRoleMapping entry (this is where DepartmentId is stored)
+                context.UserRoleMappings.Add(new UserRoleMapping
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = id,
+                    RoleId = roleId,
+                    DepartmentId = departmentId,  // Department association is here
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                });
+                
+                logger.LogInformation("Created user: {Email} with role: {Role}", email, roleName);
+            }
+            else
+            {
+                logger.LogError("Failed to create user {Email}: {Errors}", email, string.Join(", ", result.Errors.Select(e => e.Description)));
+            }
+        }
 
         await context.SaveChangesAsync();
-        logger.LogInformation("Created 6 test users with proper role mappings");
-    }
-
-    private static async Task SeedCountryTimeZones(AppDbContext context, ILogger logger)
-    {
-        logger.LogInformation("Creating CountryTimeZones mappings...");
-
-        // Check if Countries and TimeZones exist
-        if (!await context.Countries.AnyAsync() || !await context.TimeZones.AnyAsync())
-        {
-            logger.LogWarning("Countries or TimeZones not found. Skipping CountryTimeZones seeding.");
-            return;
-        }
-
-        // Get country IDs - FIXED: Using Code3 instead of Code for 3-letter codes
-        var indiaId = await context.Countries.Where(c => c.Code3 == "IND").Select(c => c.Id).FirstOrDefaultAsync();
-        var usaId = await context.Countries.Where(c => c.Code3 == "USA").Select(c => c.Id).FirstOrDefaultAsync();
-        var ukId = await context.Countries.Where(c => c.Code3 == "GBR").Select(c => c.Id).FirstOrDefaultAsync();
-        var australiaId = await context.Countries.Where(c => c.Code3 == "AUS").Select(c => c.Id).FirstOrDefaultAsync();
-        var canadaId = await context.Countries.Where(c => c.Code3 == "CAN").Select(c => c.Id).FirstOrDefaultAsync();
-        var chinaId = await context.Countries.Where(c => c.Code3 == "CHN").Select(c => c.Id).FirstOrDefaultAsync();
-        var japanId = await context.Countries.Where(c => c.Code3 == "JPN").Select(c => c.Id).FirstOrDefaultAsync();
-        var singaporeId = await context.Countries.Where(c => c.Code3 == "SGP").Select(c => c.Id).FirstOrDefaultAsync();
-        var germanyId = await context.Countries.Where(c => c.Code3 == "DEU").Select(c => c.Id).FirstOrDefaultAsync();
-        var franceId = await context.Countries.Where(c => c.Code3 == "FRA").Select(c => c.Id).FirstOrDefaultAsync();
-
-        var mappings = new List<CountryTimeZone>();
-
-        // India - Single Timezone
-        if (indiaId != Guid.Empty)
-        {
-            var timezone = await context.TimeZones.FirstOrDefaultAsync(tz => tz.Identifier == "Asia/Kolkata");
-            if (timezone != null)
-            {
-                mappings.Add(new CountryTimeZone
-                {
-                    Id = Guid.NewGuid(),
-                    CountryId = indiaId,
-                    TimeZoneId = timezone.Id,
-                    IsDefault = true,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                });
-            }
-        }
-
-        // USA - 6 Timezones
-        if (usaId != Guid.Empty)
-        {
-            var usaTimezones = new[] { "America/New_York", "America/Chicago", "America/Denver", "America/Los_Angeles", "America/Anchorage", "Pacific/Honolulu" };
-            var timezones = await context.TimeZones.Where(tz => usaTimezones.Contains(tz.Identifier)).ToListAsync();
-            foreach (var tz in timezones)
-            {
-                mappings.Add(new CountryTimeZone
-                {
-                    Id = Guid.NewGuid(),
-                    CountryId = usaId,
-                    TimeZoneId = tz.Id,
-                    IsDefault = tz.Identifier == "America/New_York", // Eastern is default
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                });
-            }
-        }
-
-        // UK - Single Timezone
-        if (ukId != Guid.Empty)
-        {
-            var timezone = await context.TimeZones.FirstOrDefaultAsync(tz => tz.Identifier == "Europe/London");
-            if (timezone != null)
-            {
-                mappings.Add(new CountryTimeZone
-                {
-                    Id = Guid.NewGuid(),
-                    CountryId = ukId,
-                    TimeZoneId = timezone.Id,
-                    IsDefault = true,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                });
-            }
-        }
-
-        // Australia - 6 Timezones
-        if (australiaId != Guid.Empty)
-        {
-            var ausTimezones = new[] { "Australia/Sydney", "Australia/Melbourne", "Australia/Brisbane", "Australia/Adelaide", "Australia/Perth", "Australia/Darwin" };
-            var timezones = await context.TimeZones.Where(tz => ausTimezones.Contains(tz.Identifier)).ToListAsync();
-            foreach (var tz in timezones)
-            {
-                mappings.Add(new CountryTimeZone
-                {
-                    Id = Guid.NewGuid(),
-                    CountryId = australiaId,
-                    TimeZoneId = tz.Id,
-                    IsDefault = tz.Identifier == "Australia/Sydney", // Sydney is default
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                });
-            }
-        }
-
-        // Canada - 6 Timezones
-        if (canadaId != Guid.Empty)
-        {
-            var canTimezones = new[] { "America/Toronto", "America/Winnipeg", "America/Edmonton", "America/Vancouver", "America/Halifax", "America/St_Johns" };
-            var timezones = await context.TimeZones.Where(tz => canTimezones.Contains(tz.Identifier)).ToListAsync();
-            foreach (var tz in timezones)
-            {
-                mappings.Add(new CountryTimeZone
-                {
-                    Id = Guid.NewGuid(),
-                    CountryId = canadaId,
-                    TimeZoneId = tz.Id,
-                    IsDefault = tz.Identifier == "America/Toronto", // Eastern is default
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                });
-            }
-        }
-
-        // China - Single Timezone
-        if (chinaId != Guid.Empty)
-        {
-            var timezone = await context.TimeZones.FirstOrDefaultAsync(tz => tz.Identifier == "Asia/Shanghai");
-            if (timezone != null)
-            {
-                mappings.Add(new CountryTimeZone
-                {
-                    Id = Guid.NewGuid(),
-                    CountryId = chinaId,
-                    TimeZoneId = timezone.Id,
-                    IsDefault = true,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                });
-            }
-        }
-
-        // Japan - Single Timezone
-        if (japanId != Guid.Empty)
-        {
-            var timezone = await context.TimeZones.FirstOrDefaultAsync(tz => tz.Identifier == "Asia/Tokyo");
-            if (timezone != null)
-            {
-                mappings.Add(new CountryTimeZone
-                {
-                    Id = Guid.NewGuid(),
-                    CountryId = japanId,
-                    TimeZoneId = timezone.Id,
-                    IsDefault = true,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                });
-            }
-        }
-
-        // Singapore - Single Timezone
-        if (singaporeId != Guid.Empty)
-        {
-            var timezone = await context.TimeZones.FirstOrDefaultAsync(tz => tz.Identifier == "Asia/Singapore");
-            if (timezone != null)
-            {
-                mappings.Add(new CountryTimeZone
-                {
-                    Id = Guid.NewGuid(),
-                    CountryId = singaporeId,
-                    TimeZoneId = timezone.Id,
-                    IsDefault = true,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                });
-            }
-        }
-
-        // Germany - Single Timezone
-        if (germanyId != Guid.Empty)
-        {
-            var timezone = await context.TimeZones.FirstOrDefaultAsync(tz => tz.Identifier == "Europe/Berlin");
-            if (timezone != null)
-            {
-                mappings.Add(new CountryTimeZone
-                {
-                    Id = Guid.NewGuid(),
-                    CountryId = germanyId,
-                    TimeZoneId = timezone.Id,
-                    IsDefault = true,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                });
-            }
-        }
-
-        // France - Single Timezone
-        if (franceId != Guid.Empty)
-        {
-            var timezone = await context.TimeZones.FirstOrDefaultAsync(tz => tz.Identifier == "Europe/Paris");
-            if (timezone != null)
-            {
-                mappings.Add(new CountryTimeZone
-                {
-                    Id = Guid.NewGuid(),
-                    CountryId = franceId,
-                    TimeZoneId = timezone.Id,
-                    IsDefault = true,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                });
-            }
-        }
-
-        if (mappings.Any())
-        {
-            context.CountryTimeZones.AddRange(mappings);
-            await context.SaveChangesAsync();
-            logger.LogInformation($"Created {mappings.Count} CountryTimeZone mappings");
-        }
-        else
-        {
-            logger.LogWarning("No CountryTimeZone mappings created. Required Countries or TimeZones may be missing.");
-        }
+        logger.LogInformation("Created {Count} users", users.Length);
     }
 }
