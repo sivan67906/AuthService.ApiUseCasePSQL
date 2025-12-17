@@ -372,7 +372,7 @@ public static class ComprehensiveSeedData
             IsMainMenu = true,
             ParentFeatureId = null,
             DisplayOrder = 1,
-            Icon = "ri-dashboard-line",
+            Icon = "tabler-smart-home",
             IsActive = true,
             RouteUrl = "/dashboard", // Direct route for single-page menu
             Level = 0,
@@ -394,7 +394,7 @@ public static class ComprehensiveSeedData
             IsMainMenu = true,
             ParentFeatureId = null,
             DisplayOrder = 2,
-            Icon = "ri-shield-user-line",
+            Icon = "tabler-user-cog",
             IsActive = true,
             RouteUrl = null, // Container menu, no direct route
             Level = 0,
@@ -417,7 +417,7 @@ public static class ComprehensiveSeedData
             IsMainMenu = true,
             ParentFeatureId = null,
             DisplayOrder = 3,
-            Icon = "ri-links-line",
+            Icon = "tabler-arrows-left-right",
             IsActive = true,
             RouteUrl = null, // Container menu, no direct route
             Level = 0,
@@ -439,7 +439,7 @@ public static class ComprehensiveSeedData
             IsMainMenu = true,
             ParentFeatureId = null,
             DisplayOrder = 4,
-            Icon = "ri-user-settings-line",
+            Icon = "tabler-settings",
             IsActive = true,
             RouteUrl = null, // Container menu, no direct route
             Level = 0,
@@ -460,7 +460,7 @@ public static class ComprehensiveSeedData
             IsMainMenu = true,
             ParentFeatureId = null,
             DisplayOrder = 5,
-            Icon = "ri-money-dollar-circle-line",
+            Icon = "tabler-currency-rupee",
             IsActive = true,
             RouteUrl = null, // Container menu, no direct route
             Level = 0,
@@ -479,7 +479,7 @@ public static class ComprehensiveSeedData
             IsMainMenu = false,
             ParentFeatureId = FixedGuids.FinanceManagementFeatureId,
             DisplayOrder = 1,
-            Icon = "ri-building-2-line",
+            Icon = "tabler-building-skyscraper",
             IsActive = true,
             RouteUrl = null, // Submenu container, no direct route
             Level = 1,
