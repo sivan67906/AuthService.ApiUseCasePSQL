@@ -1,31 +1,52 @@
 using System.Collections.Concurrent;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using AuthService.Application.Common.Interfaces;
 
 namespace AuthService.Infrastructure.Services;
 
 public class EmailConfirmationTokenTracker : IEmailConfirmationTokenTracker
 {
-    private readonly ConcurrentDictionary<string, DateTime> _latestTokens = new();
+    private readonly ConcurrentDictionary<string, StoredTokenInfo> _latestTokens = new();
 
-    public void StoreLatestToken(string email, DateTime tokenTimestamp)
+    private class StoredTokenInfo
     {
-        _latestTokens[email.ToLowerInvariant()] = tokenTimestamp;
+        public string TokenHash { get; set; } = string.Empty;
+        public DateTime Timestamp { get; set; }
     }
 
-    public bool IsLatestToken(string email, DateTime tokenTimestamp)
+    public void StoreLatestToken(string email, string token, DateTime tokenTimestamp)
+    {
+        var tokenHash = HashToken(token);
+        _latestTokens[email.ToLowerInvariant()] = new StoredTokenInfo
+        {
+            TokenHash = tokenHash,
+            Timestamp = tokenTimestamp
+        };
+    }
+
+    public bool ValidateToken(string email, string token)
     {
         var key = email.ToLowerInvariant();
         
-        if (!_latestTokens.TryGetValue(key, out var latestTimestamp))
+        if (!_latestTokens.TryGetValue(key, out var storedInfo))
         {
             // No tracking yet - allow the token (backward compatibility)
             return true;
         }
 
-        // Only allow if this token timestamp matches or is newer than the latest
-        // Allow small tolerance (1 second) for timing issues
-        return (tokenTimestamp - latestTimestamp).TotalSeconds >= -1;
+        // Check if token has expired (1 hour)
+        var now = DateTime.UtcNow;
+        var tokenAge = now - storedInfo.Timestamp;
+        if (tokenAge.TotalHours > 1)
+        {
+            return false; // Token expired
+        }
+
+        // Check if the provided token matches the stored token
+        var providedTokenHash = HashToken(token);
+        return providedTokenHash == storedInfo.TokenHash;
     }
 
     public void ClearToken(string email)
@@ -37,7 +58,7 @@ public class EmailConfirmationTokenTracker : IEmailConfirmationTokenTracker
     {
         var now = DateTime.UtcNow;
         var keysToRemove = _latestTokens
-            .Where(kvp => (now - kvp.Value).TotalHours > 24)
+            .Where(kvp => (now - kvp.Value.Timestamp).TotalHours > 24)
             .Select(kvp => kvp.Key)
             .ToList();
 
@@ -45,6 +66,13 @@ public class EmailConfirmationTokenTracker : IEmailConfirmationTokenTracker
         {
             _latestTokens.TryRemove(key, out _);
         }
+    }
+
+    private static string HashToken(string token)
+    {
+        var bytes = Encoding.UTF8.GetBytes(token);
+        var hash = SHA256.HashData(bytes);
+        return Convert.ToBase64String(hash);
     }
 }
 

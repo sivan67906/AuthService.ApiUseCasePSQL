@@ -20,6 +20,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResultDto>
     private readonly IAppDbContext _db;
     private readonly IMediator _mediator;
     private readonly IEmailService _emailService;
+    private readonly ITwoFactorCodeThrottlingService _twoFactorThrottlingService;
     private readonly ILogger<LoginCommandHandler> _logger;
 
     // Token expiration settings
@@ -33,6 +34,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResultDto>
         IAppDbContext db,
         IMediator mediator,
         IEmailService emailService,
+        ITwoFactorCodeThrottlingService twoFactorThrottlingService,
         ILogger<LoginCommandHandler> logger)
     {
         _signInManager = signInManager;
@@ -41,6 +43,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResultDto>
         _db = db;
         _mediator = mediator;
         _emailService = emailService;
+        _twoFactorThrottlingService = twoFactorThrottlingService;
         _logger = logger;
     }
 
@@ -63,6 +66,13 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResultDto>
         // Check if two-factor authentication is required
         if (user.TwoFactorEnabled)
         {
+            // Check throttling for 2FA code generation
+            var (allowed, message, remainingTime) = _twoFactorThrottlingService.CanResend(user.Email!);
+            if (!allowed)
+            {
+                throw new InvalidOperationException(message ?? "Please wait before requesting another code.");
+            }
+
             // Generate a temporary token for 2FA verification
             var twoFactorToken = GenerateTwoFactorToken();
 
@@ -75,7 +85,16 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResultDto>
             // If email-based 2FA, send the code
             if (!user.AuthenticatorEnabled)
             {
+                var codeTimestamp = DateTime.UtcNow;
                 var emailCode = await _userManager.GenerateTwoFactorTokenAsync(user, TokenOptions.DefaultEmailProvider);
+                
+                // Store the code with timestamp to invalidate old codes
+                // Only the latest code will be valid for verification
+                _twoFactorThrottlingService.StoreCode(user.Email!, emailCode, codeTimestamp);
+                
+                // Record the attempt for throttling
+                _twoFactorThrottlingService.RecordResendAttempt(user.Email!);
+                
                 await SendTwoFactorCodeEmailAsync(user, emailCode, cancellationToken);
             }
 
@@ -199,7 +218,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResultDto>
                 await _emailService.SendAsync(
                     user.Email!,
                     "Your Two-Factor Authentication Code",
-                    $"Your security code is: {code}. This code will expire in 5 minutes.",
+                    $"Your security code is: {code}. This code will expire in 1 hour.",
                     cancellationToken);
 
                 return;

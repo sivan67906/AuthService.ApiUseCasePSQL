@@ -6,7 +6,7 @@ public interface ITwoFactorCodeThrottlingService
     /// Checks if 2FA code resend is allowed for the given email
     /// Cooldown: 60 seconds
     /// Max attempts: 5 per day
-    /// Code validity: 5 minutes
+    /// Code validity: 1 hour
     /// </summary>
     (bool Allowed, string? Message, TimeSpan? RemainingCooldown) CanResend(string email);
 
@@ -26,12 +26,13 @@ public interface ITwoFactorCodeThrottlingService
     void CleanupOldEntries();
     
     /// <summary>
-    /// Track the latest code timestamp to invalidate old codes
+    /// Store the latest code with its timestamp
+    /// Only the latest code will be valid for verification
     /// </summary>
-    void StoreLatestCodeTimestamp(string email, DateTime timestamp);
+    void StoreCode(string email, string code, DateTime timestamp);
     
     /// <summary>
-    /// Check if a code timestamp is still valid (not superseded by a newer code)
+    /// Validate that a code is the latest one and hasn't expired (1 hour)
     /// </summary>
-    bool IsCodeTimestampValid(string email, DateTime codeTimestamp);
+    bool ValidateCode(string email, string code);
 }

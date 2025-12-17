@@ -13,15 +13,18 @@ public sealed class VerifyTwoFactorLoginCommandHandler : IRequestHandler<VerifyT
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IConfiguration _config;
     private readonly IAppDbContext _db;
+    private readonly ITwoFactorCodeThrottlingService _twoFactorThrottlingService;
 
     public VerifyTwoFactorLoginCommandHandler(
         UserManager<ApplicationUser> userManager,
         IConfiguration config,
-        IAppDbContext db)
+        IAppDbContext db,
+        ITwoFactorCodeThrottlingService twoFactorThrottlingService)
     {
         _userManager = userManager;
         _config = config;
         _db = db;
+        _twoFactorThrottlingService = twoFactorThrottlingService;
     }
 
     public async Task<LoginResultDto> Handle(VerifyTwoFactorLoginCommand request, CancellationToken cancellationToken)
@@ -50,17 +53,27 @@ public sealed class VerifyTwoFactorLoginCommandHandler : IRequestHandler<VerifyT
         }
         else
         {
-            // Verify email-based 2FA code
-            isValid = await _userManager.VerifyTwoFactorTokenAsync(
-                user,
-                TokenOptions.DefaultEmailProvider,
-                request.Code);
+            // Verify email-based 2FA code with custom validation
+            // This ensures only the latest code works and validates expiry (1 hour)
+            isValid = _twoFactorThrottlingService.ValidateCode(user.Email!, request.Code);
+            
+            // If our custom validation passed, also verify with Identity for additional security
+            if (isValid)
+            {
+                isValid = await _userManager.VerifyTwoFactorTokenAsync(
+                    user,
+                    TokenOptions.DefaultEmailProvider,
+                    request.Code);
+            }
         }
 
         if (!isValid)
         {
             throw new InvalidOperationException("Invalid verification code.");
         }
+
+        // Clear throttling attempts after successful verification
+        _twoFactorThrottlingService.ClearAttempts(user.Email!);
 
         // Reset the security stamp after successful verification
         await _userManager.UpdateSecurityStampAsync(user);

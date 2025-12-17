@@ -79,8 +79,8 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, RegisterR
             var tokenTimestamp = DateTime.UtcNow;
             var expiryTime = tokenTimestamp.AddHours(1);
             
-            // Track this as the latest token for this user
-            _tokenTracker.StoreLatestToken(user.Email!, tokenTimestamp);
+            // Track this as the latest token for this user (store the token itself as hash)
+            _tokenTracker.StoreLatestToken(user.Email!, standardToken, tokenTimestamp);
             
             // Create custom token with timestamp: userId|tokenTimestamp|expiryTimestamp|standardToken
             var customToken = $"{user.Id}|{tokenTimestamp:O}|{expiryTime:O}|{standardToken}";

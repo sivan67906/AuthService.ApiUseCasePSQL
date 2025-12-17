@@ -2,6 +2,7 @@ using AuthService.Application.Features.Feature.CreateFeature;
 using AuthService.Application.Features.Feature.DeleteFeature;
 using AuthService.Application.Features.Feature.GetAllFeatures;
 using AuthService.Application.Features.Feature.GetFeature;
+using AuthService.Application.Features.Feature.GetFeaturesWithHierarchy;
 using AuthService.Application.Features.Feature.UpdateFeature;
 
 namespace AuthService.Api.Controllers;
@@ -100,6 +101,26 @@ public class FeatureController : ControllerBase
         catch (Exception ex)
         {
             return BadRequest(ApiResponse<List<FeatureDto>>.FailResponse(ex.Message));
+        }
+    }
+
+    /// <summary>
+    /// Get all features with hierarchical display names
+    /// Main Menu: "Finance Management (Main Menu)"
+    /// SubMenu: "Finance Management → Test Categories"
+    /// </summary>
+    [HttpGet("with-hierarchy")]
+    public async Task<ActionResult<ApiResponse<List<FeatureWithHierarchyDto>>>> GetWithHierarchy()
+    {
+        try
+        {
+            var query = new GetFeaturesWithHierarchyQuery();
+            var result = await _mediator.Send(query);
+            return Ok(ApiResponse<List<FeatureWithHierarchyDto>>.SuccessResponse(result));
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ApiResponse<List<FeatureWithHierarchyDto>>.FailResponse(ex.Message));
         }
     }
 }

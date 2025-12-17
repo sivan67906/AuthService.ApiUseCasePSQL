@@ -7,14 +7,15 @@ namespace AuthService.Application.Common.Interfaces;
 public interface IEmailConfirmationTokenTracker
 {
     /// <summary>
-    /// Store the latest token timestamp for a user
+    /// Store the latest token (as hash) with its timestamp for a user
+    /// Only this token will be valid for confirmation
     /// </summary>
-    void StoreLatestToken(string email, DateTime tokenTimestamp);
+    void StoreLatestToken(string email, string token, DateTime tokenTimestamp);
     
     /// <summary>
-    /// Check if a token timestamp is the latest one for this user
+    /// Validate that a token is the latest one and hasn't expired (1 hour)
     /// </summary>
-    bool IsLatestToken(string email, DateTime tokenTimestamp);
+    bool ValidateToken(string email, string token);
     
     /// <summary>
     /// Clear token tracking for a user (after successful confirmation)

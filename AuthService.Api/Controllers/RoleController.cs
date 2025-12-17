@@ -1,5 +1,6 @@
 using AuthService.Application.Features.Role.CreateRole;
 using AuthService.Application.Features.Role.GetAllRoles;
+using AuthService.Application.Features.Role.GetRolesByDepartment;
 using AuthService.Application.Features.Role.UpdateRole;
 using AuthService.Application.Features.Role.DeleteRole;
 using AuthService.Application.Features.Role.GetRoleById;
@@ -40,6 +41,26 @@ public class RoleController : ControllerBase
         try
         {
             var query = new GetAllRolesQuery();
+            var result = await _mediator.Send(query);
+            return Ok(ApiResponse<List<RoleDto>>.SuccessResponse(result));
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ApiResponse<List<RoleDto>>.FailResponse(ex.Message));
+        }
+    }
+
+    /// <summary>
+    /// Get roles filtered by department
+    /// </summary>
+    /// <param name="departmentId">Optional department ID. If null, returns all roles (System wide)</param>
+    /// <returns>List of roles for the specified department, or all roles if departmentId is null</returns>
+    [HttpGet("by-department")]
+    public async Task<ActionResult<ApiResponse<List<RoleDto>>>> GetByDepartment([FromQuery] Guid? departmentId)
+    {
+        try
+        {
+            var query = new GetRolesByDepartmentQuery(departmentId);
             var result = await _mediator.Send(query);
             return Ok(ApiResponse<List<RoleDto>>.SuccessResponse(result));
         }

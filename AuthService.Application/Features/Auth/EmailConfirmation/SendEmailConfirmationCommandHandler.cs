@@ -60,8 +60,8 @@ public class SendEmailConfirmationCommandHandler : IRequestHandler<SendEmailConf
         var expiryTime = tokenTimestamp.AddHours(1);
         
         // Issue #4: Track this as the latest token for this user
-        // Only this token (and any future ones) will be accepted
-        _tokenTracker.StoreLatestToken(request.Email, tokenTimestamp);
+        // Store the token itself (as hash) so only this exact token will be accepted
+        _tokenTracker.StoreLatestToken(request.Email, standardToken, tokenTimestamp);
         
         // Create custom token with timestamp: userId|tokenTimestamp|expiryTimestamp|standardToken
         var customToken = $"{user.Id}|{tokenTimestamp:O}|{expiryTime:O}|{standardToken}";

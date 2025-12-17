@@ -9,15 +9,18 @@ public class GenerateTwoFactorCodeCommandHandler : IRequestHandler<GenerateTwoFa
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IEmailService _email;
+    private readonly ITwoFactorCodeThrottlingService _twoFactorThrottlingService;
     private readonly ILogger<GenerateTwoFactorCodeCommandHandler> _logger;
 
     public GenerateTwoFactorCodeCommandHandler(
         UserManager<ApplicationUser> userManager,
         IEmailService email,
+        ITwoFactorCodeThrottlingService twoFactorThrottlingService,
         ILogger<GenerateTwoFactorCodeCommandHandler> logger)
     {
         _userManager = userManager;
         _email = email;
+        _twoFactorThrottlingService = twoFactorThrottlingService;
         _logger = logger;
     }
 
@@ -26,13 +29,27 @@ public class GenerateTwoFactorCodeCommandHandler : IRequestHandler<GenerateTwoFa
         var user = await _userManager.FindByIdAsync(request.UserId)
             ?? throw new InvalidOperationException("User not found.");
 
+        // Check throttling limits (60 seconds cooldown, 5 per day)
+        var (allowed, message, remainingTime) = _twoFactorThrottlingService.CanResend(user.Email!);
+        if (!allowed)
+        {
+            throw new InvalidOperationException(message ?? "Please wait before requesting another code.");
+        }
+
         if (!user.TwoFactorEnabled)
         {
             user.TwoFactorEnabled = true;
             await _userManager.UpdateAsync(user);
         }
 
+        var codeTimestamp = DateTime.UtcNow;
         var code = await _userManager.GenerateTwoFactorTokenAsync(user, TokenOptions.DefaultEmailProvider);
+
+        // Store the code with timestamp to invalidate old codes
+        _twoFactorThrottlingService.StoreCode(user.Email!, code, codeTimestamp);
+
+        // Record the attempt for throttling
+        _twoFactorThrottlingService.RecordResendAttempt(user.Email!);
 
         // Send two-factor code email using template
         await SendTwoFactorCodeEmailAsync(user, code, cancellationToken);
@@ -70,7 +87,7 @@ public class GenerateTwoFactorCodeCommandHandler : IRequestHandler<GenerateTwoFa
                 await _email.SendAsync(
                     user.Email!,
                     "Your Two-Factor Authentication Code",
-                    $"Your security code is: {code}. This code will expire in 5 minutes.",
+                    $"Your security code is: {code}. This code will expire in 1 hour.",
                     cancellationToken);
 
                 return;

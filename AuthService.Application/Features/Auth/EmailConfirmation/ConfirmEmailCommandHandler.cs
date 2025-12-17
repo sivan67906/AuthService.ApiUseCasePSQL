@@ -20,6 +20,12 @@ public class ConfirmEmailCommandHandler : IRequestHandler<ConfirmEmailCommand, b
         var user = await _userManager.FindByEmailAsync(request.Email)
             ?? throw new InvalidOperationException("User not found.");
         
+        // Check if email is already confirmed
+        if (user.EmailConfirmed)
+        {
+            throw new InvalidOperationException("Email is already confirmed. You can log in now.");
+        }
+        
         // Parse and validate custom token
         // NOTE: Do NOT URL decode here - ASP.NET Core's [FromQuery] already decodes the token.
         // Double-decoding would convert '+' characters (common in Base64) to spaces, breaking the token.
@@ -57,7 +63,8 @@ public class ConfirmEmailCommandHandler : IRequestHandler<ConfirmEmailCommand, b
             }
             
             // Issue #4: Check if this is the latest token
-            if (!_tokenTracker.IsLatestToken(request.Email, tokenTimestamp))
+            // This validates that the token matches the stored hash and hasn't been superseded
+            if (!_tokenTracker.ValidateToken(request.Email, standardToken))
             {
                 throw new InvalidOperationException("This confirmation link has been superseded by a newer one. Please use the latest confirmation email.");
             }

@@ -1,5 +1,7 @@
 using System.Collections.Concurrent;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using AuthService.Application.Common.Interfaces;
 
 namespace AuthService.Infrastructure.Services;
@@ -7,17 +9,23 @@ namespace AuthService.Infrastructure.Services;
 public class TwoFactorCodeThrottlingService : ITwoFactorCodeThrottlingService
 {
     private readonly ConcurrentDictionary<string, ResendAttemptInfo> _resendAttempts = new();
-    private readonly ConcurrentDictionary<string, DateTime> _latestCodeTimestamps = new();
+    private readonly ConcurrentDictionary<string, StoredCodeInfo> _storedCodes = new();
     
     // Configuration for 2FA
     private const int CooldownSeconds = 60;        // 60 seconds between resends
     private const int MaxAttemptsPerDay = 5;       // Maximum 5 attempts per day
-    private const int CodeValidityMinutes = 5;     // Code valid for 5 minutes
+    private const int CodeValidityMinutes = 60;    // Code valid for 1 hour (60 minutes)
     
     private class ResendAttemptInfo
     {
         public List<DateTime> Attempts { get; set; } = new();
         public DateTime LastAttempt { get; set; }
+    }
+
+    private class StoredCodeInfo
+    {
+        public string CodeHash { get; set; } = string.Empty;
+        public DateTime Timestamp { get; set; }
     }
 
     public (bool Allowed, string? Message, TimeSpan? RemainingCooldown) CanResend(string email)
@@ -77,12 +85,14 @@ public class TwoFactorCodeThrottlingService : ITwoFactorCodeThrottlingService
     public void ClearAttempts(string email)
     {
         _resendAttempts.TryRemove(email, out _);
-        _latestCodeTimestamps.TryRemove(email, out _);
+        _storedCodes.TryRemove(email, out _);
     }
 
     public void CleanupOldEntries()
     {
         var now = DateTime.UtcNow;
+        
+        // Cleanup resend attempts
         var keysToRemove = _resendAttempts
             .Where(kvp => (now - kvp.Value.LastAttempt).TotalHours > 24)
             .Select(kvp => kvp.Key)
@@ -93,40 +103,54 @@ public class TwoFactorCodeThrottlingService : ITwoFactorCodeThrottlingService
             _resendAttempts.TryRemove(key, out _);
         }
         
-        // Also cleanup old timestamp entries
-        var timestampKeysToRemove = _latestCodeTimestamps
-            .Where(kvp => (now - kvp.Value).TotalHours > 24)
+        // Cleanup stored codes older than 1 hour
+        var codeKeysToRemove = _storedCodes
+            .Where(kvp => (now - kvp.Value.Timestamp).TotalMinutes > CodeValidityMinutes)
             .Select(kvp => kvp.Key)
             .ToList();
         
-        foreach (var key in timestampKeysToRemove)
+        foreach (var key in codeKeysToRemove)
         {
-            _latestCodeTimestamps.TryRemove(key, out _);
+            _storedCodes.TryRemove(key, out _);
         }
     }
 
-    public void StoreLatestCodeTimestamp(string email, DateTime timestamp)
+    public void StoreCode(string email, string code, DateTime timestamp)
     {
-        _latestCodeTimestamps[email] = timestamp;
+        var codeHash = HashCode(code);
+        _storedCodes[email] = new StoredCodeInfo
+        {
+            CodeHash = codeHash,
+            Timestamp = timestamp
+        };
     }
 
-    public bool IsCodeTimestampValid(string email, DateTime codeTimestamp)
+    public bool ValidateCode(string email, string code)
     {
-        // Check if code is still within 5-minute validity window
+        // Check if we have a stored code for this email
+        if (!_storedCodes.TryGetValue(email, out var storedCodeInfo))
+        {
+            // No stored code - this shouldn't happen in normal flow
+            return false;
+        }
+
+        // Check if code has expired (1 hour)
         var now = DateTime.UtcNow;
-        var codeAge = now - codeTimestamp;
-        
+        var codeAge = now - storedCodeInfo.Timestamp;
         if (codeAge.TotalMinutes > CodeValidityMinutes)
         {
             return false; // Code expired
         }
-        
-        // Check if this code has been superseded by a newer one
-        if (_latestCodeTimestamps.TryGetValue(email, out var latestTimestamp))
-        {
-            return codeTimestamp >= latestTimestamp;
-        }
-        
-        return true;
+
+        // Check if the provided code matches the stored code
+        var providedCodeHash = HashCode(code);
+        return providedCodeHash == storedCodeInfo.CodeHash;
+    }
+
+    private static string HashCode(string code)
+    {
+        var bytes = Encoding.UTF8.GetBytes(code);
+        var hash = SHA256.HashData(bytes);
+        return Convert.ToBase64String(hash);
     }
 }
