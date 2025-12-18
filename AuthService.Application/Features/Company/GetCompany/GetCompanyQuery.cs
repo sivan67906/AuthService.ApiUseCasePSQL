@@ -18,6 +18,7 @@ public sealed class GetCompanyQueryHandler : IRequestHandler<GetCompanyQuery, Co
     public async Task<CompanyDto?> Handle(GetCompanyQuery request, CancellationToken cancellationToken)
     {
         var entity = await _db.Companies
+            .AsNoTracking()
             .Include(c => c.ParentCompany)
             .Include(c => c.RegistrationCountry)
             .Include(c => c.RegistrationState)

@@ -134,6 +134,48 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
                     entry.State = EntityState.Modified;
                     softDeletableOnly.IsDeleted = true;
                 }
+
+                // Convert all DateTime properties to UTC for PostgreSQL compatibility
+                Console.WriteLine($"  [UTC Conversion] Processing entity: {entry.Entity.GetType().Name}");
+                
+                var entityType = entry.Entity.GetType();
+                var dateTimeProperties = entityType.GetProperties()
+                    .Where(p => p.PropertyType == typeof(DateTime) || p.PropertyType == typeof(DateTime?))
+                    .ToList();
+                
+                Console.WriteLine($"  [UTC Conversion] Found {dateTimeProperties.Count} DateTime properties");
+                
+                foreach (var prop in dateTimeProperties)
+                {
+                    var currentValue = prop.GetValue(entry.Entity);
+                    Console.WriteLine($"    Property: {prop.Name}, Type: {prop.PropertyType}, Value: {currentValue}");
+                    
+                    if (currentValue is DateTime dateTime)
+                    {
+                        Console.WriteLine($"      Current Kind: {dateTime.Kind}");
+                        
+                        if (dateTime.Kind == DateTimeKind.Unspecified)
+                        {
+                            var utcValue = DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
+                            prop.SetValue(entry.Entity, utcValue);
+                            Console.WriteLine($"      CONVERTED Unspecified -> UTC: {utcValue:O}");
+                        }
+                        else if (dateTime.Kind == DateTimeKind.Local)
+                        {
+                            var utcValue = dateTime.ToUniversalTime();
+                            prop.SetValue(entry.Entity, utcValue);
+                            Console.WriteLine($"      CONVERTED Local -> UTC: {utcValue:O}");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"      Already UTC: {dateTime:O}");
+                        }
+                    }
+                    else if (currentValue == null)
+                    {
+                        Console.WriteLine($"      Value is NULL");
+                    }
+                }
             }
 
             var result = await base.SaveChangesAsync(cancellationToken);

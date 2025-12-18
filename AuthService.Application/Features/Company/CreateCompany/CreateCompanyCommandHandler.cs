@@ -42,6 +42,57 @@ public sealed class CreateCompanyCommandHandler : IRequestHandler<CreateCompanyC
             throw new InvalidOperationException($"Company with name '{request.LegalName}' already exists.");
         }
 
+        // Validate GSTIN uniqueness if provided
+        if (!string.IsNullOrWhiteSpace(request.GSTIN))
+        {
+            var existingByGSTIN = await _db.Companies
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(x => x.GSTIN != null && x.GSTIN.ToUpper() == request.GSTIN.ToUpper(), cancellationToken);
+
+            if (existingByGSTIN != null)
+            {
+                if (existingByGSTIN.IsDeleted)
+                {
+                    throw new InvalidOperationException($"A company with GSTIN '{request.GSTIN}' already exists in deactivated mode. Please use a different GSTIN or restore the existing company.");
+                }
+                throw new InvalidOperationException($"Company with GSTIN '{request.GSTIN}' already exists.");
+            }
+        }
+
+        // Validate PAN uniqueness if provided
+        if (!string.IsNullOrWhiteSpace(request.PANNumber))
+        {
+            var existingByPAN = await _db.Companies
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(x => x.PANNumber != null && x.PANNumber.ToUpper() == request.PANNumber.ToUpper(), cancellationToken);
+
+            if (existingByPAN != null)
+            {
+                if (existingByPAN.IsDeleted)
+                {
+                    throw new InvalidOperationException($"A company with PAN '{request.PANNumber}' already exists in deactivated mode. Please use a different PAN or restore the existing company.");
+                }
+                throw new InvalidOperationException($"Company with PAN '{request.PANNumber}' already exists.");
+            }
+        }
+
+        // Validate TAN uniqueness if provided
+        if (!string.IsNullOrWhiteSpace(request.TANNumber))
+        {
+            var existingByTAN = await _db.Companies
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(x => x.TANNumber != null && x.TANNumber.ToUpper() == request.TANNumber.ToUpper(), cancellationToken);
+
+            if (existingByTAN != null)
+            {
+                if (existingByTAN.IsDeleted)
+                {
+                    throw new InvalidOperationException($"A company with TAN '{request.TANNumber}' already exists in deactivated mode. Please use a different TAN or restore the existing company.");
+                }
+                throw new InvalidOperationException($"Company with TAN '{request.TANNumber}' already exists.");
+            }
+        }
+
         // Validate IncorporationDate if provided
         if (request.IncorporationDate.HasValue)
         {

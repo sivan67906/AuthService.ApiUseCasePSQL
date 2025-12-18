@@ -83,16 +83,28 @@ public class CompanyController : ControllerBase
     {
         try
         {
+            Console.WriteLine($"[CompanyController] Received Update request for Company {id}");
+            Console.WriteLine($"[CompanyController] Command.Id: {command.Id}");
+            Console.WriteLine($"[CompanyController] Command.LegalName: {command.LegalName}");
+            Console.WriteLine($"[CompanyController] Command.Status: {command.Status}");
+            Console.WriteLine($"[CompanyController] Command.BooksStartDate: {command.BooksStartDate:yyyy-MM-dd}");
+            Console.WriteLine($"[CompanyController] Command.CityId: {command.CityId}");
+            Console.WriteLine($"[CompanyController] Command.StateId: {command.StateId}");
+            Console.WriteLine($"[CompanyController] Command.CountryId: {command.CountryId}");
+            
             if (id != command.Id)
             {
+                Console.WriteLine($"[CompanyController] ID mismatch: URL={id}, Body={command.Id}");
                 return BadRequest(ApiResponse<CompanyDto>.FailResponse("ID mismatch"));
             }
 
             var result = await _mediator.Send(command);
+            Console.WriteLine($"[CompanyController] Update successful for Company {id}");
             return Ok(ApiResponse<CompanyDto>.SuccessResponse(result, "Company updated successfully"));
         }
         catch (Exception ex)
         {
+            Console.WriteLine($"[CompanyController] Update failed for Company {id}: {ex.Message}");
             return BadRequest(ApiResponse<CompanyDto>.FailResponse(ex.Message));
         }
     }

@@ -1,3 +1,4 @@
+using System.Linq;
 using AuthService.Domain.Entities.Masters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -81,6 +82,10 @@ public static class MasterDataSeed
     private static async Task SeedCountriesStatesAndCities(AppDbContext context, ILogger logger)
     {
         logger.LogInformation("Seeding countries, states, and cities...");
+
+        // Get all timezones for mapping
+        var allTimeZones = await context.TimeZones.ToListAsync();
+        var countryTimeZoneMappings = new List<CountryTimeZone>();
 
         // India
         var india = new Country
@@ -328,6 +333,191 @@ public static class MasterDataSeed
         await AddBasicStatesForCountry(context, uae, new[] { ("Abu Dhabi", "AD"), ("Dubai", "DU"), ("Sharjah", "SH") });
         await AddBasicStatesForCountry(context, singapore, new[] { ("Central Region", "CR"), ("East Region", "ER"), ("North Region", "NR"), ("West Region", "WR") });
         await AddBasicStatesForCountry(context, australia, new[] { ("New South Wales", "NSW"), ("Victoria", "VIC"), ("Queensland", "QLD"), ("Western Australia", "WA") });
+
+        // Seed CountryTimeZone mappings
+        logger.LogInformation("Seeding country-timezone mappings...");
+        
+        // Map timezones to countries
+        var indiaTimeZone = allTimeZones.FirstOrDefault(t => t.Identifier == "Asia/Kolkata");
+        var pstTimeZone = allTimeZones.FirstOrDefault(t => t.Identifier == "America/Los_Angeles");
+        var mstTimeZone = allTimeZones.FirstOrDefault(t => t.Identifier == "America/Denver");
+        var cstTimeZone = allTimeZones.FirstOrDefault(t => t.Identifier == "America/Chicago");
+        var estTimeZone = allTimeZones.FirstOrDefault(t => t.Identifier == "America/New_York");
+        var gmtTimeZone = allTimeZones.FirstOrDefault(t => t.Identifier == "Europe/London");
+        var cetTimeZone = allTimeZones.FirstOrDefault(t => t.Identifier == "Europe/Paris");
+        var eetTimeZone = allTimeZones.FirstOrDefault(t => t.Identifier == "Europe/Helsinki");
+        var arabianTimeZone = allTimeZones.FirstOrDefault(t => t.Identifier == "Asia/Dubai");
+        var chinaTimeZone = allTimeZones.FirstOrDefault(t => t.Identifier == "Asia/Shanghai");
+        var japanTimeZone = allTimeZones.FirstOrDefault(t => t.Identifier == "Asia/Tokyo");
+        var ausTimeZone = allTimeZones.FirstOrDefault(t => t.Identifier == "Australia/Sydney");
+        var singaporeTimeZone = allTimeZones.FirstOrDefault(t => t.Identifier == "Asia/Singapore");
+
+        // India -> IST (default)
+        if (indiaTimeZone != null)
+        {
+            countryTimeZoneMappings.Add(new CountryTimeZone
+            {
+                Id = Guid.NewGuid(),
+                CountryId = india.Id,
+                TimeZoneId = indiaTimeZone.Id,
+                IsDefault = true
+            });
+        }
+
+        // USA -> PST, MST, CST, EST (EST as default)
+        if (estTimeZone != null)
+        {
+            countryTimeZoneMappings.Add(new CountryTimeZone
+            {
+                Id = Guid.NewGuid(),
+                CountryId = usa.Id,
+                TimeZoneId = estTimeZone.Id,
+                IsDefault = true
+            });
+        }
+        if (pstTimeZone != null)
+        {
+            countryTimeZoneMappings.Add(new CountryTimeZone
+            {
+                Id = Guid.NewGuid(),
+                CountryId = usa.Id,
+                TimeZoneId = pstTimeZone.Id,
+                IsDefault = false
+            });
+        }
+        if (mstTimeZone != null)
+        {
+            countryTimeZoneMappings.Add(new CountryTimeZone
+            {
+                Id = Guid.NewGuid(),
+                CountryId = usa.Id,
+                TimeZoneId = mstTimeZone.Id,
+                IsDefault = false
+            });
+        }
+        if (cstTimeZone != null)
+        {
+            countryTimeZoneMappings.Add(new CountryTimeZone
+            {
+                Id = Guid.NewGuid(),
+                CountryId = usa.Id,
+                TimeZoneId = cstTimeZone.Id,
+                IsDefault = false
+            });
+        }
+
+        // UK -> GMT (default)
+        if (gmtTimeZone != null)
+        {
+            countryTimeZoneMappings.Add(new CountryTimeZone
+            {
+                Id = Guid.NewGuid(),
+                CountryId = uk.Id,
+                TimeZoneId = gmtTimeZone.Id,
+                IsDefault = true
+            });
+        }
+
+        // UAE -> Arabian Time (default)
+        if (arabianTimeZone != null)
+        {
+            countryTimeZoneMappings.Add(new CountryTimeZone
+            {
+                Id = Guid.NewGuid(),
+                CountryId = uae.Id,
+                TimeZoneId = arabianTimeZone.Id,
+                IsDefault = true
+            });
+        }
+
+        // Singapore -> Singapore Time (default)
+        if (singaporeTimeZone != null)
+        {
+            countryTimeZoneMappings.Add(new CountryTimeZone
+            {
+                Id = Guid.NewGuid(),
+                CountryId = singapore.Id,
+                TimeZoneId = singaporeTimeZone.Id,
+                IsDefault = true
+            });
+        }
+
+        // Australia -> AUS Eastern (default)
+        if (ausTimeZone != null)
+        {
+            countryTimeZoneMappings.Add(new CountryTimeZone
+            {
+                Id = Guid.NewGuid(),
+                CountryId = australia.Id,
+                TimeZoneId = ausTimeZone.Id,
+                IsDefault = true
+            });
+        }
+
+        // Canada -> Multiple timezones (EST as default for now)
+        if (estTimeZone != null)
+        {
+            countryTimeZoneMappings.Add(new CountryTimeZone
+            {
+                Id = Guid.NewGuid(),
+                CountryId = canada.Id,
+                TimeZoneId = estTimeZone.Id,
+                IsDefault = true
+            });
+        }
+
+        // Germany -> CET (default)
+        if (cetTimeZone != null)
+        {
+            countryTimeZoneMappings.Add(new CountryTimeZone
+            {
+                Id = Guid.NewGuid(),
+                CountryId = germany.Id,
+                TimeZoneId = cetTimeZone.Id,
+                IsDefault = true
+            });
+        }
+
+        // France -> CET (default)
+        if (cetTimeZone != null)
+        {
+            countryTimeZoneMappings.Add(new CountryTimeZone
+            {
+                Id = Guid.NewGuid(),
+                CountryId = france.Id,
+                TimeZoneId = cetTimeZone.Id,
+                IsDefault = true
+            });
+        }
+
+        // Japan -> JST (default)
+        if (japanTimeZone != null)
+        {
+            countryTimeZoneMappings.Add(new CountryTimeZone
+            {
+                Id = Guid.NewGuid(),
+                CountryId = japan.Id,
+                TimeZoneId = japanTimeZone.Id,
+                IsDefault = true
+            });
+        }
+
+        // China -> CST (default)
+        if (chinaTimeZone != null)
+        {
+            countryTimeZoneMappings.Add(new CountryTimeZone
+            {
+                Id = Guid.NewGuid(),
+                CountryId = china.Id,
+                TimeZoneId = chinaTimeZone.Id,
+                IsDefault = true
+            });
+        }
+
+        // Save all country-timezone mappings
+        context.CountryTimeZones.AddRange(countryTimeZoneMappings);
+        await context.SaveChangesAsync();
+        logger.LogInformation("Seeded {Count} country-timezone mappings", countryTimeZoneMappings.Count);
 
         logger.LogInformation("Completed seeding countries, states, and cities");
     }

@@ -43,6 +43,45 @@ public sealed class UpdateCompanyCommandHandler : IRequestHandler<UpdateCompanyC
             throw new InvalidOperationException($"Another company with name '{request.LegalName}' already exists.");
         }
 
+        // Validate GSTIN uniqueness if provided (excluding self)
+        if (!string.IsNullOrWhiteSpace(request.GSTIN))
+        {
+            var existingByGSTIN = await _db.Companies
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(x => x.GSTIN != null && x.GSTIN.ToUpper() == request.GSTIN.ToUpper() && x.Id != request.Id, cancellationToken);
+
+            if (existingByGSTIN != null)
+            {
+                throw new InvalidOperationException($"Another company with GSTIN '{request.GSTIN}' already exists.");
+            }
+        }
+
+        // Validate PAN uniqueness if provided (excluding self)
+        if (!string.IsNullOrWhiteSpace(request.PANNumber))
+        {
+            var existingByPAN = await _db.Companies
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(x => x.PANNumber != null && x.PANNumber.ToUpper() == request.PANNumber.ToUpper() && x.Id != request.Id, cancellationToken);
+
+            if (existingByPAN != null)
+            {
+                throw new InvalidOperationException($"Another company with PAN '{request.PANNumber}' already exists.");
+            }
+        }
+
+        // Validate TAN uniqueness if provided (excluding self)
+        if (!string.IsNullOrWhiteSpace(request.TANNumber))
+        {
+            var existingByTAN = await _db.Companies
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(x => x.TANNumber != null && x.TANNumber.ToUpper() == request.TANNumber.ToUpper() && x.Id != request.Id, cancellationToken);
+
+            if (existingByTAN != null)
+            {
+                throw new InvalidOperationException($"Another company with TAN '{request.TANNumber}' already exists.");
+            }
+        }
+
         // Validate IncorporationDate
         if (request.IncorporationDate.HasValue)
         {
@@ -79,9 +118,15 @@ public sealed class UpdateCompanyCommandHandler : IRequestHandler<UpdateCompanyC
         }
 
         // Check for circular reference in parent hierarchy
-        if (request.ParentCompanyId.HasValue)
+        // Only validate if parent is actually being changed to avoid false positives
+        if (request.ParentCompanyId.HasValue && entity.ParentCompanyId != request.ParentCompanyId)
         {
+            Console.WriteLine($"[UpdateCompany] Parent changing from {entity.ParentCompanyId} to {request.ParentCompanyId}, validating for circular reference...");
             await ValidateNoCircularReference(request.Id, request.ParentCompanyId.Value, cancellationToken);
+        }
+        else if (request.ParentCompanyId.HasValue)
+        {
+            Console.WriteLine($"[UpdateCompany] Parent unchanged ({request.ParentCompanyId}), skipping circular reference validation");
         }
 
         // Business rule: Only Notes can be edited in inactive mode
@@ -95,6 +140,12 @@ public sealed class UpdateCompanyCommandHandler : IRequestHandler<UpdateCompanyC
         }
         else
         {
+            // Log current and new values for debugging
+            Console.WriteLine($"[UpdateCompany] Updating Company {entity.Id}");
+            Console.WriteLine($"[UpdateCompany] BooksStartDate: {entity.BooksStartDate:yyyy-MM-dd} -> {request.BooksStartDate:yyyy-MM-dd}");
+            Console.WriteLine($"[UpdateCompany] Status: {entity.Status} -> {request.Status}");
+            Console.WriteLine($"[UpdateCompany] LegalName: {entity.LegalName} -> {request.LegalName}");
+            
             // Update all fields
             entity.LegalName = request.LegalName.Trim();
             entity.TradeName = request.TradeName?.Trim();
@@ -138,12 +189,24 @@ public sealed class UpdateCompanyCommandHandler : IRequestHandler<UpdateCompanyC
             entity.AllowPostingToDate = request.AllowPostingToDate?.Date;
             entity.LockBackDatedPosting = request.LockBackDatedPosting;
             entity.Notes = request.Notes?.Trim();
+            
+            // Explicitly mark entity as modified to ensure EF Core tracks the changes
+            _db.Entry(entity).State = EntityState.Modified;
+            Console.WriteLine($"[UpdateCompany] Entity state explicitly set to Modified");
         }
 
-        await _db.SaveChangesAsync(cancellationToken);
+        var savedCount = await _db.SaveChangesAsync(cancellationToken);
 
-        // Reload with navigation properties
+        Console.WriteLine($"[UpdateCompany] Company {entity.Id} saved successfully, {savedCount} record(s) affected");
+        Console.WriteLine($"[UpdateCompany] Final BooksStartDate in entity: {entity.BooksStartDate:yyyy-MM-dd}");
+
+        // CRITICAL: Detach the entity from change tracker to ensure fresh data on reload
+        _db.Entry(entity).State = EntityState.Detached;
+        Console.WriteLine($"[UpdateCompany] Entity detached from change tracker");
+
+        // Reload with navigation properties using AsNoTracking for fresh data from database
         var result = await _db.Companies
+            .AsNoTracking()
             .Include(c => c.ParentCompany)
             .Include(c => c.RegistrationCountry)
             .Include(c => c.RegistrationState)
@@ -155,30 +218,73 @@ public sealed class UpdateCompanyCommandHandler : IRequestHandler<UpdateCompanyC
             .Include(c => c.ReportingCurrency)
             .FirstAsync(c => c.Id == entity.Id, cancellationToken);
 
-        return MapToDto(result);
+        Console.WriteLine($"[UpdateCompany] Reloaded entity from DB - BooksStartDate: {result.BooksStartDate:yyyy-MM-dd}");
+        Console.WriteLine($"[UpdateCompany] Reloaded entity from DB - Status: {result.Status}");
+        Console.WriteLine($"[UpdateCompany] Reloaded entity from DB - LegalName: {result.LegalName}");
+        
+        var dto = MapToDto(result);
+        Console.WriteLine($"[UpdateCompany] DTO BooksStartDate: {dto.BooksStartDate:yyyy-MM-dd}");
+        Console.WriteLine($"[UpdateCompany] DTO Status: {dto.Status}");
+        
+        return dto;
     }
 
     private async Task ValidateNoCircularReference(Guid companyId, Guid parentId, CancellationToken cancellationToken)
     {
+        // Get company names for better error messages
+        var companyNames = await _db.Companies
+            .Where(c => c.Id == companyId || c.Id == parentId)
+            .Select(c => new { c.Id, c.LegalName })
+            .ToListAsync(cancellationToken);
+        
+        var companyName = companyNames.FirstOrDefault(c => c.Id == companyId)?.LegalName ?? companyId.ToString();
+        var parentName = companyNames.FirstOrDefault(c => c.Id == parentId)?.LegalName ?? parentId.ToString();
+        
+        Console.WriteLine($"[ValidateCircular] Checking if setting '{companyName}' parent to '{parentName}' creates circular reference");
+        
         var visited = new HashSet<Guid> { companyId };
+        var hierarchyPath = new List<string> { companyName };
         var currentParentId = parentId;
 
         while (currentParentId != Guid.Empty)
         {
             if (visited.Contains(currentParentId))
             {
-                throw new InvalidOperationException("Circular reference detected in parent company hierarchy.");
+                // Build the circular path for error message
+                var circularCompany = await _db.Companies
+                    .Where(c => c.Id == currentParentId)
+                    .Select(c => c.LegalName)
+                    .FirstOrDefaultAsync(cancellationToken);
+                
+                hierarchyPath.Add(circularCompany ?? currentParentId.ToString());
+                var path = string.Join(" → ", hierarchyPath);
+                
+                Console.WriteLine($"[ValidateCircular] CIRCULAR REFERENCE DETECTED: {path}");
+                throw new InvalidOperationException(
+                    $"Circular reference detected in parent company hierarchy. " +
+                    $"Setting '{companyName}' as a child of '{parentName}' would create a circular reference: {path}");
             }
 
             visited.Add(currentParentId);
-
-            var parent = await _db.Companies
+            
+            var parentInfo = await _db.Companies
                 .Where(c => c.Id == currentParentId)
-                .Select(c => c.ParentCompanyId)
+                .Select(c => new { c.ParentCompanyId, c.LegalName })
                 .FirstOrDefaultAsync(cancellationToken);
 
-            currentParentId = parent ?? Guid.Empty;
+            if (parentInfo != null)
+            {
+                hierarchyPath.Add(parentInfo.LegalName);
+                currentParentId = parentInfo.ParentCompanyId ?? Guid.Empty;
+                Console.WriteLine($"[ValidateCircular] Current hierarchy path: {string.Join(" → ", hierarchyPath)}");
+            }
+            else
+            {
+                currentParentId = Guid.Empty;
+            }
         }
+        
+        Console.WriteLine($"[ValidateCircular] No circular reference detected. Final path: {string.Join(" → ", hierarchyPath)}");
     }
 
     private static bool IsAnyFieldChangedBesidesNotes(Domain.Entities.Company entity, UpdateCompanyCommand request)
