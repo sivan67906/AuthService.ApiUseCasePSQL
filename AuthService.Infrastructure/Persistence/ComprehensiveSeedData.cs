@@ -27,7 +27,7 @@ namespace AuthService.Infrastructure.Persistence;
 /// 1. Dashboard (Main Menu) → /dashboard (direct page)
 /// 2. RBAC Management (Main Menu) → pages directly: /department, /role, /feature, /page, /permission
 /// 3. Mappings (Main Menu) → pages directly: /rolehierarchymapping, /userrolemapping, /rolefeaturemapping, /pagefeaturemapping, /rolepagepermissionmapping
-/// 4. Account Settings (Main Menu) → pages directly: /profile, /change-password
+/// 4. Account (Main Menu) → pages directly: /profile, /change-password
 /// 5. Finance Management (Main Menu) → Company (SubMenu) → /company, /testcategories, /testproducts
 /// 
 /// Permission Matrix for Finance/Marketing Department Roles (5 pages: /profile, /change-password, /company, /testcategories, /testproducts):
@@ -350,7 +350,7 @@ public static class ComprehensiveSeedData
 
     /// <summary>
     /// Creates Features (Menu structure) with CORRECT hierarchy:
-    /// - Dashboard, RBAC Management, Mappings, Account Settings are Main Menus (Level 0) 
+    /// - Dashboard, RBAC Management, Mappings, Account are Main Menus (Level 0) 
     ///   with pages mapped DIRECTLY (no submenus)
     /// - Finance Management is Main Menu with Company SubMenu which has pages
     /// </summary>
@@ -426,16 +426,16 @@ public static class ComprehensiveSeedData
         });
 
         // ============================================
-        // 4. Account Settings (Main Menu) - Level 0
+        // 4. Account (Main Menu) - Level 0
         //    Pages: /profile, /change-password
         //    (pages mapped directly, NO submenus)
         // ============================================
-        features["Account Settings"] = FixedGuids.AccountSettingsFeatureId;
+        features["Account"] = FixedGuids.AccountSettingsFeatureId;
         context.Features.Add(new Feature
         {
             Id = FixedGuids.AccountSettingsFeatureId,
-            Name = "Account Settings",
-            Description = "User Account Settings",
+            Name = "Account",
+            Description = "User Account",
             IsMainMenu = true,
             ParentFeatureId = null,
             DisplayOrder = 4,
@@ -517,9 +517,9 @@ public static class ComprehensiveSeedData
             (FixedGuids.PageFeatureMappingPageId, "Page Feature", "/pagefeaturemapping", "Page feature mapping page", "Mappings", "/api/pagefeaturemapping", "GET", 10),
             (FixedGuids.RolePagePermissionMappingPageId, "Role Page Permission", "/rolepagepermissionmapping", "Role page permission mapping page", "Mappings", "/api/rolepagepermissionmapping", "GET", 11),
             
-            // Account Settings Pages - mapped directly to Account Settings menu
-            (FixedGuids.ProfilePageId, "Profile", "/profile", "User profile page", "Account Settings", "/api/profile", "GET", 12),
-            (FixedGuids.ChangePasswordPageId, "Change Password", "/change-password", "Change password page", "Account Settings", "/api/auth/change-password", "POST", 13),
+            // Account Pages - mapped directly to Account menu
+            (FixedGuids.ProfilePageId, "Profile", "/profile", "User profile page", "Account", "/api/profile", "GET", 12),
+            (FixedGuids.ChangePasswordPageId, "Change Password", "/change-password", "Change password page", "Account", "/api/auth/change-password", "POST", 13),
             
             // Finance Management - Company Pages - mapped to Company submenu
             (FixedGuids.CompanyPageId, "Company", "/company", "Company management page", "Company", "/api/company", "GET", 14),
@@ -556,7 +556,7 @@ public static class ComprehensiveSeedData
     /// - Dashboard page → Dashboard menu (direct)
     /// - RBAC pages → RBAC Management menu (direct, NO intermediate submenus)
     /// - Mapping pages → Mappings menu (direct, NO intermediate submenus)
-    /// - Account pages → Account Settings menu (direct, NO intermediate submenus)
+    /// - Account pages → Account menu (direct, NO intermediate submenus)
     /// - Company pages → Company submenu (under Finance Management)
     /// </summary>
     private static async Task SeedPageFeatureMappings(
@@ -587,9 +587,9 @@ public static class ComprehensiveSeedData
             ("Page Feature", "Mappings"),
             ("Role Page Permission", "Mappings"),
             
-            // Account Settings pages → Account Settings menu (DIRECTLY, no submenus)
-            ("Profile", "Account Settings"),
-            ("Change Password", "Account Settings"),
+            // Account pages → Account menu (DIRECTLY, no submenus)
+            ("Profile", "Account"),
+            ("Change Password", "Account"),
             
             // Company pages → Company submenu (under Finance Management)
             ("Company", "Company"),
@@ -665,8 +665,8 @@ public static class ComprehensiveSeedData
         }
 
         // Department roles get only specific features
-        // They can access: Dashboard, Account Settings, Finance Management (with Company submenu)
-        var deptRoleFeatures = new[] { "Dashboard", "Account Settings", "Finance Management", "Company" };
+        // They can access: Dashboard, Account, Finance Management (with Company submenu)
+        var deptRoleFeatures = new[] { "Dashboard", "Account", "Finance Management", "Company" };
         
         foreach (var deptName in new[] { "Finance", "Marketing" })
         {
