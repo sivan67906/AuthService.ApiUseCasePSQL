@@ -54,7 +54,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResultDto>
 
         if (!user.EmailConfirmed)
         {
-            throw new InvalidOperationException("Email not confirmed.");
+            throw new InvalidOperationException("The user has not verified the confirmation email.");
         }
 
         var passwordResult = await _signInManager.CheckPasswordSignInAsync(user, request.Password, true);

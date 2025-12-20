@@ -28,7 +28,8 @@ public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TReques
             if (failures.Count != 0)
             {
                 var messages = failures.Select(f => f.ErrorMessage).ToList();
-                throw new ValidationException(string.Join(";", messages));
+                // Use "|||" delimiter to allow splitting into multiple errors on the client
+                throw new ValidationException(string.Join("|||", messages));
             }
         }
 

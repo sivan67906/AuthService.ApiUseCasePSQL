@@ -34,7 +34,7 @@ public class RolePagePermissionMappingController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, ApiResponse<List<RolePagePermissionMappingDto>>.FailResponse("Internal server error", new() { ex.Message }));
+            return StatusCode(500, ApiResponse<List<RolePagePermissionMappingDto>>.FailFromException("Internal server error", ex));
         }
     }
 
@@ -52,7 +52,7 @@ public class RolePagePermissionMappingController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, ApiResponse<RolePagePermissionMappingDto>.FailResponse("Internal server error", new() { ex.Message }));
+            return StatusCode(500, ApiResponse<RolePagePermissionMappingDto>.FailFromException("Internal server error", ex));
         }
     }
 
@@ -73,7 +73,7 @@ public class RolePagePermissionMappingController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, ApiResponse<RolePagePermissionMappingDto>.FailResponse("Internal server error", new() { ex.Message }));
+            return StatusCode(500, ApiResponse<RolePagePermissionMappingDto>.FailFromException("Internal server error", ex));
         }
     }
 
@@ -108,7 +108,7 @@ public class RolePagePermissionMappingController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, ApiResponse<RolePagePermissionMappingDto>.FailResponse("Internal server error", new() { ex.Message }));
+            return StatusCode(500, ApiResponse<RolePagePermissionMappingDto>.FailFromException("Internal server error", ex));
         }
     }
 
@@ -122,15 +122,15 @@ public class RolePagePermissionMappingController : ControllerBase
         }
         catch (KeyNotFoundException ex)
         {
-            return NotFound(ApiResponse<bool>.FailResponse(ex.Message, new() { ex.Message }));
+            return NotFound(ApiResponse<bool>.FailFromException(ex.Message, ex));
         }
         catch (InvalidOperationException ex)
         {
-            return BadRequest(ApiResponse<bool>.FailResponse(ex.Message, new() { ex.Message }));
+            return BadRequest(ApiResponse<bool>.FailFromException(ex.Message, ex));
         }
         catch (Exception ex)
         {
-            return StatusCode(500, ApiResponse<bool>.FailResponse("Internal server error", new() { ex.Message }));
+            return StatusCode(500, ApiResponse<bool>.FailFromException("Internal server error", ex));
         }
     }
 
@@ -144,7 +144,7 @@ public class RolePagePermissionMappingController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, ApiResponse<List<RolePagePermissionMappingDto>>.FailResponse("Internal server error", new() { ex.Message }));
+            return StatusCode(500, ApiResponse<List<RolePagePermissionMappingDto>>.FailFromException("Internal server error", ex));
         }
     }
 
@@ -158,7 +158,7 @@ public class RolePagePermissionMappingController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, ApiResponse<List<RolePagePermissionMappingDto>>.FailResponse("Internal server error", new() { ex.Message }));
+            return StatusCode(500, ApiResponse<List<RolePagePermissionMappingDto>>.FailFromException("Internal server error", ex));
         }
     }
 
@@ -172,7 +172,7 @@ public class RolePagePermissionMappingController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, ApiResponse<List<RolePagePermissionMappingDto>>.FailResponse("Internal server error", new() { ex.Message }));
+            return StatusCode(500, ApiResponse<List<RolePagePermissionMappingDto>>.FailFromException("Internal server error", ex));
         }
     }
 
@@ -189,7 +189,7 @@ public class RolePagePermissionMappingController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, ApiResponse<List<RolePagePermissionGroupDto>>.FailResponse("Internal server error", new() { ex.Message }));
+            return StatusCode(500, ApiResponse<List<RolePagePermissionGroupDto>>.FailFromException("Internal server error", ex));
         }
     }
 
@@ -216,7 +216,7 @@ public class RolePagePermissionMappingController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, ApiResponse<List<RolePagePermissionMappingDto>>.FailResponse("Internal server error", new() { ex.Message }));
+            return StatusCode(500, ApiResponse<List<RolePagePermissionMappingDto>>.FailFromException("Internal server error", ex));
         }
     }
 }

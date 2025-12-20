@@ -39,7 +39,7 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
-            return BadRequest(ApiResponse<RegisterResultDto>.FailResponse("Registration failed.", new() { ex.Message }));
+            return BadRequest(ApiResponse<RegisterResultDto>.FailFromException("Registration failed.", ex));
         }
     }
 
@@ -83,7 +83,7 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
-            return Unauthorized(ApiResponse<LoginResultDto>.FailResponse("Login failed.", new() { ex.Message }));
+            return Unauthorized(ApiResponse<LoginResultDto>.FailFromException("Login failed.", ex));
         }
     }
 
@@ -130,7 +130,7 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
-            return Unauthorized(ApiResponse<LoginResultDto>.FailResponse("Verification failed.", new() { ex.Message }));
+            return Unauthorized(ApiResponse<LoginResultDto>.FailFromException("Verification failed.", ex));
         }
     }
 
@@ -153,7 +153,7 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
-            return BadRequest(ApiResponse<ResendTwoFactorCodeResultDto>.FailResponse("Failed to resend code.", new() { ex.Message }));
+            return BadRequest(ApiResponse<ResendTwoFactorCodeResultDto>.FailFromException("Failed to resend code.", ex));
         }
     }
 
@@ -223,7 +223,7 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
-            return BadRequest(ApiResponse<string>.FailResponse("Reset password failed.", new() { ex.Message }));
+            return BadRequest(ApiResponse<string>.FailFromException("Reset password failed.", ex));
         }
     }
 
@@ -245,7 +245,7 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
-            return BadRequest(ApiResponse<string>.FailResponse("Change password failed.", new() { ex.Message }));
+            return BadRequest(ApiResponse<string>.FailFromException("Change password failed.", ex));
         }
     }
 
@@ -291,7 +291,7 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
-            return Unauthorized(ApiResponse<RefreshTokenResultDto>.FailResponse("Refresh failed.", new() { ex.Message }));
+            return Unauthorized(ApiResponse<RefreshTokenResultDto>.FailFromException("Refresh failed.", ex));
         }
     }
 
@@ -342,7 +342,7 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
-            return BadRequest(ApiResponse<string>.FailResponse("Email confirmation failed.", new() { ex.Message }));
+            return BadRequest(ApiResponse<string>.FailFromException("Email confirmation failed.", ex));
         }
     }
 
@@ -377,7 +377,7 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
-            return BadRequest(ApiResponse<string>.FailResponse("2FA verification failed.", new() { ex.Message }));
+            return BadRequest(ApiResponse<string>.FailFromException("2FA verification failed.", ex));
         }
     }
 
@@ -436,7 +436,7 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
-            return BadRequest(ApiResponse<AuthenticatorSetupDto>.FailResponse("Setup failed.", new() { ex.Message }));
+            return BadRequest(ApiResponse<AuthenticatorSetupDto>.FailFromException("Setup failed.", ex));
         }
     }
 
@@ -460,7 +460,7 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
-            return BadRequest(ApiResponse<string>.FailResponse("Enable failed.", new() { ex.Message }));
+            return BadRequest(ApiResponse<string>.FailFromException("Enable failed.", ex));
         }
     }
 
@@ -489,7 +489,7 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
-            return BadRequest(ApiResponse<string>.FailResponse("Disable failed.", new() { ex.Message }));
+            return BadRequest(ApiResponse<string>.FailFromException("Disable failed.", ex));
         }
     }
 
@@ -513,7 +513,7 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
-            return BadRequest(ApiResponse<AuthenticatorStatusDto>.FailResponse("Failed to get status.", new() { ex.Message }));
+            return BadRequest(ApiResponse<AuthenticatorStatusDto>.FailFromException("Failed to get status.", ex));
         }
     }
 
@@ -537,7 +537,7 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
-            return BadRequest(ApiResponse<string>.FailResponse("Verification failed.", new() { ex.Message }));
+            return BadRequest(ApiResponse<string>.FailFromException("Verification failed.", ex));
         }
     }
 
@@ -557,7 +557,7 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
-            return Unauthorized(ApiResponse<LoginResultDto>.FailResponse("External login failed.", new() { ex.Message }));
+            return Unauthorized(ApiResponse<LoginResultDto>.FailFromException("External login failed.", ex));
         }
     }
 }

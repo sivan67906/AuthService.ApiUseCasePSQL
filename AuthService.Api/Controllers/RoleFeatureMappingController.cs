@@ -31,7 +31,7 @@ public class RoleFeatureMappingController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, ApiResponse<List<RoleFeatureMappingDto>>.FailResponse("Internal server error", new() { ex.Message }));
+            return StatusCode(500, ApiResponse<List<RoleFeatureMappingDto>>.FailFromException("Internal server error", ex));
         }
     }
 
@@ -49,7 +49,7 @@ public class RoleFeatureMappingController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, ApiResponse<RoleFeatureMappingDto>.FailResponse("Internal server error", new() { ex.Message }));
+            return StatusCode(500, ApiResponse<RoleFeatureMappingDto>.FailFromException("Internal server error", ex));
         }
     }
 
@@ -69,7 +69,7 @@ public class RoleFeatureMappingController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, ApiResponse<RoleFeatureMappingDto>.FailResponse("Internal server error", new() { ex.Message }));
+            return StatusCode(500, ApiResponse<RoleFeatureMappingDto>.FailFromException("Internal server error", ex));
         }
     }
 
@@ -103,7 +103,7 @@ public class RoleFeatureMappingController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, ApiResponse<RoleFeatureMappingDto>.FailResponse("Internal server error", new() { ex.Message }));
+            return StatusCode(500, ApiResponse<RoleFeatureMappingDto>.FailFromException("Internal server error", ex));
         }
     }
 
@@ -117,11 +117,11 @@ public class RoleFeatureMappingController : ControllerBase
         }
         catch (KeyNotFoundException ex)
         {
-            return NotFound(ApiResponse<bool>.FailResponse(ex.Message, new() { ex.Message }));
+            return NotFound(ApiResponse<bool>.FailFromException(ex.Message, ex));
         }
         catch (Exception ex)
         {
-            return StatusCode(500, ApiResponse<bool>.FailResponse("Internal server error", new() { ex.Message }));
+            return StatusCode(500, ApiResponse<bool>.FailFromException("Internal server error", ex));
         }
     }
 
@@ -135,7 +135,7 @@ public class RoleFeatureMappingController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, ApiResponse<List<RoleFeatureMappingDto>>.FailResponse("Internal server error", new() { ex.Message }));
+            return StatusCode(500, ApiResponse<List<RoleFeatureMappingDto>>.FailFromException("Internal server error", ex));
         }
     }
 
@@ -149,7 +149,7 @@ public class RoleFeatureMappingController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, ApiResponse<List<RoleFeatureMappingDto>>.FailResponse("Internal server error", new() { ex.Message }));
+            return StatusCode(500, ApiResponse<List<RoleFeatureMappingDto>>.FailFromException("Internal server error", ex));
         }
     }
 }

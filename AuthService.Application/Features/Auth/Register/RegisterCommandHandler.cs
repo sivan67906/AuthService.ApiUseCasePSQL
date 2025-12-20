@@ -51,8 +51,9 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, RegisterR
         var result = await _userManager.CreateAsync(user, request.Password);
         if (!result.Succeeded)
         {
-            var errors = string.Join(";", result.Errors.Select(e => e.Description));
-            throw new InvalidOperationException($"Unable to register user: {errors}");
+            // Use ||| as delimiter for multiple errors - this is handled by ApiResponse.FailFromException
+            var errors = string.Join("|||", result.Errors.Select(e => e.Description));
+            throw new InvalidOperationException(errors);
         }
 
         _logger.LogInformation("User {UserId} ({Email}) registered successfully", user.Id, user.Email);

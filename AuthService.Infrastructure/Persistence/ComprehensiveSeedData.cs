@@ -511,11 +511,11 @@ public static class ComprehensiveSeedData
             (FixedGuids.PermissionPageId, "Permission", "/permission", "Permission management page", "RBAC Management", "/api/permission", "GET", 6),
             
             // Mapping Pages - mapped directly to Mappings menu
-            (FixedGuids.RoleHierarchyMappingPageId, "Role Hierarchy Mapping", "/rolehierarchymapping", "Role hierarchy management", "Mappings", "/api/rolehierarchymapping", "GET", 7),
-            (FixedGuids.UserRoleMappingPageId, "User Role Mapping", "/userrolemapping", "User role assignment page", "Mappings", "/api/userrolemapping", "GET", 8),
-            (FixedGuids.RoleFeatureMappingPageId, "Role Feature Mapping", "/rolefeaturemapping", "Role feature mapping page", "Mappings", "/api/rolefeaturemapping", "GET", 9),
-            (FixedGuids.PageFeatureMappingPageId, "Page Feature Mapping", "/pagefeaturemapping", "Page feature mapping page", "Mappings", "/api/pagefeaturemapping", "GET", 10),
-            (FixedGuids.RolePagePermissionMappingPageId, "Role Page Permission Mapping", "/rolepagepermissionmapping", "Role page permission mapping page", "Mappings", "/api/rolepagepermissionmapping", "GET", 11),
+            (FixedGuids.RoleHierarchyMappingPageId, "Role Hierarchy", "/rolehierarchymapping", "Role hierarchy management", "Mappings", "/api/rolehierarchymapping", "GET", 7),
+            (FixedGuids.UserRoleMappingPageId, "User Role", "/userrolemapping", "User role assignment page", "Mappings", "/api/userrolemapping", "GET", 8),
+            (FixedGuids.RoleFeatureMappingPageId, "Role Feature", "/rolefeaturemapping", "Role feature mapping page", "Mappings", "/api/rolefeaturemapping", "GET", 9),
+            (FixedGuids.PageFeatureMappingPageId, "Page Feature", "/pagefeaturemapping", "Page feature mapping page", "Mappings", "/api/pagefeaturemapping", "GET", 10),
+            (FixedGuids.RolePagePermissionMappingPageId, "Role Page Permission", "/rolepagepermissionmapping", "Role page permission mapping page", "Mappings", "/api/rolepagepermissionmapping", "GET", 11),
             
             // Account Settings Pages - mapped directly to Account Settings menu
             (FixedGuids.ProfilePageId, "Profile", "/profile", "User profile page", "Account Settings", "/api/profile", "GET", 12),
@@ -581,11 +581,11 @@ public static class ComprehensiveSeedData
             ("Permission", "RBAC Management"),
             
             // Mappings pages → Mappings menu (DIRECTLY, no submenus)
-            ("Role Hierarchy Mapping", "Mappings"),
-            ("User Role Mapping", "Mappings"),
-            ("Role Feature Mapping", "Mappings"),
-            ("Page Feature Mapping", "Mappings"),
-            ("Role Page Permission Mapping", "Mappings"),
+            ("Role Hierarchy", "Mappings"),
+            ("User Role", "Mappings"),
+            ("Role Feature", "Mappings"),
+            ("Page Feature", "Mappings"),
+            ("Role Page Permission", "Mappings"),
             
             // Account Settings pages → Account Settings menu (DIRECTLY, no submenus)
             ("Profile", "Account Settings"),
