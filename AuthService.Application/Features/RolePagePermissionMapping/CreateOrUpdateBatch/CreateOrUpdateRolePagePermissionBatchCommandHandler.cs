@@ -94,7 +94,7 @@ public class CreateOrUpdateRolePagePermissionBatchCommandHandler
                 DepartmentId = m.DepartmentId,
                 DepartmentName = m.Department != null ? m.Department.Name : null,
                 RoleId = m.RoleId,
-                RoleName = m.Role.Name,
+                RoleName = m.Role.Name!,
                 PageId = m.PageId,
                 PageName = m.Page.Name,
                 PermissionId = m.PermissionId,

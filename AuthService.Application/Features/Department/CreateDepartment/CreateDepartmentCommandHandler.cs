@@ -11,25 +11,26 @@ public sealed class CreateDepartmentCommandHandler : IRequestHandler<CreateDepar
     }
     public async Task<DepartmentDto> Handle(CreateDepartmentCommand request, CancellationToken cancellationToken)
     {
-        // Check for duplicate name (case-insensitive) - including soft-deleted records
-        var existing = await _db.Departments
+        // Check for duplicate code (case-insensitive) - including soft-deleted records
+        var existingByCode = await _db.Departments
             .IgnoreQueryFilters() // Include deleted records
-            .FirstOrDefaultAsync(x => x.Name.ToLower() == request.Name.ToLower(), cancellationToken);
+            .FirstOrDefaultAsync(x => x.Code.ToLower() == request.Code.ToLower(), cancellationToken);
             
-        if (existing != null)
+        if (existingByCode != null)
         {
-            if (existing.IsDeleted)
+            if (existingByCode.IsDeleted)
             {
-                throw new InvalidOperationException($"A department with name '{request.Name}' already exists in deactivated mode. Please use a different name.");
+                throw new InvalidOperationException($"A department with code '{request.Code}' already exists in deactivated mode. Please use a different code.");
             }
             else
             {
-                throw new InvalidOperationException($"Department with name '{request.Name}' already exists");
+                throw new InvalidOperationException($"Department with code '{request.Code}' already exists");
             }
         }
         
         var entity = new Domain.Entities.Department
         {
+            Code = request.Code.ToUpper(),
             Name = request.Name,
             Description = request.Description
         };

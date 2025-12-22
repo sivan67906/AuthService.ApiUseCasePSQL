@@ -5,6 +5,7 @@ namespace AuthService.Application.Features.Feature.CreateFeature;
 /// </summary>
 public sealed record FeatureDto(
     Guid Id,
+    string Code,
     string Name,
     string? Description,
     string? RouteUrl,

@@ -2,6 +2,7 @@ namespace AuthService.Domain.Entities;
 
 public sealed class Feature : BaseEntity
 {
+    public required string Code { get; set; }
     public required string Name { get; set; }
     public string? Description { get; set; }
     public bool IsMainMenu { get; set; }

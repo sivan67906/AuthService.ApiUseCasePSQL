@@ -5,6 +5,7 @@ namespace AuthService.Application.Features.Page.CreatePage;
 /// </summary>
 public sealed record PageDto(
     Guid Id,
+    string Code,
     string Name,
     string Url,
     string? Description,

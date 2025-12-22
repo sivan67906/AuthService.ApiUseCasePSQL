@@ -11,25 +11,26 @@ public sealed class CreatePermissionCommandHandler : IRequestHandler<CreatePermi
     }
     public async Task<PermissionDto> Handle(CreatePermissionCommand request, CancellationToken cancellationToken)
     {
-        // Check for duplicate name (case-insensitive) - including soft-deleted records
-        var existing = await _db.Permissions
+        // Check for duplicate code (case-insensitive) - including soft-deleted records
+        var existingByCode = await _db.Permissions
             .IgnoreQueryFilters() // Include deleted records
-            .FirstOrDefaultAsync(x => x.Name.ToLower() == request.Name.ToLower(), cancellationToken);
+            .FirstOrDefaultAsync(x => x.Code.ToLower() == request.Code.ToLower(), cancellationToken);
             
-        if (existing != null)
+        if (existingByCode != null)
         {
-            if (existing.IsDeleted)
+            if (existingByCode.IsDeleted)
             {
-                throw new InvalidOperationException($"A permission with name '{request.Name}' already exists in deactivated mode. Please use a different name.");
+                throw new InvalidOperationException($"A permission with code '{request.Code}' already exists in deactivated mode. Please use a different code.");
             }
             else
             {
-                throw new InvalidOperationException($"Permission with name '{request.Name}' already exists");
+                throw new InvalidOperationException($"Permission with code '{request.Code}' already exists");
             }
         }
         
         var entity = new Domain.Entities.Permission
         {
+            Code = request.Code.ToUpper(),
             Name = request.Name,
             Description = request.Description
         };

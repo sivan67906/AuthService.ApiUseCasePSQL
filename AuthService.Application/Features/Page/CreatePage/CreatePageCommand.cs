@@ -4,6 +4,7 @@ namespace AuthService.Application.Features.Page.CreatePage;
 /// Command to create a new page
 /// </summary>
 public sealed record CreatePageCommand(
+    string Code,
     string Name,
     string Url,
     string? Description,

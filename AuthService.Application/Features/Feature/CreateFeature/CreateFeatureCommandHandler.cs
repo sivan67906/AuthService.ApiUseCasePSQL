@@ -17,20 +17,20 @@ public sealed class CreateFeatureCommandHandler : IRequestHandler<CreateFeatureC
             throw new InvalidOperationException("Display Order cannot be negative");
         }
         
-        // Check for duplicate name (case-insensitive) - including soft-deleted records
-        var existing = await _db.Features
+        // Check for duplicate code (case-insensitive) - including soft-deleted records
+        var existingByCode = await _db.Features
             .IgnoreQueryFilters() // Include deleted records
-            .FirstOrDefaultAsync(x => x.Name.ToLower() == request.Name.ToLower(), cancellationToken);
+            .FirstOrDefaultAsync(x => x.Code.ToLower() == request.Code.ToLower(), cancellationToken);
             
-        if (existing != null)
+        if (existingByCode != null)
         {
-            if (existing.IsDeleted)
+            if (existingByCode.IsDeleted)
             {
-                throw new InvalidOperationException($"A feature with name '{request.Name}' already exists in deactivated mode. Please use a different name.");
+                throw new InvalidOperationException($"A feature with code '{request.Code}' already exists in deactivated mode. Please use a different code.");
             }
             else
             {
-                throw new InvalidOperationException($"Feature with name '{request.Name}' already exists");
+                throw new InvalidOperationException($"Feature with code '{request.Code}' already exists");
             }
         }
         
@@ -61,6 +61,7 @@ public sealed class CreateFeatureCommandHandler : IRequestHandler<CreateFeatureC
         
         var entity = new Domain.Entities.Feature
         {
+            Code = request.Code.ToUpper(),
             Name = request.Name,
             Description = request.Description,
             Icon = request.Icon,

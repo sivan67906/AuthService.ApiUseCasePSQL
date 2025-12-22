@@ -4,6 +4,7 @@ namespace AuthService.Application.Features.Feature.CreateFeature;
 /// Command to create a new feature
 /// </summary>
 public sealed record CreateFeatureCommand(
+    string Code,
     string Name,
     string? Description,
     string? RouteUrl,

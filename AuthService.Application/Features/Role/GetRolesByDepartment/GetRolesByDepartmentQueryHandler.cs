@@ -34,6 +34,7 @@ public sealed class GetRolesByDepartmentQueryHandler : IRequestHandler<GetRolesB
 
         return roles.Select(r => new RoleDto(
             r.Id,
+            r.Code,
             r.Name!,
             r.Description,
             r.DepartmentId,

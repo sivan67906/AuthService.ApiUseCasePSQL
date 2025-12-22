@@ -19,7 +19,7 @@ public sealed class UpdateDepartmentCommandHandler : IRequestHandler<UpdateDepar
             throw new InvalidOperationException($"Department with ID {request.Id} not found");
         }
         
-        // Check if any changes were made
+        // Check if any changes were made (Code is immutable, not checked)
         bool hasChanges = false;
         if (entity.Name != request.Name || entity.Description != request.Description)
         {
@@ -31,16 +31,7 @@ public sealed class UpdateDepartmentCommandHandler : IRequestHandler<UpdateDepar
             throw new InvalidOperationException("No changes detected. Please modify the data before updating.");
         }
         
-        // Check for duplicate name (case-insensitive) excluding current record and soft-deleted records
-        var duplicateExists = await _db.Departments
-            .Where(x => !x.IsDeleted && x.Id != request.Id)
-            .AnyAsync(x => x.Name.ToLower() == request.Name.ToLower(), cancellationToken);
-            
-        if (duplicateExists)
-        {
-            throw new InvalidOperationException($"Department with name '{request.Name}' already exists");
-        }
-        
+        // Code is immutable - do not update it
         entity.Name = request.Name;
         entity.Description = request.Description;
         entity.UpdatedAt = DateTime.UtcNow;

@@ -24,7 +24,7 @@ public sealed class UpdateRoleCommandHandler : IRequestHandler<UpdateRoleCommand
             throw new InvalidOperationException($"Role with ID '{request.RoleId}' not found");
         }
 
-        // Check if any changes were made
+        // Check if any changes were made (Code is immutable, not checked)
         bool hasChanges = false;
         if (role.Name != request.Name || role.Description != request.Description || role.DepartmentId != request.DepartmentId)
         {
@@ -34,16 +34,6 @@ public sealed class UpdateRoleCommandHandler : IRequestHandler<UpdateRoleCommand
         if (!hasChanges)
         {
             throw new InvalidOperationException("No changes detected. Please modify the data before updating.");
-        }
-
-        // Check for duplicate name (case-insensitive) excluding current role and soft-deleted records
-        var duplicateExists = await _db.ApplicationRoles
-            .Where(r => !r.IsDeleted && r.Id != request.RoleId)
-            .AnyAsync(r => r.Name!.ToLower() == request.Name.ToLower(), cancellationToken);
-            
-        if (duplicateExists)
-        {
-            throw new InvalidOperationException($"Role with name '{request.Name}' already exists");
         }
 
         // Check if department exists if provided
@@ -58,6 +48,7 @@ public sealed class UpdateRoleCommandHandler : IRequestHandler<UpdateRoleCommand
             }
         }
 
+        // Code is immutable - do not update it
         role.Name = request.Name;
         role.NormalizedName = request.Name.ToUpperInvariant();
         role.Description = request.Description;
@@ -72,6 +63,7 @@ public sealed class UpdateRoleCommandHandler : IRequestHandler<UpdateRoleCommand
 
         return new RoleDto(
             role.Id,
+            role.Code,
             role.Name!,
             role.Description,
             role.DepartmentId,

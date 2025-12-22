@@ -204,10 +204,12 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
         builder.Entity<ApplicationRole>(b =>
         {
             b.ToTable("ApplicationRoles");
+            b.Property(e => e.Code).HasMaxLength(10);
             b.HasOne(r => r.Department)
                 .WithMany(d => d.Roles)
                 .HasForeignKey(r => r.DepartmentId)
                 .OnDelete(DeleteBehavior.Restrict);
+            b.HasIndex(r => r.Code).IsUnique().HasFilter("\"Code\" IS NOT NULL");
             b.HasIndex(r => r.Name);
             // Global query filter for soft delete
             b.HasQueryFilter(e => !e.IsDeleted);
@@ -243,9 +245,11 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
         builder.Entity<Department>(b =>
         {
             b.ToTable("Departments");
+            b.Property(e => e.Code).IsRequired().HasMaxLength(10);
             b.Property(e => e.Name).IsRequired().HasMaxLength(100);
             b.Property(e => e.Description).HasMaxLength(500);
-            b.HasIndex(e => e.Name).IsUnique();
+            b.HasIndex(e => e.Code).IsUnique();
+            b.HasIndex(e => e.Name);
             // Global query filter for soft delete
             b.HasQueryFilter(e => !e.IsDeleted);
         });
@@ -254,6 +258,11 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
         builder.Entity<Permission>(b =>
         {
             b.ToTable("Permissions");
+            b.Property(e => e.Code).IsRequired().HasMaxLength(10);
+            b.Property(e => e.Name).IsRequired().HasMaxLength(100);
+            b.Property(e => e.Description).HasMaxLength(500);
+            b.HasIndex(e => e.Code).IsUnique();
+            b.HasIndex(e => e.Name);
             // Global query filter for soft delete
             b.HasQueryFilter(e => !e.IsDeleted);
         });
@@ -262,10 +271,15 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
         builder.Entity<Feature>(b =>
         {
             b.ToTable("Features");
+            b.Property(e => e.Code).IsRequired().HasMaxLength(10);
+            b.Property(e => e.Name).IsRequired().HasMaxLength(100);
+            b.Property(e => e.Description).HasMaxLength(500);
             b.Property(e => e.Icon).HasMaxLength(100);
             b.HasOne(f => f.ParentFeature)
                 .WithMany(f => f.SubFeatures)
                 .HasForeignKey(f => f.ParentFeatureId);
+            b.HasIndex(e => e.Code).IsUnique();
+            b.HasIndex(e => e.Name);
             b.HasIndex(f => new { f.ParentFeatureId, f.IsActive });
             b.HasIndex(f => new { f.IsMainMenu, f.IsActive });
             b.HasIndex(f => f.DisplayOrder);
@@ -277,7 +291,12 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
         builder.Entity<Page>(b =>
         {
             b.ToTable("Pages");
+            b.Property(e => e.Code).IsRequired().HasMaxLength(10);
+            b.Property(e => e.Name).IsRequired().HasMaxLength(100);
+            b.Property(e => e.Description).HasMaxLength(500);
             b.Property(e => e.Url).IsRequired().HasMaxLength(500);
+            b.HasIndex(e => e.Code).IsUnique();
+            b.HasIndex(e => e.Name);
             b.HasIndex(p => p.IsActive);
             b.HasIndex(p => p.DisplayOrder);
             b.HasIndex(p => p.MenuContext);

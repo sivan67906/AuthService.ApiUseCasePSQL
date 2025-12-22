@@ -21,6 +21,7 @@ public sealed class GetFeatureQueryHandler : IRequestHandler<GetFeatureQuery, Fe
         }
         return new FeatureDto(
             entity.Id,
+            entity.Code,
             entity.Name,
             entity.Description,
             entity.RouteUrl,

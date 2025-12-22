@@ -23,20 +23,20 @@ public sealed class CreateRoleCommandHandler : IRequestHandler<CreateRoleCommand
 
     public async Task<RoleDto> Handle(CreateRoleCommand request, CancellationToken cancellationToken)
     {
-        // Check if role already exists (case-insensitive) - including soft-deleted records
-        var existingRole = await _db.ApplicationRoles
+        // Check if role code already exists (case-insensitive) - including soft-deleted records
+        var existingByCode = await _db.ApplicationRoles
             .IgnoreQueryFilters() // Include deleted records
-            .FirstOrDefaultAsync(r => r.Name!.ToLower() == request.Name.ToLower(), cancellationToken);
+            .FirstOrDefaultAsync(r => r.Code != null && r.Code.ToLower() == request.Code.ToLower(), cancellationToken);
             
-        if (existingRole != null)
+        if (existingByCode != null)
         {
-            if (existingRole.IsDeleted)
+            if (existingByCode.IsDeleted)
             {
-                throw new InvalidOperationException($"A role with name '{request.Name}' already exists in deactivated mode. Please use a different name.");
+                throw new InvalidOperationException($"A role with code '{request.Code}' already exists in deactivated mode. Please use a different code.");
             }
             else
             {
-                throw new InvalidOperationException($"Role with name '{request.Name}' already exists");
+                throw new InvalidOperationException($"Role with code '{request.Code}' already exists");
             }
         }
 
@@ -54,6 +54,7 @@ public sealed class CreateRoleCommandHandler : IRequestHandler<CreateRoleCommand
 
         var role = new ApplicationRole
         {
+            Code = request.Code.ToUpper(),
             Name = request.Name,
             Description = request.Description,
             DepartmentId = request.DepartmentId,
@@ -78,6 +79,6 @@ public sealed class CreateRoleCommandHandler : IRequestHandler<CreateRoleCommand
             departmentName = department?.Name;
         }
 
-        return new RoleDto(role.Id, role.Name!, role.Description, role.DepartmentId, departmentName);
+        return new RoleDto(role.Id, role.Code, role.Name!, role.Description, role.DepartmentId, departmentName);
     }
 }

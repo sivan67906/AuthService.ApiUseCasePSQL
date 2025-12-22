@@ -18,6 +18,7 @@ public sealed class GetRoleByIdQueryHandler : IRequestHandler<GetRoleByIdQuery, 
         }
         return new RoleDto(
             role.Id,
+            role.Code,
             role.Name!,
             role.Description,
             role.DepartmentId,

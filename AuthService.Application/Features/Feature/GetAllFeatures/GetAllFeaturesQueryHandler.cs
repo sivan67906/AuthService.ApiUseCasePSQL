@@ -19,6 +19,7 @@ public sealed class GetAllFeaturesQueryHandler : IRequestHandler<GetAllFeaturesQ
             .ToListAsync(cancellationToken);
         return entities.Select(x => new FeatureDto(
             x.Id,
+            x.Code,
             x.Name,
             x.Description,
             x.RouteUrl,

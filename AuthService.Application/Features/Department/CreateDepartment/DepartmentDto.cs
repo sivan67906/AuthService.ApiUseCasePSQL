@@ -5,6 +5,7 @@ namespace AuthService.Application.Features.Department.CreateDepartment;
 /// </summary>
 public sealed record DepartmentDto(
     Guid Id,
+    string Code,
     string Name,
     string? Description,
     bool IsActive,

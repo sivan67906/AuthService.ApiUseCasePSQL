@@ -198,18 +198,19 @@ public static class ComprehensiveSeedData
 
         var permissionList = new[]
         {
-            (FixedGuids.CreatePermissionId, "Create", "Permission to create new records"),
-            (FixedGuids.ViewPermissionId, "View", "Permission to view records"),
-            (FixedGuids.UpdatePermissionId, "Update", "Permission to update existing records"),
-            (FixedGuids.DeletePermissionId, "Delete", "Permission to delete records")
+            (FixedGuids.CreatePermissionId, "CREATE", "Create", "Permission to create new records"),
+            (FixedGuids.ViewPermissionId, "VIEW", "View", "Permission to view records"),
+            (FixedGuids.UpdatePermissionId, "UPDATE", "Update", "Permission to update existing records"),
+            (FixedGuids.DeletePermissionId, "DELETE", "Delete", "Permission to delete records")
         };
 
-        foreach (var (id, name, description) in permissionList)
+        foreach (var (id, code, name, description) in permissionList)
         {
             permissions[name] = id;
             context.Permissions.Add(new Permission
             {
                 Id = id,
+                Code = code,
                 Name = name,
                 Description = description,
                 IsActive = true,
@@ -230,16 +231,17 @@ public static class ComprehensiveSeedData
 
         var deptList = new[]
         {
-            (FixedGuids.FinanceDeptId, "Finance", "Finance Department"),
-            (FixedGuids.MarketingDeptId, "Marketing", "Marketing Department")
+            (FixedGuids.FinanceDeptId, "FIN", "Finance", "Finance Department"),
+            (FixedGuids.MarketingDeptId, "MKT", "Marketing", "Marketing Department")
         };
 
-        foreach (var (id, name, description) in deptList)
+        foreach (var (id, code, name, description) in deptList)
         {
             departments[name] = id;
             context.Departments.Add(new Department
             {
                 Id = id,
+                Code = code,
                 Name = name,
                 Description = description,
                 IsActive = true,
@@ -262,16 +264,17 @@ public static class ComprehensiveSeedData
 
         var roleList = new[]
         {
-            (FixedGuids.SuperAdminRoleId, "SuperAdmin", "Super Administrator with global access"),
-            (FixedGuids.DepartmentAdminRoleId, "DepartmentAdmin", "Department Administrator with full access within department"),
-            (FixedGuids.PendingUserRoleId, "PendingUser", "Default role for newly registered users")
+            (FixedGuids.SuperAdminRoleId, "SUPER_ADM", "SuperAdmin", "Super Administrator with global access"),
+            (FixedGuids.DepartmentAdminRoleId, "DEPT_ADM", "DepartmentAdmin", "Department Administrator with full access within department"),
+            (FixedGuids.PendingUserRoleId, "PENDING", "PendingUser", "Default role for newly registered users")
         };
 
-        foreach (var (id, name, description) in roleList)
+        foreach (var (id, code, name, description) in roleList)
         {
             var role = new ApplicationRole
             {
                 Id = id,
+                Code = code,
                 Name = name,
                 NormalizedName = name.ToUpper(),
                 Description = description,
@@ -297,18 +300,19 @@ public static class ComprehensiveSeedData
         // Finance Roles
         var financeRoles = new[]
         {
-            (FixedGuids.FinanceManagerRoleId, "FinanceManager", "Finance Manager - Full permissions on Finance pages"),
-            (FixedGuids.FinanceSupervisorRoleId, "FinanceSupervisor", "Finance Supervisor - No delete permission"),
-            (FixedGuids.FinanceStaffRoleId, "FinanceStaff", "Finance Staff - View and Create only"),
-            (FixedGuids.FinanceInternRoleId, "FinanceIntern", "Finance Intern - View only")
+            (FixedGuids.FinanceManagerRoleId, "FIN_MGR", "FinanceManager", "Finance Manager - Full permissions on Finance pages"),
+            (FixedGuids.FinanceSupervisorRoleId, "FIN_SUP", "FinanceSupervisor", "Finance Supervisor - No delete permission"),
+            (FixedGuids.FinanceStaffRoleId, "FIN_STF", "FinanceStaff", "Finance Staff - View and Create only"),
+            (FixedGuids.FinanceInternRoleId, "FIN_INT", "FinanceIntern", "Finance Intern - View only")
         };
 
         departmentRoles["Finance"] = new Dictionary<string, Guid>();
-        foreach (var (id, name, description) in financeRoles)
+        foreach (var (id, code, name, description) in financeRoles)
         {
             var role = new ApplicationRole
             {
                 Id = id,
+                Code = code,
                 Name = name,
                 NormalizedName = name.ToUpper(),
                 Description = description,
@@ -322,18 +326,19 @@ public static class ComprehensiveSeedData
         // Marketing Roles
         var marketingRoles = new[]
         {
-            (FixedGuids.MarketingManagerRoleId, "MarketingManager", "Marketing Manager - Full permissions on Marketing pages"),
-            (FixedGuids.MarketingSupervisorRoleId, "MarketingSupervisor", "Marketing Supervisor - No delete permission"),
-            (FixedGuids.MarketingStaffRoleId, "MarketingStaff", "Marketing Staff - View and Create only"),
-            (FixedGuids.MarketingInternRoleId, "MarketingIntern", "Marketing Intern - View only")
+            (FixedGuids.MarketingManagerRoleId, "MKT_MGR", "MarketingManager", "Marketing Manager - Full permissions on Marketing pages"),
+            (FixedGuids.MarketingSupervisorRoleId, "MKT_SUP", "MarketingSupervisor", "Marketing Supervisor - No delete permission"),
+            (FixedGuids.MarketingStaffRoleId, "MKT_STF", "MarketingStaff", "Marketing Staff - View and Create only"),
+            (FixedGuids.MarketingInternRoleId, "MKT_INT", "MarketingIntern", "Marketing Intern - View only")
         };
 
         departmentRoles["Marketing"] = new Dictionary<string, Guid>();
-        foreach (var (id, name, description) in marketingRoles)
+        foreach (var (id, code, name, description) in marketingRoles)
         {
             var role = new ApplicationRole
             {
                 Id = id,
+                Code = code,
                 Name = name,
                 NormalizedName = name.ToUpper(),
                 Description = description,
@@ -367,6 +372,7 @@ public static class ComprehensiveSeedData
         context.Features.Add(new Feature
         {
             Id = FixedGuids.DashboardFeatureId,
+            Code = "DASH",
             Name = "Dashboard",
             Description = "Dashboard and Home",
             IsMainMenu = true,
@@ -389,6 +395,7 @@ public static class ComprehensiveSeedData
         context.Features.Add(new Feature
         {
             Id = FixedGuids.RbacManagementFeatureId,
+            Code = "RBAC_MGT",
             Name = "RBAC Management",
             Description = "Role-Based Access Control Management",
             IsMainMenu = true,
@@ -412,6 +419,7 @@ public static class ComprehensiveSeedData
         context.Features.Add(new Feature
         {
             Id = FixedGuids.MappingsFeatureId,
+            Code = "MAPPINGS",
             Name = "Mappings",
             Description = "Role and Permission Mappings",
             IsMainMenu = true,
@@ -434,6 +442,7 @@ public static class ComprehensiveSeedData
         context.Features.Add(new Feature
         {
             Id = FixedGuids.AccountSettingsFeatureId,
+            Code = "ACCOUNT",
             Name = "Account",
             Description = "User Account",
             IsMainMenu = true,
@@ -455,6 +464,7 @@ public static class ComprehensiveSeedData
         context.Features.Add(new Feature
         {
             Id = FixedGuids.FinanceManagementFeatureId,
+            Code = "FIN_MGT",
             Name = "Finance Management",
             Description = "Finance Department Operations",
             IsMainMenu = true,
@@ -474,6 +484,7 @@ public static class ComprehensiveSeedData
         context.Features.Add(new Feature
         {
             Id = FixedGuids.CompanySubMenuFeatureId,
+            Code = "COMPANY",
             Name = "Company",
             Description = "Company Management SubMenu",
             IsMainMenu = false,
@@ -501,38 +512,39 @@ public static class ComprehensiveSeedData
         var pageList = new[]
         {
             // Dashboard - mapped to Dashboard menu
-            (FixedGuids.DashboardPageId, "Dashboard", "/dashboard", "Dashboard page", "Dashboard", "/api/dashboard", "GET", 1),
+            (FixedGuids.DashboardPageId, "DASHBOARD", "Dashboard", "/dashboard", "Dashboard page", "Dashboard", "/api/dashboard", "GET", 1),
             
             // RBAC Management Pages - mapped directly to RBAC Management menu
-            (FixedGuids.DepartmentPageId, "Department", "/department", "Department management page", "RBAC Management", "/api/department", "GET", 2),
-            (FixedGuids.RolePageId, "Role", "/role", "Role management page", "RBAC Management", "/api/role", "GET", 3),
-            (FixedGuids.FeaturePageId, "Feature", "/feature", "Feature management page", "RBAC Management", "/api/feature", "GET", 4),
-            (FixedGuids.PagePageId, "Page", "/page", "Page management page", "RBAC Management", "/api/page", "GET", 5),
-            (FixedGuids.PermissionPageId, "Permission", "/permission", "Permission management page", "RBAC Management", "/api/permission", "GET", 6),
+            (FixedGuids.DepartmentPageId, "DEPT", "Department", "/department", "Department management page", "RBAC Management", "/api/department", "GET", 2),
+            (FixedGuids.RolePageId, "ROLE", "Role", "/role", "Role management page", "RBAC Management", "/api/role", "GET", 3),
+            (FixedGuids.FeaturePageId, "FEAT", "Feature", "/feature", "Feature management page", "RBAC Management", "/api/feature", "GET", 4),
+            (FixedGuids.PagePageId, "PAGE", "Page", "/page", "Page management page", "RBAC Management", "/api/page", "GET", 5),
+            (FixedGuids.PermissionPageId, "PERM", "Permission", "/permission", "Permission management page", "RBAC Management", "/api/permission", "GET", 6),
             
             // Mapping Pages - mapped directly to Mappings menu
-            (FixedGuids.RoleHierarchyMappingPageId, "Role Hierarchy", "/rolehierarchymapping", "Role hierarchy management", "Mappings", "/api/rolehierarchymapping", "GET", 7),
-            (FixedGuids.UserRoleMappingPageId, "User Role", "/userrolemapping", "User role assignment page", "Mappings", "/api/userrolemapping", "GET", 8),
-            (FixedGuids.RoleFeatureMappingPageId, "Role Feature", "/rolefeaturemapping", "Role feature mapping page", "Mappings", "/api/rolefeaturemapping", "GET", 9),
-            (FixedGuids.PageFeatureMappingPageId, "Page Feature", "/pagefeaturemapping", "Page feature mapping page", "Mappings", "/api/pagefeaturemapping", "GET", 10),
-            (FixedGuids.RolePagePermissionMappingPageId, "Role Page Permission", "/rolepagepermissionmapping", "Role page permission mapping page", "Mappings", "/api/rolepagepermissionmapping", "GET", 11),
+            (FixedGuids.RoleHierarchyMappingPageId, "ROLE_HIER", "Role Hierarchy", "/rolehierarchymapping", "Role hierarchy management", "Mappings", "/api/rolehierarchymapping", "GET", 7),
+            (FixedGuids.UserRoleMappingPageId, "USER_ROLE", "User Role", "/userrolemapping", "User role assignment page", "Mappings", "/api/userrolemapping", "GET", 8),
+            (FixedGuids.RoleFeatureMappingPageId, "ROLE_FEAT", "Role Feature", "/rolefeaturemapping", "Role feature mapping page", "Mappings", "/api/rolefeaturemapping", "GET", 9),
+            (FixedGuids.PageFeatureMappingPageId, "PAGE_FEAT", "Page Feature", "/pagefeaturemapping", "Page feature mapping page", "Mappings", "/api/pagefeaturemapping", "GET", 10),
+            (FixedGuids.RolePagePermissionMappingPageId, "RPP_MAP", "Role Page Permission", "/rolepagepermissionmapping", "Role page permission mapping page", "Mappings", "/api/rolepagepermissionmapping", "GET", 11),
             
             // Account Pages - mapped directly to Account menu
-            (FixedGuids.ProfilePageId, "Profile", "/profile", "User profile page", "Account", "/api/profile", "GET", 12),
-            (FixedGuids.ChangePasswordPageId, "Change Password", "/change-password", "Change password page", "Account", "/api/auth/change-password", "POST", 13),
+            (FixedGuids.ProfilePageId, "PROFILE", "Profile", "/profile", "User profile page", "Account", "/api/profile", "GET", 12),
+            (FixedGuids.ChangePasswordPageId, "CHG_PWD", "Change Password", "/change-password", "Change password page", "Account", "/api/auth/change-password", "POST", 13),
             
             // Finance Management - Company Pages - mapped to Company submenu
-            (FixedGuids.CompanyPageId, "Company", "/company", "Company management page", "Company", "/api/company", "GET", 14),
-            (FixedGuids.TestCategoriesPageId, "Test Categories", "/testcategories", "Test categories page", "Company", "/api/testcategories", "GET", 15),
-            (FixedGuids.TestProductsPageId, "Test Products", "/testproducts", "Test products page", "Company", "/api/testproducts", "GET", 16)
+            (FixedGuids.CompanyPageId, "COMPANY", "Company", "/company", "Company management page", "Company", "/api/company", "GET", 14),
+            (FixedGuids.TestCategoriesPageId, "TEST_CAT", "Test Categories", "/testcategories", "Test categories page", "Company", "/api/testcategories", "GET", 15),
+            (FixedGuids.TestProductsPageId, "TEST_PROD", "Test Products", "/testproducts", "Test products page", "Company", "/api/testproducts", "GET", 16)
         };
 
-        foreach (var (id, name, url, desc, menuContext, apiEndpoint, httpMethod, order) in pageList)
+        foreach (var (id, code, name, url, desc, menuContext, apiEndpoint, httpMethod, order) in pageList)
         {
             pages[name] = id;
             context.Pages.Add(new Page
             {
                 Id = id,
+                Code = code,
                 Name = name,
                 Url = url,
                 Description = desc,

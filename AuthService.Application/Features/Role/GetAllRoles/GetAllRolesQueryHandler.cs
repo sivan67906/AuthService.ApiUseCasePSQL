@@ -21,6 +21,7 @@ public sealed class GetAllRolesQueryHandler : IRequestHandler<GetAllRolesQuery, 
             .ToListAsync(cancellationToken);
         return roles.Select(r => new RoleDto(
             r.Id,
+            r.Code,
             r.Name!,
             r.Description,
             r.DepartmentId,

@@ -5,6 +5,7 @@ namespace AuthService.Application.Features.Role.CreateRole;
 /// </summary>
 public sealed record RoleDto(
     Guid Id,
+    string? Code,
     string Name,
     string? Description,
     Guid? DepartmentId,

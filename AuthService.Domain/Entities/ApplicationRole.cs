@@ -4,6 +4,7 @@ namespace AuthService.Domain.Entities;
 
 public class ApplicationRole : IdentityRole<Guid>, IAuditableEntity, ISoftDeletable
 {
+    public string? Code { get; set; }
     public string? Description { get; set; }
     public Guid? DepartmentId { get; set; }
     public bool IsActive { get; set; } = true;
