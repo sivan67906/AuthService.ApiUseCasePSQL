@@ -8,17 +8,6 @@ using Microsoft.Extensions.Logging;
 
 namespace AuthService.Infrastructure.Services;
 
-public interface IUserAuthorizationService
-{
-    Task<bool> UserHasPermissionAsync(Guid userId, string permissionName);
-    Task<bool> UserHasAccessToPageAsync(Guid userId, string pageName);
-    Task<bool> UserHasAccessToDepartmentAsync(Guid userId, Guid? departmentId);
-    Task<List<MenuItemDto>> GetUserMenusAsync(Guid userId);
-    Task<List<string>> GetUserRolesAsync(Guid userId);
-    Task<Guid?> GetUserDepartmentAsync(Guid userId);
-    Task<List<string>> GetUserPagePermissionsAsync(Guid userId, string pageName);
-}
-
 public class UserAuthorizationService : IUserAuthorizationService
 {
     private readonly IAppDbContext _db;
@@ -398,7 +387,7 @@ public class UserAuthorizationService : IUserAuthorizationService
             var featurePages = accessiblePages
                 .Where(p => featurePageIds.Contains(p.Id) && accessiblePageIds.Contains(p.Id))
                 .OrderBy(p => p.DisplayOrder)
-                .Select(p => new PageDto
+                .Select(p => new MenuPageItemDto
                 {
                     Id = p.Id,
                     PageId = p.Id,
@@ -542,29 +531,4 @@ public class UserAuthorizationService : IUserAuthorizationService
             return [];
         }
     }
-}
-
-// Public DTOs
-public class MenuItemDto
-{
-    public Guid Id { get; set; }
-    public string Name { get; set; } = string.Empty;
-    public string? Description { get; set; }
-    public string? Icon { get; set; }
-    public int DisplayOrder { get; set; }
-    public int Level { get; set; }
-    public List<MenuItemDto> SubMenus { get; set; } = [];
-    public List<PageDto> Pages { get; set; } = [];
-}
-
-public class PageDto
-{
-    public Guid Id { get; set; }
-    public Guid PageId { get; set; }
-    public string Name { get; set; } = string.Empty;
-    public string Url { get; set; } = string.Empty;
-    public string? Description { get; set; }
-    public int DisplayOrder { get; set; }
-    public string? ApiEndpoint { get; set; }
-    public string? HttpMethod { get; set; }
 }

@@ -1,20 +1,27 @@
 using System.Security.Claims;
-using AuthService.Infrastructure.Services;
+using AuthService.Application.Common.Interfaces;
+using AuthService.Application.Features.Menu.CheckPageAccess;
+using AuthService.Application.Features.Menu.CheckPermission;
+using AuthService.Application.Features.Menu.GetPagePermissions;
+using AuthService.Application.Features.Menu.GetUserDepartment;
+using AuthService.Application.Features.Menu.GetUserMenus;
+using AuthService.Application.Features.Menu.GetUserRoles;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace AuthService.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class MenuController(
-    IUserAuthorizationService authorizationService,
-    ILogger<MenuController> logger) : ControllerBase
+public class MenuController : ControllerBase
 {
-    private readonly IUserAuthorizationService _authorizationService = authorizationService;
-    private readonly ILogger<MenuController> _logger = logger;
+    private readonly IMediator _mediator;
+
+    public MenuController(IMediator mediator)
+    {
+        _mediator = mediator;
+    }
 
     /// <summary>
     /// Get menu structure for the current logged-in user.
@@ -32,13 +39,12 @@ public class MenuController(
                 return Unauthorized(ApiResponse<List<MenuItemDto>>.ErrorResponse("User not authenticated"));
             }
 
-            var menus = await _authorizationService.GetUserMenusAsync(userId);
+            var menus = await _mediator.Send(new GetUserMenusQuery(userId));
             return Ok(ApiResponse<List<MenuItemDto>>.SuccessResponse(menus, "Menus retrieved successfully"));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error retrieving user menus");
-            return StatusCode(500, ApiResponse<List<MenuItemDto>>.ErrorResponse("An error occurred while retrieving menus"));
+            return StatusCode(500, ApiResponse<List<MenuItemDto>>.FailFromException("An error occurred while retrieving menus", ex));
         }
     }
 
@@ -56,13 +62,12 @@ public class MenuController(
                 return Unauthorized(ApiResponse<bool>.ErrorResponse("User not authenticated"));
             }
 
-            var hasAccess = await _authorizationService.UserHasAccessToPageAsync(userId, pageName);
+            var hasAccess = await _mediator.Send(new CheckPageAccessQuery(userId, pageName));
             return Ok(ApiResponse<bool>.SuccessResponse(hasAccess, $"Access check completed for page: {pageName}"));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error checking page access for page: {PageName}", pageName);
-            return StatusCode(500, ApiResponse<bool>.ErrorResponse("An error occurred while checking page access"));
+            return StatusCode(500, ApiResponse<bool>.FailFromException($"An error occurred while checking page access for: {pageName}", ex));
         }
     }
 
@@ -80,13 +85,12 @@ public class MenuController(
                 return Unauthorized(ApiResponse<bool>.ErrorResponse("User not authenticated"));
             }
 
-            var hasPermission = await _authorizationService.UserHasPermissionAsync(userId, permissionName);
+            var hasPermission = await _mediator.Send(new CheckPermissionQuery(userId, permissionName));
             return Ok(ApiResponse<bool>.SuccessResponse(hasPermission, $"Permission check completed for: {permissionName}"));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error checking permission: {PermissionName}", permissionName);
-            return StatusCode(500, ApiResponse<bool>.ErrorResponse("An error occurred while checking permission"));
+            return StatusCode(500, ApiResponse<bool>.FailFromException($"An error occurred while checking permission: {permissionName}", ex));
         }
     }
 
@@ -104,13 +108,12 @@ public class MenuController(
                 return Unauthorized(ApiResponse<List<string>>.ErrorResponse("User not authenticated"));
             }
 
-            var roles = await _authorizationService.GetUserRolesAsync(userId);
+            var roles = await _mediator.Send(new GetUserRolesQuery(userId));
             return Ok(ApiResponse<List<string>>.SuccessResponse(roles, "User roles retrieved successfully"));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error retrieving user roles");
-            return StatusCode(500, ApiResponse<List<string>>.ErrorResponse("An error occurred while retrieving user roles"));
+            return StatusCode(500, ApiResponse<List<string>>.FailFromException("An error occurred while retrieving user roles", ex));
         }
     }
 
@@ -128,13 +131,12 @@ public class MenuController(
                 return Unauthorized(ApiResponse<Guid?>.ErrorResponse("User not authenticated"));
             }
 
-            var departmentId = await _authorizationService.GetUserDepartmentAsync(userId);
+            var departmentId = await _mediator.Send(new GetUserDepartmentQuery(userId));
             return Ok(ApiResponse<Guid?>.SuccessResponse(departmentId, "User department retrieved successfully"));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error retrieving user department");
-            return StatusCode(500, ApiResponse<Guid?>.ErrorResponse("An error occurred while retrieving user department"));
+            return StatusCode(500, ApiResponse<Guid?>.FailFromException("An error occurred while retrieving user department", ex));
         }
     }
 
@@ -154,34 +156,12 @@ public class MenuController(
                 return Unauthorized(ApiResponse<PagePermissionsDto>.ErrorResponse("User not authenticated"));
             }
 
-            var permissions = await _authorizationService.GetUserPagePermissionsAsync(userId, pageName);
-            
-            var result = new PagePermissionsDto
-            {
-                PageName = pageName,
-                Permissions = permissions,
-                CanCreate = permissions.Contains("Create"),
-                CanView = permissions.Contains("View"),
-                CanUpdate = permissions.Contains("Update"),
-                CanDelete = permissions.Contains("Delete")
-            };
-
-            return Ok(ApiResponse<PagePermissionsDto>.SuccessResponse(result, $"Page permissions retrieved for: {pageName}"));
+            var permissions = await _mediator.Send(new GetPagePermissionsQuery(userId, pageName));
+            return Ok(ApiResponse<PagePermissionsDto>.SuccessResponse(permissions, $"Page permissions retrieved for: {pageName}"));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error retrieving page permissions for: {PageName}", pageName);
-            return StatusCode(500, ApiResponse<PagePermissionsDto>.ErrorResponse("An error occurred while retrieving page permissions"));
+            return StatusCode(500, ApiResponse<PagePermissionsDto>.FailFromException($"An error occurred while retrieving page permissions for: {pageName}", ex));
         }
     }
-}
-
-public class PagePermissionsDto
-{
-    public string PageName { get; set; } = string.Empty;
-    public List<string> Permissions { get; set; } = [];
-    public bool CanCreate { get; set; }
-    public bool CanView { get; set; }
-    public bool CanUpdate { get; set; }
-    public bool CanDelete { get; set; }
 }

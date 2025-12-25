@@ -221,7 +221,7 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// Role-based policies - Using AddAuthorizationBuilder (fixes ASP0025)
+// Role-based policies - Using AddAuthorizationBuilder 
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy("RequireAdmin", policy =>
         policy.RequireRole(Roles.Admin))
@@ -317,9 +317,7 @@ app.Use(async (context, next) =>
     }
 });
 
-// ============================================
 // OPTIMIZATION: Middleware order is important for performance
-// ============================================
 app.UseResponseCompression(); // Must be first
 
 // Configure forwarded headers for reverse proxy (Docker/Ocelot Gateway)

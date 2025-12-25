@@ -1,34 +1,30 @@
-﻿using AuthService.Domain.Entities;
-using Microsoft.AspNetCore.Identity;
+﻿using AuthService.Application.Features.SetPassword.SetPasswords;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AuthService.Api.Controllers;
 
-public class SetPasswordController : Controller
+[ApiController]
+[Route("api/[controller]")]
+public class SetPasswordController : ControllerBase
 {
-    [HttpPost("api/setpassword")]
-    public async Task<IActionResult> SetPasswords(
-    [FromServices] UserManager<ApplicationUser> userManager,
-    [FromBody] List<string> emails)
+    private readonly IMediator _mediator;
+
+    public SetPasswordController(IMediator mediator)
     {
-        if (emails == null || !emails.Any())
-            return BadRequest("No emails provided.");
+        _mediator = mediator;
+    }
 
-        foreach (var email in emails)
+    [HttpPost]
+    public async Task<ActionResult<ApiResponse<string>>> SetPasswords([FromBody] List<string> emails)
+    {
+        try
         {
-            var user = await userManager.FindByEmailAsync(email);
-            if (user != null)
-            {
-                var removeResult = await userManager.RemovePasswordAsync(user);
-                if (!removeResult.Succeeded)
-                    return BadRequest($"Failed to remove password for {email}");
-
-                var addResult = await userManager.AddPasswordAsync(user, "Welcome@123");
-                if (!addResult.Succeeded)
-                    return BadRequest($"Failed to add password for {email}");
-            }
+            var result = await _mediator.Send(new SetPasswordsCommand(emails));
+            return Ok(ApiResponse<string>.SuccessResponse(result, "Passwords updated successfully"));
         }
-
-        return Ok("Passwords updated successfully");
+        catch (Exception ex)
+        {
+            return BadRequest(ApiResponse<string>.FailFromException("Failed to update passwords", ex));
+        }
     }
 }
