@@ -1,6 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
 using AuthService.Application.Common.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -14,7 +13,7 @@ public class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, R
     private readonly IAppDbContext _db;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IConfiguration _config;
-    
+
     // Token expiry constants
     private const int AccessTokenExpiryMinutes = 15;
     private const int RefreshTokenExpiryDays = 7;

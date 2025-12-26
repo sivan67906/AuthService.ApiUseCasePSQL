@@ -3,18 +3,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AuthService.Application.Features.Feature.GetFeaturesWithHierarchy;
 
-public sealed class GetFeaturesWithHierarchyQueryHandler 
+public sealed class GetFeaturesWithHierarchyQueryHandler
     : IRequestHandler<GetFeaturesWithHierarchyQuery, List<FeatureWithHierarchyDto>>
 {
     private readonly IAppDbContext _db;
-    
+
     public GetFeaturesWithHierarchyQueryHandler(IAppDbContext db)
     {
         _db = db;
     }
-    
+
     public async Task<List<FeatureWithHierarchyDto>> Handle(
-        GetFeaturesWithHierarchyQuery request, 
+        GetFeaturesWithHierarchyQuery request,
         CancellationToken cancellationToken)
     {
         var features = await _db.Features
@@ -39,7 +39,7 @@ public sealed class GetFeaturesWithHierarchyQueryHandler
             BuildDisplayName(f.Name, f.ParentFeature?.Name, f.ParentFeatureId)
         )).ToList();
     }
-    
+
     private static string BuildDisplayName(string featureName, string? parentName, Guid? parentId)
     {
         // Main Menu: "Finance Management (Main Menu)"
@@ -47,7 +47,7 @@ public sealed class GetFeaturesWithHierarchyQueryHandler
         {
             return $"{featureName} (Main Menu)";
         }
-        
+
         // SubMenu: "Finance Management → Test Categories"
         return $"{parentName} → {featureName}";
     }

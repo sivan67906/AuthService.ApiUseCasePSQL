@@ -1,11 +1,11 @@
+using System.Security.Claims;
 using AuthService.Application.Features.UserAccess.AssignRole;
 using AuthService.Application.Features.UserAccess.GetAllUsers;
 using AuthService.Application.Features.UserAccess.GetUserAccess;
 using AuthService.Application.Features.UserAccess.GetUserAccessByEmail;
-using AuthService.Application.Features.UserAccess.GetUserPages;
 using AuthService.Application.Features.UserAccess.GetUserNavigation;
+using AuthService.Application.Features.UserAccess.GetUserPages;
 using AuthService.Domain.Constants;
-using System.Security.Claims;
 
 namespace AuthService.Api.Controllers;
 

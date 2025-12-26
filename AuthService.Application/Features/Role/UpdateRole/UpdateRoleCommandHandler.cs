@@ -30,7 +30,7 @@ public sealed class UpdateRoleCommandHandler : IRequestHandler<UpdateRoleCommand
         {
             hasChanges = true;
         }
-        
+
         if (!hasChanges)
         {
             throw new InvalidOperationException("No changes detected. Please modify the data before updating.");

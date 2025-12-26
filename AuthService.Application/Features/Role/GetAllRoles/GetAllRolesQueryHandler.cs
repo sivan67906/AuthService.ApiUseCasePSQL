@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthService.Application.Features.Role.GetAllRoles;
+
 public sealed class GetAllRolesQueryHandler : IRequestHandler<GetAllRolesQuery, List<RoleDto>>
 {
     private readonly RoleManager<ApplicationRole> _roleManager;
@@ -27,5 +28,5 @@ public sealed class GetAllRolesQueryHandler : IRequestHandler<GetAllRolesQuery, 
             r.DepartmentId,
             r.Department?.Name
         )).ToList();
-}
+    }
 }

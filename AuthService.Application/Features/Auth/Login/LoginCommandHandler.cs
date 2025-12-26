@@ -2,9 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using System.Security.Claims;
 using System.Security.Cryptography;
-using System.Text;
 using AuthService.Application.Common.Interfaces;
-using AuthService.Application.Features.Auth.TwoFactor;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -87,14 +85,14 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResultDto>
             {
                 var codeTimestamp = DateTime.UtcNow;
                 var emailCode = await _userManager.GenerateTwoFactorTokenAsync(user, TokenOptions.DefaultEmailProvider);
-                
+
                 // Store the code with timestamp to invalidate old codes
                 // Only the latest code will be valid for verification
                 _twoFactorThrottlingService.StoreCode(user.Email!, emailCode, codeTimestamp);
-                
+
                 // Record the attempt for throttling
                 _twoFactorThrottlingService.RecordResendAttempt(user.Email!);
-                
+
                 await SendTwoFactorCodeEmailAsync(user, emailCode, cancellationToken);
             }
 

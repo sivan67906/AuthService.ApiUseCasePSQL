@@ -1,6 +1,5 @@
 using System.Collections.Concurrent;
 using System.Linq;
-using AuthService.Application.Common.Interfaces;
 
 namespace AuthService.Infrastructure.Services;
 
@@ -23,7 +22,7 @@ public class EmailResendThrottlingService : IEmailResendThrottlingService
     public (bool Allowed, string? Message, TimeSpan? RemainingCooldown) CanResend(string email)
     {
         var normalizedEmail = email.ToLowerInvariant();
-        
+
         if (!_resendAttempts.TryGetValue(normalizedEmail, out var attemptInfo))
         {
             // First attempt - allowed
@@ -64,8 +63,8 @@ public class EmailResendThrottlingService : IEmailResendThrottlingService
 
         _resendAttempts.AddOrUpdate(
             normalizedEmail,
-            _ => new ResendAttemptInfo 
-            { 
+            _ => new ResendAttemptInfo
+            {
                 LastResendTime = now,
                 Attempts = new List<DateTime> { now }
             },

@@ -1,6 +1,4 @@
 using System.Text.RegularExpressions;
-using AuthService.Domain.Entities;
-using FluentValidation;
 
 namespace AuthService.Application.Features.Company.CreateCompany;
 

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 
 namespace AuthService.Application.Features.UserAccess.AssignRole;
+
 public sealed class AssignRoleCommandHandler : IRequestHandler<AssignRoleCommand, bool>
 {
     private readonly UserManager<ApplicationUser> _userManager;
@@ -11,7 +12,7 @@ public sealed class AssignRoleCommandHandler : IRequestHandler<AssignRoleCommand
     private readonly IAppDbContext _db;
     private readonly IHttpContextAccessor _httpContextAccessor;
     public AssignRoleCommandHandler(
-        UserManager<ApplicationUser> userManager, 
+        UserManager<ApplicationUser> userManager,
         RoleManager<ApplicationRole> roleManager,
         IAppDbContext db,
         IHttpContextAccessor httpContextAccessor)

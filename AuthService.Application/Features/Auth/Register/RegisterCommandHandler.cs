@@ -1,9 +1,7 @@
 using System.IO;
 using System.Net;
 using AuthService.Application.Common.Interfaces;
-using AuthService.Domain.Constants;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -79,10 +77,10 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, RegisterR
             var standardToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             var tokenTimestamp = DateTime.UtcNow;
             var expiryTime = tokenTimestamp.AddHours(1);
-            
+
             // Track this as the latest token for this user (store the token itself as hash)
             _tokenTracker.StoreLatestToken(user.Email!, standardToken, tokenTimestamp);
-            
+
             // Create custom token with timestamp: userId|tokenTimestamp|expiryTimestamp|standardToken
             var customToken = $"{user.Id}|{tokenTimestamp:O}|{expiryTime:O}|{standardToken}";
             var encodedToken = WebUtility.UrlEncode(customToken);

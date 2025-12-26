@@ -113,7 +113,7 @@ public sealed class CreateCompanyCommandHandler : IRequestHandler<CreateCompanyC
         }
 
         // Validate FiscalYearStartMonth
-        if (request.FiscalYearStartMonth < 1 || request.FiscalYearStartMonth > 12)
+        if (request.FiscalYearStartMonth is < 1 or > 12)
         {
             throw new InvalidOperationException("Fiscal year start month must be between 1 and 12.");
         }

@@ -19,6 +19,7 @@ public sealed class GetAllCompaniesQueryHandler : IRequestHandler<GetAllCompanie
     {
         var entities = await _db.Companies
             .AsNoTracking()
+            .Where(x => !x.IsDeleted)
             .Include(c => c.ParentCompany)
             .Include(c => c.RegistrationCountry)
             .Include(c => c.RegistrationState)

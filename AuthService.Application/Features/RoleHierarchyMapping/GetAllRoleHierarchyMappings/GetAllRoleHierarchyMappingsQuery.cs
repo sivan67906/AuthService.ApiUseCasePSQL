@@ -1,4 +1,5 @@
 namespace AuthService.Application.Features.RoleHierarchyMapping.GetAllRoleHierarchyMappings;
+
 using AuthService.Application.Common.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -38,6 +39,6 @@ public sealed class GetAllRoleHierarchyMappingsQueryHandler : IRequestHandler<Ge
             })
             .OrderByDescending(rh => rh.UpdatedAt ?? rh.CreatedAt)
             .ToListAsync(cancellationToken);
-}
+    }
 
 }

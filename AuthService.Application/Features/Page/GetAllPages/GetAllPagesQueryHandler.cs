@@ -3,6 +3,7 @@ using AuthService.Application.Features.Page.CreatePage;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthService.Application.Features.Page.GetAllPages;
+
 public sealed class GetAllPagesQueryHandler : IRequestHandler<GetAllPagesQuery, List<PageDto>>
 {
     private readonly IAppDbContext _db;

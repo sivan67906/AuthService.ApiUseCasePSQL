@@ -3,6 +3,7 @@ using AuthService.Application.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthService.Application.Features.RoleFeatureMapping.CreateRoleFeatureMapping;
+
 public sealed class CreateRoleFeatureMappingCommandHandler : IRequestHandler<CreateRoleFeatureMappingCommand, RoleFeatureMappingDto>
 {
     private readonly IAppDbContext _db;
@@ -15,10 +16,10 @@ public sealed class CreateRoleFeatureMappingCommandHandler : IRequestHandler<Cre
         // Check if mapping already exists - including soft-deleted
         var existing = await _db.RoleFeatureMappings
             .IgnoreQueryFilters() // Include deleted records
-            .FirstOrDefaultAsync(x => x.RoleId == request.RoleId && 
-                          x.FeatureId == request.FeatureId && 
+            .FirstOrDefaultAsync(x => x.RoleId == request.RoleId &&
+                          x.FeatureId == request.FeatureId &&
                           x.DepartmentId == request.DepartmentId, cancellationToken);
-                          
+
         if (existing != null)
         {
             if (existing.IsDeleted)
@@ -30,7 +31,7 @@ public sealed class CreateRoleFeatureMappingCommandHandler : IRequestHandler<Cre
                 throw new InvalidOperationException("This role-feature mapping already exists");
             }
         }
-        
+
         var entity = new Domain.Entities.RoleFeatureMapping
         {
             RoleId = request.RoleId,

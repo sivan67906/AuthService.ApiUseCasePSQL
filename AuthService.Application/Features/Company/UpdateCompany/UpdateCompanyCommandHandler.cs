@@ -1,6 +1,5 @@
 using AuthService.Application.Common.Interfaces;
 using AuthService.Application.Features.Company.CreateCompany;
-using AuthService.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthService.Application.Features.Company.UpdateCompany;
@@ -145,7 +144,7 @@ public sealed class UpdateCompanyCommandHandler : IRequestHandler<UpdateCompanyC
             Console.WriteLine($"[UpdateCompany] BooksStartDate: {entity.BooksStartDate:yyyy-MM-dd} -> {request.BooksStartDate:yyyy-MM-dd}");
             Console.WriteLine($"[UpdateCompany] Status: {entity.Status} -> {request.Status}");
             Console.WriteLine($"[UpdateCompany] LegalName: {entity.LegalName} -> {request.LegalName}");
-            
+
             // Update all fields
             entity.LegalName = request.LegalName.Trim();
             entity.TradeName = request.TradeName?.Trim();
@@ -189,7 +188,7 @@ public sealed class UpdateCompanyCommandHandler : IRequestHandler<UpdateCompanyC
             entity.AllowPostingToDate = request.AllowPostingToDate?.Date;
             entity.LockBackDatedPosting = request.LockBackDatedPosting;
             entity.Notes = request.Notes?.Trim();
-            
+
             // Explicitly mark entity as modified to ensure EF Core tracks the changes
             _db.Entry(entity).State = EntityState.Modified;
             Console.WriteLine($"[UpdateCompany] Entity state explicitly set to Modified");
@@ -221,11 +220,11 @@ public sealed class UpdateCompanyCommandHandler : IRequestHandler<UpdateCompanyC
         Console.WriteLine($"[UpdateCompany] Reloaded entity from DB - BooksStartDate: {result.BooksStartDate:yyyy-MM-dd}");
         Console.WriteLine($"[UpdateCompany] Reloaded entity from DB - Status: {result.Status}");
         Console.WriteLine($"[UpdateCompany] Reloaded entity from DB - LegalName: {result.LegalName}");
-        
+
         var dto = MapToDto(result);
         Console.WriteLine($"[UpdateCompany] DTO BooksStartDate: {dto.BooksStartDate:yyyy-MM-dd}");
         Console.WriteLine($"[UpdateCompany] DTO Status: {dto.Status}");
-        
+
         return dto;
     }
 
@@ -236,12 +235,12 @@ public sealed class UpdateCompanyCommandHandler : IRequestHandler<UpdateCompanyC
             .Where(c => c.Id == companyId || c.Id == parentId)
             .Select(c => new { c.Id, c.LegalName })
             .ToListAsync(cancellationToken);
-        
+
         var companyName = companyNames.FirstOrDefault(c => c.Id == companyId)?.LegalName ?? companyId.ToString();
         var parentName = companyNames.FirstOrDefault(c => c.Id == parentId)?.LegalName ?? parentId.ToString();
-        
+
         Console.WriteLine($"[ValidateCircular] Checking if setting '{companyName}' parent to '{parentName}' creates circular reference");
-        
+
         var visited = new HashSet<Guid> { companyId };
         var hierarchyPath = new List<string> { companyName };
         var currentParentId = parentId;
@@ -255,10 +254,10 @@ public sealed class UpdateCompanyCommandHandler : IRequestHandler<UpdateCompanyC
                     .Where(c => c.Id == currentParentId)
                     .Select(c => c.LegalName)
                     .FirstOrDefaultAsync(cancellationToken);
-                
+
                 hierarchyPath.Add(circularCompany ?? currentParentId.ToString());
                 var path = string.Join(" → ", hierarchyPath);
-                
+
                 Console.WriteLine($"[ValidateCircular] CIRCULAR REFERENCE DETECTED: {path}");
                 throw new InvalidOperationException(
                     $"Circular reference detected in parent company hierarchy. " +
@@ -266,7 +265,7 @@ public sealed class UpdateCompanyCommandHandler : IRequestHandler<UpdateCompanyC
             }
 
             visited.Add(currentParentId);
-            
+
             var parentInfo = await _db.Companies
                 .Where(c => c.Id == currentParentId)
                 .Select(c => new { c.ParentCompanyId, c.LegalName })
@@ -283,7 +282,7 @@ public sealed class UpdateCompanyCommandHandler : IRequestHandler<UpdateCompanyC
                 currentParentId = Guid.Empty;
             }
         }
-        
+
         Console.WriteLine($"[ValidateCircular] No circular reference detected. Final path: {string.Join(" → ", hierarchyPath)}");
     }
 

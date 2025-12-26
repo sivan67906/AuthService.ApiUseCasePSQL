@@ -2,6 +2,7 @@ using AuthService.Application.Common.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthService.Application.Features.Page.CreatePage;
+
 public sealed class CreatePageCommandHandler : IRequestHandler<CreatePageCommand, PageDto>
 {
     private readonly IAppDbContext _db;
@@ -15,7 +16,7 @@ public sealed class CreatePageCommandHandler : IRequestHandler<CreatePageCommand
         var existingByCode = await _db.Pages
             .IgnoreQueryFilters() // Include deleted records
             .FirstOrDefaultAsync(x => x.Code.ToLower() == request.Code.ToLower(), cancellationToken);
-            
+
         if (existingByCode != null)
         {
             if (existingByCode.IsDeleted)
@@ -27,7 +28,7 @@ public sealed class CreatePageCommandHandler : IRequestHandler<CreatePageCommand
                 throw new InvalidOperationException($"Page with code '{request.Code}' already exists");
             }
         }
-        
+
         var entity = new Domain.Entities.Page
         {
             Code = request.Code.ToUpper(),
@@ -41,7 +42,7 @@ public sealed class CreatePageCommandHandler : IRequestHandler<CreatePageCommand
         _db.Pages.Add(entity);
         await _db.SaveChangesAsync(cancellationToken);
         return entity.Adapt<PageDto>();
-}
+    }
 
 
 }

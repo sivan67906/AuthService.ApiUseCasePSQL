@@ -1,9 +1,7 @@
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
 using AuthService.Application.Common.Interfaces;
 using AuthService.Domain.Constants;
-using AuthService.Domain.Entities;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace AuthService.Application.Features.UserAccess.GetUserNavigation;
 

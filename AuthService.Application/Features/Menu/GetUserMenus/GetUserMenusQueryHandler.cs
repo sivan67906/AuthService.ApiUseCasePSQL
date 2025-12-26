@@ -1,6 +1,6 @@
 using AuthService.Application.Common.Interfaces;
-using MenuItemDto = AuthService.Application.Common.Interfaces.MenuItemDto;
 using Microsoft.Extensions.Logging;
+using MenuItemDto = AuthService.Application.Common.Interfaces.MenuItemDto;
 
 namespace AuthService.Application.Features.Menu.GetUserMenus;
 

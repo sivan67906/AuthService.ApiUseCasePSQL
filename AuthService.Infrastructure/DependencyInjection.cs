@@ -1,14 +1,12 @@
-using AuthService.Application.Common.Interfaces;
-using AuthService.Domain.Entities;
 using AuthService.Domain.Interfaces;
 using AuthService.Infrastructure.Persistence;
 using AuthService.Infrastructure.Repositories;
 using AuthService.Infrastructure.Services;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AuthService.Infrastructure;
+
 public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration config)
@@ -82,16 +80,16 @@ public static class DependencyInjection
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<IUserAuthorizationService, UserAuthorizationService>();
-        
+
         // Add Email Resend Throttling Service (Issue #2)
         services.AddSingleton<IEmailResendThrottlingService, EmailResendThrottlingService>();
-        
+
         // Add Email Confirmation Token Tracker (Issue #4)
         services.AddSingleton<IEmailConfirmationTokenTracker, EmailConfirmationTokenTracker>();
-        
+
         // Add 2FA Code Throttling Service (Issue #5)
         services.AddSingleton<ITwoFactorCodeThrottlingService, TwoFactorCodeThrottlingService>();
-        
+
         return services;
     }
 }

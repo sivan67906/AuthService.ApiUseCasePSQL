@@ -11,7 +11,7 @@ public sealed class RolePagePermissionMapping : BaseEntity
     public Guid PermissionId { get; set; }
     public Guid? DepartmentId { get; set; }  // Null for SuperAdmin, required for DepartmentAdmin roles
     public bool IsActive { get; set; } = true;
-    
+
     // Navigation properties
     public ApplicationRole Role { get; set; } = null!;
     public Page Page { get; set; } = null!;

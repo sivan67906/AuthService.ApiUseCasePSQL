@@ -2,7 +2,6 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using AuthService.Application.Common.Interfaces;
 
 namespace AuthService.Infrastructure.Services;
 
@@ -10,12 +9,12 @@ public class TwoFactorCodeThrottlingService : ITwoFactorCodeThrottlingService
 {
     private readonly ConcurrentDictionary<string, ResendAttemptInfo> _resendAttempts = new();
     private readonly ConcurrentDictionary<string, StoredCodeInfo> _storedCodes = new();
-    
+
     // Configuration for 2FA
     private const int CooldownSeconds = 60;        // 60 seconds between resends
     private const int MaxAttemptsPerDay = 5;       // Maximum 5 attempts per day
     private const int CodeValidityMinutes = 60;    // Code valid for 1 hour (60 minutes)
-    
+
     private class ResendAttemptInfo
     {
         public List<DateTime> Attempts { get; set; } = new();
@@ -31,7 +30,7 @@ public class TwoFactorCodeThrottlingService : ITwoFactorCodeThrottlingService
     public (bool Allowed, string? Message, TimeSpan? RemainingCooldown) CanResend(string email)
     {
         var now = DateTime.UtcNow;
-        
+
         if (_resendAttempts.TryGetValue(email, out var attemptInfo))
         {
             // Check cooldown (60 seconds)
@@ -39,38 +38,38 @@ public class TwoFactorCodeThrottlingService : ITwoFactorCodeThrottlingService
             if (timeSinceLastAttempt.TotalSeconds < CooldownSeconds)
             {
                 var remainingSeconds = CooldownSeconds - (int)timeSinceLastAttempt.TotalSeconds;
-                return (false, $"Please wait {remainingSeconds} seconds before requesting another code.", 
+                return (false, $"Please wait {remainingSeconds} seconds before requesting another code.",
                     TimeSpan.FromSeconds(remainingSeconds));
             }
-            
+
             // Clean up attempts older than 24 hours
             attemptInfo.Attempts = attemptInfo.Attempts
                 .Where(a => (now - a).TotalHours < 24)
                 .ToList();
-            
+
             // Check daily limit (5 attempts)
             if (attemptInfo.Attempts.Count >= MaxAttemptsPerDay)
             {
                 var oldestAttempt = attemptInfo.Attempts.Min();
                 var resetTime = oldestAttempt.AddHours(24);
                 var hoursUntilReset = (int)Math.Ceiling((resetTime - now).TotalHours);
-                
-                return (false, $"Maximum {MaxAttemptsPerDay} code requests reached for today. Try again in {hoursUntilReset} hour(s).", 
+
+                return (false, $"Maximum {MaxAttemptsPerDay} code requests reached for today. Try again in {hoursUntilReset} hour(s).",
                     resetTime - now);
             }
         }
-        
+
         return (true, null, null);
     }
 
     public void RecordResendAttempt(string email)
     {
         var now = DateTime.UtcNow;
-        
+
         _resendAttempts.AddOrUpdate(
             email,
-            new ResendAttemptInfo 
-            { 
+            new ResendAttemptInfo
+            {
                 Attempts = new List<DateTime> { now },
                 LastAttempt = now
             },
@@ -91,24 +90,24 @@ public class TwoFactorCodeThrottlingService : ITwoFactorCodeThrottlingService
     public void CleanupOldEntries()
     {
         var now = DateTime.UtcNow;
-        
+
         // Cleanup resend attempts
         var keysToRemove = _resendAttempts
             .Where(kvp => (now - kvp.Value.LastAttempt).TotalHours > 24)
             .Select(kvp => kvp.Key)
             .ToList();
-        
+
         foreach (var key in keysToRemove)
         {
             _resendAttempts.TryRemove(key, out _);
         }
-        
+
         // Cleanup stored codes older than 1 hour
         var codeKeysToRemove = _storedCodes
             .Where(kvp => (now - kvp.Value.Timestamp).TotalMinutes > CodeValidityMinutes)
             .Select(kvp => kvp.Key)
             .ToList();
-        
+
         foreach (var key in codeKeysToRemove)
         {
             _storedCodes.TryRemove(key, out _);

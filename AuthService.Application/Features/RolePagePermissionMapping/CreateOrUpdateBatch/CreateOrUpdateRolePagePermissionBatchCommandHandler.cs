@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AuthService.Application.Features.RolePagePermissionMapping.CreateOrUpdateBatch;
 
-public class CreateOrUpdateRolePagePermissionBatchCommandHandler 
+public class CreateOrUpdateRolePagePermissionBatchCommandHandler
     : IRequestHandler<CreateOrUpdateRolePagePermissionBatchCommand, List<RolePagePermissionMappingDto>>
 {
     private readonly IAppDbContext _db;
@@ -15,13 +15,13 @@ public class CreateOrUpdateRolePagePermissionBatchCommandHandler
     }
 
     public async Task<List<RolePagePermissionMappingDto>> Handle(
-        CreateOrUpdateRolePagePermissionBatchCommand request, 
+        CreateOrUpdateRolePagePermissionBatchCommand request,
         CancellationToken cancellationToken)
     {
         // Validate that View permission is included
         var viewPermission = await _db.Permissions
             .FirstOrDefaultAsync(p => p.Name == "View", cancellationToken);
-            
+
         if (viewPermission == null || !request.PermissionIds.Contains(viewPermission.Id))
         {
             throw new InvalidOperationException("View permission is mandatory and must be included");
@@ -48,7 +48,7 @@ public class CreateOrUpdateRolePagePermissionBatchCommandHandler
             {
                 var otherMappingsStillExist = existingMappings
                     .Any(m => m.Id != mapping.Id && request.PermissionIds.Contains(m.PermissionId));
-                    
+
                 if (otherMappingsStillExist)
                 {
                     throw new InvalidOperationException(

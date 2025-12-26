@@ -66,7 +66,10 @@ public sealed record GetCompaniesLookupQuery : IRequest<List<CompanyLookupDto>>;
 public sealed class GetCountriesQueryHandler : IRequestHandler<GetCountriesQuery, List<CountryLookupDto>>
 {
     private readonly IAppDbContext _db;
-    public GetCountriesQueryHandler(IAppDbContext db) => _db = db;
+    public GetCountriesQueryHandler(IAppDbContext db)
+    {
+        _db = db;
+    }
 
     public async Task<List<CountryLookupDto>> Handle(GetCountriesQuery request, CancellationToken cancellationToken)
     {
@@ -87,7 +90,10 @@ public sealed class GetCountriesQueryHandler : IRequestHandler<GetCountriesQuery
 public sealed class GetStatesByCountryQueryHandler : IRequestHandler<GetStatesByCountryQuery, List<StateLookupDto>>
 {
     private readonly IAppDbContext _db;
-    public GetStatesByCountryQueryHandler(IAppDbContext db) => _db = db;
+    public GetStatesByCountryQueryHandler(IAppDbContext db)
+    {
+        _db = db;
+    }
 
     public async Task<List<StateLookupDto>> Handle(GetStatesByCountryQuery request, CancellationToken cancellationToken)
     {
@@ -108,7 +114,10 @@ public sealed class GetStatesByCountryQueryHandler : IRequestHandler<GetStatesBy
 public sealed class GetCitiesByStateQueryHandler : IRequestHandler<GetCitiesByStateQuery, List<CityLookupDto>>
 {
     private readonly IAppDbContext _db;
-    public GetCitiesByStateQueryHandler(IAppDbContext db) => _db = db;
+    public GetCitiesByStateQueryHandler(IAppDbContext db)
+    {
+        _db = db;
+    }
 
     public async Task<List<CityLookupDto>> Handle(GetCitiesByStateQuery request, CancellationToken cancellationToken)
     {
@@ -129,7 +138,10 @@ public sealed class GetCitiesByStateQueryHandler : IRequestHandler<GetCitiesBySt
 public sealed class GetCurrenciesQueryHandler : IRequestHandler<GetCurrenciesQuery, List<CurrencyLookupDto>>
 {
     private readonly IAppDbContext _db;
-    public GetCurrenciesQueryHandler(IAppDbContext db) => _db = db;
+    public GetCurrenciesQueryHandler(IAppDbContext db)
+    {
+        _db = db;
+    }
 
     public async Task<List<CurrencyLookupDto>> Handle(GetCurrenciesQuery request, CancellationToken cancellationToken)
     {
@@ -150,7 +162,10 @@ public sealed class GetCurrenciesQueryHandler : IRequestHandler<GetCurrenciesQue
 public sealed class GetTimeZonesQueryHandler : IRequestHandler<GetTimeZonesQuery, List<TimeZoneLookupDto>>
 {
     private readonly IAppDbContext _db;
-    public GetTimeZonesQueryHandler(IAppDbContext db) => _db = db;
+    public GetTimeZonesQueryHandler(IAppDbContext db)
+    {
+        _db = db;
+    }
 
     public async Task<List<TimeZoneLookupDto>> Handle(GetTimeZonesQuery request, CancellationToken cancellationToken)
     {
@@ -173,7 +188,10 @@ public sealed class GetTimeZonesQueryHandler : IRequestHandler<GetTimeZonesQuery
 public sealed class GetTimezonesByCountryQueryHandler : IRequestHandler<GetTimezonesByCountryQuery, List<TimeZoneLookupDto>>
 {
     private readonly IAppDbContext _db;
-    public GetTimezonesByCountryQueryHandler(IAppDbContext db) => _db = db;
+    public GetTimezonesByCountryQueryHandler(IAppDbContext db)
+    {
+        _db = db;
+    }
 
     public async Task<List<TimeZoneLookupDto>> Handle(GetTimezonesByCountryQuery request, CancellationToken cancellationToken)
     {
@@ -198,7 +216,10 @@ public sealed class GetTimezonesByCountryQueryHandler : IRequestHandler<GetTimez
 public sealed class GetCompaniesLookupQueryHandler : IRequestHandler<GetCompaniesLookupQuery, List<CompanyLookupDto>>
 {
     private readonly IAppDbContext _db;
-    public GetCompaniesLookupQueryHandler(IAppDbContext db) => _db = db;
+    public GetCompaniesLookupQueryHandler(IAppDbContext db)
+    {
+        _db = db;
+    }
 
     public async Task<List<CompanyLookupDto>> Handle(GetCompaniesLookupQuery request, CancellationToken cancellationToken)
     {

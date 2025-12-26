@@ -1,12 +1,5 @@
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using AuthService.Domain.Constants;
-using AuthService.Domain.Entities;
 using AuthService.Domain.Entities.Masters;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -64,7 +57,7 @@ public static class ComprehensiveSeedData
 
         // Users - SuperAdmin
         public static readonly Guid SuperAdminUserId = Guid.Parse("99999999-9999-9999-9999-000000000001");
-        
+
         // Users - Finance Department (6 users)
         public static readonly Guid FinanceAdminUserId = Guid.Parse("99999999-9999-9999-9999-000000000002");
         public static readonly Guid FinanceManagerUserId = Guid.Parse("99999999-9999-9999-9999-000000000003");
@@ -72,7 +65,7 @@ public static class ComprehensiveSeedData
         public static readonly Guid FinanceStaffUserId = Guid.Parse("99999999-9999-9999-9999-000000000005");
         public static readonly Guid FinanceInternUserId = Guid.Parse("99999999-9999-9999-9999-000000000006");
         public static readonly Guid FinanceStaff2UserId = Guid.Parse("99999999-9999-9999-9999-000000000007");
-        
+
         // Users - Marketing Department (6 users)
         public static readonly Guid MarketingAdminUserId = Guid.Parse("99999999-9999-9999-9999-000000000008");
         public static readonly Guid MarketingManagerUserId = Guid.Parse("99999999-9999-9999-9999-000000000009");
@@ -80,7 +73,7 @@ public static class ComprehensiveSeedData
         public static readonly Guid MarketingStaffUserId = Guid.Parse("99999999-9999-9999-9999-000000000011");
         public static readonly Guid MarketingInternUserId = Guid.Parse("99999999-9999-9999-9999-000000000012");
         public static readonly Guid MarketingStaff2UserId = Guid.Parse("99999999-9999-9999-9999-000000000013");
-        
+
         // Additional Users (7 more to make 20 total)
         public static readonly Guid FinanceIntern2UserId = Guid.Parse("99999999-9999-9999-9999-000000000014");
         public static readonly Guid FinanceSupervisor2UserId = Guid.Parse("99999999-9999-9999-9999-000000000015");
@@ -530,7 +523,7 @@ public static class ComprehensiveSeedData
             
             // Account Pages - mapped directly to Account menu
             (FixedGuids.ProfilePageId, "PROFILE", "Profile", "/profile", "User profile page", "Account", "/api/profile", "GET", 12),
-            //(FixedGuids.ChangePasswordPageId, "CHG_PWD", "Change Password", "/change-password", "Change password page", "Account", "/api/auth/change-password", "POST", 13),
+            (FixedGuids.ChangePasswordPageId, "CHG_PWD", "Change Password", "/change-password", "Change password page", "Account", "/api/auth/change-password", "POST", 13),
             
             // Finance Management - Company Pages - mapped to Company submenu
             (FixedGuids.CompanyPageId, "COMPANY", "Company", "/company", "Company management page", "Company", "/api/company", "GET", 14),
@@ -601,7 +594,7 @@ public static class ComprehensiveSeedData
             
             // Account pages → Account menu (DIRECTLY, no submenus)
             ("Profile", "Account"),
-            //("Change Password", "Account"),
+            ("Change Password", "Account"),
             
             // Company pages → Company submenu (under Finance Management)
             ("Company", "Company"),
@@ -679,7 +672,7 @@ public static class ComprehensiveSeedData
         // Department roles get only specific features
         // They can access: Dashboard, Account, Finance Management (with Company submenu)
         var deptRoleFeatures = new[] { "Dashboard", "Account", "Finance Management", "Company" };
-        
+
         foreach (var deptName in new[] { "Finance", "Marketing" })
         {
             foreach (var roleName in departmentRoles[deptName].Keys)
@@ -779,7 +772,7 @@ public static class ComprehensiveSeedData
         }
 
         // Department roles only have access to 5 pages: Profile, Change Password, Company, Test Categories, Test Products
-        var deptRolePages = new[] { "Profile", "Company", "Test Categories", "Test Products" };
+        var deptRolePages = new[] { "Profile", "Change Password", "Company", "Test Categories", "Test Products" };
 
         // Permission matrix:
         // Manager: Create, View, Update, Delete (all)
@@ -790,7 +783,7 @@ public static class ComprehensiveSeedData
         foreach (var deptName in new[] { "Finance", "Marketing" })
         {
             var rolePrefix = deptName;
-            
+
             foreach (var pageName in deptRolePages)
             {
                 if (!pages.TryGetValue(pageName, out var pageId)) continue;
@@ -929,7 +922,7 @@ public static class ComprehensiveSeedData
         // Check if Countries and TimeZones exist
         var countriesExist = await context.Set<Country>().AnyAsync();
         var timeZonesExist = await context.Set<TimeZoneMaster>().AnyAsync();
-        
+
         if (!countriesExist || !timeZonesExist)
         {
             logger.LogInformation("Countries or TimeZones not found, skipping CountryTimeZone seeding");
@@ -1040,7 +1033,7 @@ public static class ComprehensiveSeedData
             {
                 // Add to role using UserManager
                 await userManager.AddToRoleAsync(user, roleName);
-                
+
                 // Create UserRoleMapping entry (this is where DepartmentId is stored)
                 context.UserRoleMappings.Add(new UserRoleMapping
                 {
@@ -1052,7 +1045,7 @@ public static class ComprehensiveSeedData
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
                 });
-                
+
                 logger.LogInformation("Created user: {Email} with role: {Role}", email, roleName);
             }
             else

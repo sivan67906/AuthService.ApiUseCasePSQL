@@ -3,6 +3,7 @@ using AuthService.Application.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthService.Application.Features.RolePagePermissionMapping.CreateRolePagePermissionMapping;
+
 public sealed class CreateRolePagePermissionMappingCommandHandler : IRequestHandler<CreateRolePagePermissionMappingCommand, RolePagePermissionMappingDto>
 {
     private readonly IAppDbContext _db;
@@ -15,11 +16,11 @@ public sealed class CreateRolePagePermissionMappingCommandHandler : IRequestHand
         // Check if mapping already exists - including soft-deleted
         var existing = await _db.RolePagePermissionMappings
             .IgnoreQueryFilters() // Include deleted records
-            .FirstOrDefaultAsync(x => x.RoleId == request.RoleId && 
-                          x.PageId == request.PageId && 
+            .FirstOrDefaultAsync(x => x.RoleId == request.RoleId &&
+                          x.PageId == request.PageId &&
                           x.PermissionId == request.PermissionId &&
                           x.DepartmentId == request.DepartmentId, cancellationToken);
-                          
+
         if (existing != null)
         {
             if (existing.IsDeleted)
@@ -31,7 +32,7 @@ public sealed class CreateRolePagePermissionMappingCommandHandler : IRequestHand
                 throw new InvalidOperationException("This role-page-permission mapping already exists");
             }
         }
-        
+
         var entity = new Domain.Entities.RolePagePermissionMapping
         {
             RoleId = request.RoleId,

@@ -24,13 +24,13 @@ public interface ITwoFactorCodeThrottlingService
     /// Cleanup old entries periodically
     /// </summary>
     void CleanupOldEntries();
-    
+
     /// <summary>
     /// Store the latest code with its timestamp
     /// Only the latest code will be valid for verification
     /// </summary>
     void StoreCode(string email, string code, DateTime timestamp);
-    
+
     /// <summary>
     /// Validate that a code is the latest one and hasn't expired (1 hour)
     /// </summary>

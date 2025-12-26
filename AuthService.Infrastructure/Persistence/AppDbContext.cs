@@ -1,11 +1,6 @@
 using System.Linq;
-using AuthService.Application.Common.Interfaces;
-using AuthService.Domain.Entities;
 using AuthService.Domain.Entities.Masters;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace AuthService.Infrastructure.Persistence;
@@ -85,9 +80,9 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
             var utcNow = DateTime.UtcNow;
 
             var entries = ChangeTracker.Entries()
-                .Where(e => e.State == EntityState.Added || 
-                           e.State == EntityState.Modified || 
-                           e.State == EntityState.Deleted)
+                .Where(e => e.State is EntityState.Added or
+                           EntityState.Modified or
+                           EntityState.Deleted)
                 .ToList();
 
             Console.WriteLine($"[AppDbContext] SaveChangesAsync called with {entries.Count} changed entities");
@@ -137,23 +132,23 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
 
                 // Convert all DateTime properties to UTC for PostgreSQL compatibility
                 Console.WriteLine($"  [UTC Conversion] Processing entity: {entry.Entity.GetType().Name}");
-                
+
                 var entityType = entry.Entity.GetType();
                 var dateTimeProperties = entityType.GetProperties()
                     .Where(p => p.PropertyType == typeof(DateTime) || p.PropertyType == typeof(DateTime?))
                     .ToList();
-                
+
                 Console.WriteLine($"  [UTC Conversion] Found {dateTimeProperties.Count} DateTime properties");
-                
+
                 foreach (var prop in dateTimeProperties)
                 {
                     var currentValue = prop.GetValue(entry.Entity);
                     Console.WriteLine($"    Property: {prop.Name}, Type: {prop.PropertyType}, Value: {currentValue}");
-                    
+
                     if (currentValue is DateTime dateTime)
                     {
                         Console.WriteLine($"      Current Kind: {dateTime.Kind}");
-                        
+
                         if (dateTime.Kind == DateTimeKind.Unspecified)
                         {
                             var utcValue = DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
@@ -557,32 +552,32 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
         builder.Entity<Company>(b =>
         {
             b.ToTable("Companies");
-            
+
             // Identity fields
             b.Property(e => e.CompanyCode).IsRequired().HasMaxLength(10);
             b.Property(e => e.LegalName).IsRequired().HasMaxLength(200);
             b.Property(e => e.TradeName).HasMaxLength(150);
             b.Property(e => e.ShortName).HasMaxLength(50);
-            
+
             // Registration fields
             b.Property(e => e.RegistrationNumber).HasMaxLength(50);
             b.Property(e => e.PANNumber).HasMaxLength(10);
             b.Property(e => e.GSTIN).HasMaxLength(15);
             b.Property(e => e.TANNumber).HasMaxLength(10);
             b.Property(e => e.OtherTaxId).HasMaxLength(50);
-            
+
             // Address fields
             b.Property(e => e.AddressLine1).IsRequired().HasMaxLength(200);
             b.Property(e => e.AddressLine2).HasMaxLength(200);
             b.Property(e => e.PostalCode).IsRequired().HasMaxLength(20);
-            
+
             // Contact fields
             b.Property(e => e.PrimaryContactName).HasMaxLength(100);
             b.Property(e => e.PrimaryEmail).HasMaxLength(150);
             b.Property(e => e.PrimaryPhone).HasMaxLength(30);
             b.Property(e => e.WebsiteUrl).HasMaxLength(200);
             // LogoFileUrl - supports base64 encoded images (no max length)
-            
+
             // Notes
             b.Property(e => e.Notes).HasMaxLength(1000);
 
@@ -604,7 +599,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
                 .WithMany(c => c.RegisteredCompanies)
                 .HasForeignKey(e => e.RegistrationCountryId)
                 .OnDelete(DeleteBehavior.Restrict);
-            
+
             b.HasOne(e => e.RegistrationState)
                 .WithMany(s => s.RegisteredCompanies)
                 .HasForeignKey(e => e.RegistrationStateId)
@@ -615,17 +610,17 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
                 .WithMany(c => c.AddressCompanies)
                 .HasForeignKey(e => e.CountryId)
                 .OnDelete(DeleteBehavior.Restrict);
-            
+
             b.HasOne(e => e.AddressState)
                 .WithMany(s => s.AddressCompanies)
                 .HasForeignKey(e => e.StateId)
                 .OnDelete(DeleteBehavior.Restrict);
-            
+
             b.HasOne(e => e.City)
                 .WithMany(c => c.AddressCompanies)
                 .HasForeignKey(e => e.CityId)
                 .OnDelete(DeleteBehavior.Restrict);
-            
+
             b.HasOne(e => e.TimeZone)
                 .WithMany(t => t.Companies)
                 .HasForeignKey(e => e.TimeZoneId)
@@ -636,7 +631,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
                 .WithMany(c => c.BaseCurrencyCompanies)
                 .HasForeignKey(e => e.BaseCurrencyId)
                 .OnDelete(DeleteBehavior.Restrict);
-            
+
             b.HasOne(e => e.ReportingCurrency)
                 .WithMany(c => c.ReportingCurrencyCompanies)
                 .HasForeignKey(e => e.ReportingCurrencyId)
@@ -650,21 +645,21 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
         builder.Entity<CountryTimeZone>(b =>
         {
             b.ToTable("CountryTimeZones");
-            
+
             b.HasOne(ctz => ctz.Country)
                 .WithMany()
                 .HasForeignKey(ctz => ctz.CountryId)
                 .OnDelete(DeleteBehavior.Cascade);
-            
+
             b.HasOne(ctz => ctz.TimeZoneEntity)
                 .WithMany()
                 .HasForeignKey(ctz => ctz.TimeZoneId)
                 .OnDelete(DeleteBehavior.Cascade);
-            
+
             b.HasIndex(ctz => ctz.CountryId);
             b.HasIndex(ctz => ctz.TimeZoneId);
             b.HasIndex(ctz => new { ctz.CountryId, ctz.TimeZoneId }).IsUnique();
-            
+
             // Global query filter for soft delete
             b.HasQueryFilter(e => !e.IsDeleted);
         });

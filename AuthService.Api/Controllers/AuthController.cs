@@ -49,7 +49,7 @@ public class AuthController : ControllerBase
         try
         {
             var result = await _mediator.Send(command);
-            
+
             // Only set cookies if not requiring 2FA and tokens are present
             if (!result.RequiresTwoFactor && !string.IsNullOrEmpty(result.RefreshToken))
             {
@@ -63,7 +63,7 @@ public class AuthController : ControllerBase
                     Path = "/",
                     Expires = DateTimeOffset.UtcNow.AddDays(7)
                 });
-                
+
                 // Set AccessToken in regular cookie (accessible by JavaScript for API calls)
                 if (!string.IsNullOrEmpty(result.AccessToken))
                 {
@@ -77,8 +77,8 @@ public class AuthController : ControllerBase
                     });
                 }
             }
-            
-            return Ok(ApiResponse<LoginResultDto>.SuccessResponse(result, 
+
+            return Ok(ApiResponse<LoginResultDto>.SuccessResponse(result,
                 result.RequiresTwoFactor ? "Two-factor authentication required." : "Login successful."));
         }
         catch (Exception ex)
@@ -94,12 +94,12 @@ public class AuthController : ControllerBase
         {
             var command = new VerifyTwoFactorLoginCommand(
                 request.Email,
-                request.TwoFactorToken,
                 request.Code,
+                request.TwoFactorToken,
                 request.TwoFactorType);
-            
+
             var result = await _mediator.Send(command);
-            
+
             if (!string.IsNullOrEmpty(result.RefreshToken))
             {
                 // Set RefreshToken in HttpOnly secure cookie (7 days)
@@ -111,7 +111,7 @@ public class AuthController : ControllerBase
                     Path = "/",
                     Expires = DateTimeOffset.UtcNow.AddDays(7)
                 });
-                
+
                 // Set AccessToken in regular cookie (accessible by JavaScript for API calls)
                 if (!string.IsNullOrEmpty(result.AccessToken))
                 {
@@ -125,7 +125,7 @@ public class AuthController : ControllerBase
                     });
                 }
             }
-            
+
             return Ok(ApiResponse<LoginResultDto>.SuccessResponse(result, "Login successful."));
         }
         catch (Exception ex)
@@ -174,7 +174,7 @@ public class AuthController : ControllerBase
             SameSite = SameSiteMode.None,  // Must match how cookie was set
             Path = "/"
         });
-        
+
         // Delete AccessToken cookie
         Response.Cookies.Delete("accessToken", new CookieOptions
         {
@@ -183,7 +183,7 @@ public class AuthController : ControllerBase
             SameSite = SameSiteMode.None,  // Must match how cookie was set
             Path = "/"
         });
-        
+
         return Ok(ApiResponse<string>.SuccessResponse("OK", "Logged out."));
     }
 
@@ -196,7 +196,7 @@ public class AuthController : ControllerBase
         {
             return Unauthorized(ApiResponse<ProfileDto>.FailResponse("User not found."));
         }
-        
+
         var dto = await _mediator.Send(new GetProfileQuery(userId));
         return Ok(ApiResponse<ProfileDto>.SuccessResponse(dto));
     }
@@ -238,7 +238,7 @@ public class AuthController : ControllerBase
             {
                 return Unauthorized(ApiResponse<string>.FailResponse("User not found."));
             }
-            
+
             var cmd = new ChangePasswordCommand(userId, request.CurrentPassword, request.NewPassword);
             await _mediator.Send(cmd);
             return Ok(ApiResponse<string>.SuccessResponse("OK", "Password changed."));
@@ -262,11 +262,11 @@ public class AuthController : ControllerBase
         {
             return Unauthorized(ApiResponse<RefreshTokenResultDto>.FailResponse("No refresh token."));
         }
-        
+
         try
         {
             var result = await _mediator.Send(new RefreshTokenCommand(token));
-            
+
             // Set new RefreshToken in HttpOnly secure cookie (7 days)
             Response.Cookies.Append("refreshToken", result.NewRefreshToken, new CookieOptions
             {
@@ -276,7 +276,7 @@ public class AuthController : ControllerBase
                 Path = "/",
                 Expires = DateTimeOffset.UtcNow.AddDays(7)
             });
-            
+
             // Set AccessToken in regular cookie (accessible by JavaScript for API calls)
             Response.Cookies.Append("accessToken", result.AccessToken, new CookieOptions
             {
@@ -286,7 +286,7 @@ public class AuthController : ControllerBase
                 Path = "/",
                 Expires = DateTimeOffset.UtcNow.AddMinutes(15)
             });
-            
+
             return Ok(ApiResponse<RefreshTokenResultDto>.SuccessResponse(result, "Token refreshed."));
         }
         catch (Exception ex)
@@ -302,7 +302,7 @@ public class AuthController : ControllerBase
         {
             return BadRequest(ApiResponse<string>.FailResponse("No refresh token."));
         }
-        
+
         var revoked = await _mediator.Send(new RevokeTokenCommand(token));
         if (revoked)
         {
@@ -315,7 +315,7 @@ public class AuthController : ControllerBase
             });
             return Ok(ApiResponse<string>.SuccessResponse("OK", "Refresh token revoked."));
         }
-        
+
         return BadRequest(ApiResponse<string>.FailResponse("Token already revoked or not found."));
     }
 
@@ -355,7 +355,7 @@ public class AuthController : ControllerBase
         {
             return Unauthorized(ApiResponse<string>.FailResponse("User not found."));
         }
-        
+
         await _mediator.Send(new GenerateTwoFactorCodeCommand(userId));
         return Ok(ApiResponse<string>.SuccessResponse("OK", "2FA code sent."));
     }
@@ -371,7 +371,7 @@ public class AuthController : ControllerBase
             {
                 return Unauthorized(ApiResponse<string>.FailResponse("User not found."));
             }
-            
+
             await _mediator.Send(new VerifyTwoFactorCodeCommand(userId, request.Code));
             return Ok(ApiResponse<string>.SuccessResponse("OK", "2FA code verified."));
         }
@@ -390,7 +390,7 @@ public class AuthController : ControllerBase
         {
             return Unauthorized(ApiResponse<string>.FailResponse("User not found."));
         }
-        
+
         await _mediator.Send(new EnableTwoFactorCommand(userId));
         return Ok(ApiResponse<string>.SuccessResponse("OK", "Two-factor enabled."));
     }
@@ -404,7 +404,7 @@ public class AuthController : ControllerBase
         {
             return Unauthorized(ApiResponse<string>.FailResponse("User not found."));
         }
-        
+
         await _mediator.Send(new DisableTwoFactorCommand(userId));
         return Ok(ApiResponse<string>.SuccessResponse("OK", "Two-factor disabled."));
     }
@@ -430,7 +430,7 @@ public class AuthController : ControllerBase
             {
                 return Unauthorized(ApiResponse<AuthenticatorSetupDto>.FailResponse("User not found."));
             }
-            
+
             var result = await _mediator.Send(new SetupAuthenticatorCommand(userId));
             return Ok(ApiResponse<AuthenticatorSetupDto>.SuccessResponse(result, "Authenticator setup initiated."));
         }
@@ -454,7 +454,7 @@ public class AuthController : ControllerBase
             {
                 return Unauthorized(ApiResponse<string>.FailResponse("User not found."));
             }
-            
+
             await _mediator.Send(new EnableAuthenticatorCommand(userId, request.Code));
             return Ok(ApiResponse<string>.SuccessResponse("OK", "Authenticator app enabled successfully."));
         }
@@ -483,7 +483,7 @@ public class AuthController : ControllerBase
             {
                 return Unauthorized(ApiResponse<string>.FailResponse("User not found."));
             }
-            
+
             await _mediator.Send(new DisableAuthenticatorCommand(userId));
             return Ok(ApiResponse<string>.SuccessResponse("OK", "Authenticator app disabled."));
         }
@@ -507,7 +507,7 @@ public class AuthController : ControllerBase
             {
                 return Unauthorized(ApiResponse<AuthenticatorStatusDto>.FailResponse("User not found."));
             }
-            
+
             var result = await _mediator.Send(new GetAuthenticatorStatusQuery(userId));
             return Ok(ApiResponse<AuthenticatorStatusDto>.SuccessResponse(result));
         }
@@ -531,7 +531,7 @@ public class AuthController : ControllerBase
             {
                 return Unauthorized(ApiResponse<string>.FailResponse("User not found."));
             }
-            
+
             await _mediator.Send(new VerifyAuthenticatorCodeCommand(userId, request.Code));
             return Ok(ApiResponse<string>.SuccessResponse("OK", "Code verified successfully."));
         }

@@ -6,8 +6,6 @@ using AuthService.Application.Features.Menu.GetPagePermissions;
 using AuthService.Application.Features.Menu.GetUserDepartment;
 using AuthService.Application.Features.Menu.GetUserMenus;
 using AuthService.Application.Features.Menu.GetUserRoles;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 
 namespace AuthService.Api.Controllers;
 

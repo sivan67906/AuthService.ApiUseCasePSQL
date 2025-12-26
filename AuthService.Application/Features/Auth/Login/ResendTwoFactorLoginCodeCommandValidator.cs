@@ -1,6 +1,5 @@
-using FluentValidation;
-
 namespace AuthService.Application.Features.Auth.Login;
+
 public sealed class ResendTwoFactorLoginCodeCommandValidator : AbstractValidator<ResendTwoFactorLoginCodeCommand>
 {
     public ResendTwoFactorLoginCodeCommandValidator()

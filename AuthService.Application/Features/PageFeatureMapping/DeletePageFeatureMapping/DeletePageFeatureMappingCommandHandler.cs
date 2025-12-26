@@ -2,6 +2,7 @@ using AuthService.Application.Common.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthService.Application.Features.PageFeatureMapping.DeletePageFeatureMapping;
+
 public sealed class DeletePageFeatureMappingCommandHandler : IRequestHandler<DeletePageFeatureMappingCommand, bool>
 {
     private readonly IAppDbContext _db;
@@ -21,5 +22,5 @@ public sealed class DeletePageFeatureMappingCommandHandler : IRequestHandler<Del
         _db.PageFeatureMappings.Remove(entity);
         await _db.SaveChangesAsync(cancellationToken);
         return true;
-}
+    }
 }

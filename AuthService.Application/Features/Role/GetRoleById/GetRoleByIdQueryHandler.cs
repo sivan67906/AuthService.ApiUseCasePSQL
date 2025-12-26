@@ -1,7 +1,8 @@
-using Microsoft.AspNetCore.Identity;
 using AuthService.Application.Features.Role.CreateRole;
+using Microsoft.AspNetCore.Identity;
 
 namespace AuthService.Application.Features.Role.GetRoleById;
+
 public sealed class GetRoleByIdQueryHandler : IRequestHandler<GetRoleByIdQuery, RoleDto>
 {
     private readonly RoleManager<ApplicationRole> _roleManager;
@@ -24,5 +25,5 @@ public sealed class GetRoleByIdQueryHandler : IRequestHandler<GetRoleByIdQuery, 
             role.DepartmentId,
             null
         );
-}
+    }
 }

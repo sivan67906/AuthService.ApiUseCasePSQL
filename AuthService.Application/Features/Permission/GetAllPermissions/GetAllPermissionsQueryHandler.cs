@@ -3,6 +3,7 @@ using AuthService.Application.Features.Permission.CreatePermission;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthService.Application.Features.Permission.GetAllPermissions;
+
 public sealed class GetAllPermissionsQueryHandler : IRequestHandler<GetAllPermissionsQuery, List<PermissionDto>>
 {
     private readonly IAppDbContext _db;

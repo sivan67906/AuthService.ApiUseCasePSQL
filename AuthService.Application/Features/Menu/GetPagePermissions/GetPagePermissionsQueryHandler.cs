@@ -21,7 +21,7 @@ public class GetPagePermissionsQueryHandler : IRequestHandler<GetPagePermissions
         try
         {
             var permissions = await _authorizationService.GetUserPagePermissionsAsync(request.UserId, request.PageName);
-            
+
             var result = new PagePermissionsDto
             {
                 PageName = request.PageName,

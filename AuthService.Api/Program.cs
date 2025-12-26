@@ -1,3 +1,4 @@
+using System.IO.Compression;
 using AuthService.Application.Common.Behaviors;
 using AuthService.Domain.Constants;
 using AuthService.Infrastructure;
@@ -15,8 +16,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
-using System.IO.Compression;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -245,7 +244,7 @@ using (var scope = app.Services.CreateScope())
     {
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-        
+
         logger.LogInformation("Warming up database connection pool...");
         await dbContext.Database.CanConnectAsync();
         logger.LogInformation("Database connection pool warmed up successfully");
@@ -297,10 +296,10 @@ app.Use(async (context, next) =>
         context.Response.ContentType = "application/json";
 
         // Fix collection initialization warnings (IDE0300, CA1861)
-        var errorMessage = app.Environment.IsDevelopment() 
-            ? ex.Message 
+        var errorMessage = app.Environment.IsDevelopment()
+            ? ex.Message
             : "An error occurred while processing your request";
-        
+
         var errorDetails = app.Environment.IsDevelopment()
     ? new List<string> { ex.Message.ToString() }
     : new List<string> { "Internal server error" };
@@ -323,7 +322,7 @@ app.UseResponseCompression(); // Must be first
 // Configure forwarded headers for reverse proxy (Docker/Ocelot Gateway)
 app.UseForwardedHeaders(new ForwardedHeadersOptions
 {
-    ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedFor | 
+    ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedFor |
                        Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto
 });
 

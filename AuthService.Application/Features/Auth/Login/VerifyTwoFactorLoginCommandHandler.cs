@@ -56,7 +56,7 @@ public sealed class VerifyTwoFactorLoginCommandHandler : IRequestHandler<VerifyT
             // Verify email-based 2FA code with custom validation
             // This ensures only the latest code works and validates expiry (1 hour)
             isValid = _twoFactorThrottlingService.ValidateCode(user.Email!, request.Code);
-            
+
             // If our custom validation passed, also verify with Identity for additional security
             if (isValid)
             {

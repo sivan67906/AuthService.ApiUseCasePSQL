@@ -2,6 +2,7 @@ using AuthService.Application.Common.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthService.Application.Features.PageFeatureMapping.CreatePageFeatureMapping;
+
 public sealed class CreatePageFeatureMappingCommandHandler : IRequestHandler<CreatePageFeatureMappingCommand, PageFeatureMappingDto>
 {
     private readonly IAppDbContext _db;
@@ -15,7 +16,7 @@ public sealed class CreatePageFeatureMappingCommandHandler : IRequestHandler<Cre
         var existing = await _db.PageFeatureMappings
             .IgnoreQueryFilters() // Include deleted records
             .FirstOrDefaultAsync(x => x.PageId == request.PageId && x.FeatureId == request.FeatureId, cancellationToken);
-            
+
         if (existing != null)
         {
             if (existing.IsDeleted)
@@ -27,7 +28,7 @@ public sealed class CreatePageFeatureMappingCommandHandler : IRequestHandler<Cre
                 throw new InvalidOperationException("This page-feature mapping already exists");
             }
         }
-        
+
         var entity = new Domain.Entities.PageFeatureMapping
         {
             PageId = request.PageId,
@@ -36,7 +37,7 @@ public sealed class CreatePageFeatureMappingCommandHandler : IRequestHandler<Cre
         _db.PageFeatureMappings.Add(entity);
         await _db.SaveChangesAsync(cancellationToken);
         return entity.Adapt<PageFeatureMappingDto>();
-}
+    }
 
 
 }

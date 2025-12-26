@@ -1,4 +1,3 @@
-using AuthService.Application.Common.Interfaces;
 using AuthService.Domain.Interfaces;
 
 namespace AuthService.Infrastructure.Repositories;

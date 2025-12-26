@@ -2,6 +2,7 @@ using AuthService.Application.Common.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthService.Application.Features.Auth.RevokeToken;
+
 public class RevokeTokenCommandHandler : IRequestHandler<RevokeTokenCommand, bool>
 {
     private readonly IAppDbContext _db;
@@ -21,5 +22,5 @@ public class RevokeTokenCommandHandler : IRequestHandler<RevokeTokenCommand, boo
         token.IsRevoked = true;
         await _db.SaveChangesAsync(cancellationToken);
         return true;
-}
+    }
 }

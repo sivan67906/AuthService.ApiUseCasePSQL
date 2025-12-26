@@ -3,6 +3,7 @@ using AuthService.Application.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthService.Application.Features.RoleFeatureMapping.GetAllRoleFeatureMappings;
+
 public sealed class GetAllRoleFeatureMappingsQueryHandler : IRequestHandler<GetAllRoleFeatureMappingsQuery, List<RoleFeatureMappingDto>>
 {
     private readonly IAppDbContext _db;

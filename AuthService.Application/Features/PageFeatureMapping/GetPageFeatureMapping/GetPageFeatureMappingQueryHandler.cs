@@ -3,6 +3,7 @@ using AuthService.Application.Features.PageFeatureMapping.CreatePageFeatureMappi
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthService.Application.Features.PageFeatureMapping.GetPageFeatureMapping;
+
 public sealed class GetPageFeatureMappingQueryHandler : IRequestHandler<GetPageFeatureMappingQuery, PageFeatureMappingDto?>
 {
     private readonly IAppDbContext _db;
@@ -15,5 +16,5 @@ public sealed class GetPageFeatureMappingQueryHandler : IRequestHandler<GetPageF
         var entity = await _db.PageFeatureMappings.AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == request.Id && !x.IsDeleted, cancellationToken);
         return entity?.Adapt<PageFeatureMappingDto>();
-}
+    }
 }

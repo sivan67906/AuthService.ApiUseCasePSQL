@@ -41,7 +41,7 @@ public class SetPasswordsCommandHandler : IRequestHandler<SetPasswordsCommand, s
                     _logger.LogError("Failed to add password for {Email}", email);
                     throw new InvalidOperationException($"Failed to add password for {email}");
                 }
-                
+
                 _logger.LogInformation("Password updated successfully for {Email}", email);
             }
         }

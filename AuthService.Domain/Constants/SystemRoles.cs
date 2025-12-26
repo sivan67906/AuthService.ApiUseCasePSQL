@@ -8,23 +8,26 @@ public static class SystemRoles
 {
     // SuperAdmin - Has unrestricted access to everything across all departments
     public const string SuperAdmin = "SuperAdmin";
-    
+
     // DepartmentAdmin - Has full access within their assigned department only
     public const string DepartmentAdmin = "DepartmentAdmin";
-    
+
     // PendingUser - Newly registered users waiting for role assignment
     public const string PendingUser = "PendingUser";
-    
+
     /// <summary>
     /// Get all system roles that should be created during initial setup
     /// </summary>
-    public static string[] GetAll() => new[] { SuperAdmin, DepartmentAdmin, PendingUser };
-    
+    public static string[] GetAll()
+    {
+        return new[] { SuperAdmin, DepartmentAdmin, PendingUser };
+    }
+
     /// <summary>
     /// Check if a role name is a system role
     /// </summary>
     public static bool IsSystemRole(string roleName)
     {
-        return roleName == SuperAdmin || roleName == DepartmentAdmin || roleName == PendingUser;
+        return roleName is SuperAdmin or DepartmentAdmin or PendingUser;
     }
 }

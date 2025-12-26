@@ -1,12 +1,13 @@
+using System.Security.Claims;
 using AuthService.Application.Common.Interfaces;
 using AuthService.Application.Features.Department.CreateDepartment;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Http;
-using System.Security.Claims;
 using AuthService.Domain.Constants;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace AuthService.Application.Features.Department.GetAllDepartments;
+
 public sealed class GetAllDepartmentsQueryHandler : IRequestHandler<GetAllDepartmentsQuery, List<DepartmentDto>>
 {
     private readonly IAppDbContext _db;
@@ -32,9 +33,9 @@ public sealed class GetAllDepartmentsQueryHandler : IRequestHandler<GetAllDepart
         var currentUser = _httpContextAccessor.HttpContext?.User;
         if (currentUser?.Identity?.IsAuthenticated == true)
         {
-            var userEmail = currentUser.FindFirst(ClaimTypes.Email)?.Value 
+            var userEmail = currentUser.FindFirst(ClaimTypes.Email)?.Value
                 ?? currentUser.FindFirst("email")?.Value;
-            
+
             if (!string.IsNullOrEmpty(userEmail))
             {
                 var user = await _userManager.FindByEmailAsync(userEmail);
@@ -47,7 +48,7 @@ public sealed class GetAllDepartmentsQueryHandler : IRequestHandler<GetAllDepart
                         .Include(urm => urm.Role)
                         .Select(urm => urm.Role.Name)
                         .ToListAsync(cancellationToken);
-                    
+
                     // SuperAdmin can see all departments
                     if (!userRoles.Contains(SystemRoles.SuperAdmin))
                     {

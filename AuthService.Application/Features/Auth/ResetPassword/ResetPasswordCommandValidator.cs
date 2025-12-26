@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AuthService.Application.Features.Auth.Register;
+﻿namespace AuthService.Application.Features.Auth.ResetPassword;
 
-namespace AuthService.Application.Features.Auth.ResetPassword;
 public class ResetPasswordCommandValidator : AbstractValidator<ResetPasswordCommand>
 {
     public ResetPasswordCommandValidator()

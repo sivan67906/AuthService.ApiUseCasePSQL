@@ -9,17 +9,18 @@ public sealed class GetRolesByDepartmentQueryHandler : IRequestHandler<GetRolesB
 {
     private readonly RoleManager<ApplicationRole> _roleManager;
     private readonly IAppDbContext _db;
-    
+
     public GetRolesByDepartmentQueryHandler(RoleManager<ApplicationRole> roleManager, IAppDbContext db)
     {
         _roleManager = roleManager;
         _db = db;
     }
-    
+
     public async Task<List<RoleDto>> Handle(GetRolesByDepartmentQuery request, CancellationToken cancellationToken)
     {
         IQueryable<ApplicationRole> query = _roleManager.Roles.AsNoTracking()
-            .Include(r => r.Department);
+            .Include(r => r.Department)
+            .Where(r => !r.IsDeleted);
 
         // If DepartmentId is null, return ALL roles (System wide - All Departments)
         // If DepartmentId is provided, filter by that specific department

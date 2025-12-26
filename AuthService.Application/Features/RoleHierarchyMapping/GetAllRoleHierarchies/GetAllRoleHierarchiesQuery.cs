@@ -2,6 +2,7 @@ using AuthService.Application.Common.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthService.Application.Features.RoleHierarchyMapping.GetAllRoleHierarchies;
+
 public record GetAllRoleHierarchiesQuery : IRequest<List<RoleHierarchyDto>>;
 public class GetAllRoleHierarchiesQueryHandler : IRequestHandler<GetAllRoleHierarchiesQuery, List<RoleHierarchyDto>>
 {
@@ -28,6 +29,6 @@ public class GetAllRoleHierarchiesQueryHandler : IRequestHandler<GetAllRoleHiera
                 UpdatedAt = rh.UpdatedAt
             })
             .ToListAsync(cancellationToken);
-}
+    }
 
 }

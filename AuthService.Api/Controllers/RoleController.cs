@@ -1,9 +1,9 @@
 using AuthService.Application.Features.Role.CreateRole;
+using AuthService.Application.Features.Role.DeleteRole;
 using AuthService.Application.Features.Role.GetAllRoles;
+using AuthService.Application.Features.Role.GetRoleById;
 using AuthService.Application.Features.Role.GetRolesByDepartment;
 using AuthService.Application.Features.Role.UpdateRole;
-using AuthService.Application.Features.Role.DeleteRole;
-using AuthService.Application.Features.Role.GetRoleById;
 using AuthService.Domain.Constants;
 
 namespace AuthService.Api.Controllers;

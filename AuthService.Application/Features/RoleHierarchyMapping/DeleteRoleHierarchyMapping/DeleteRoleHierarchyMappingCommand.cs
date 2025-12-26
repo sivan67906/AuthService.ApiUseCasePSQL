@@ -1,4 +1,5 @@
 namespace AuthService.Application.Features.RoleHierarchyMapping.DeleteRoleHierarchyMapping;
+
 using AuthService.Application.Common.Interfaces;
 using Microsoft.EntityFrameworkCore;
 

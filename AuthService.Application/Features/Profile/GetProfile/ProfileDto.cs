@@ -8,7 +8,7 @@ public class ProfileDto
     public string? LastName { get; set; }
     public bool EmailConfirmed { get; set; }
     public bool TwoFactorEnabled { get; set; }
-    
+
     /// <summary>
     /// Indicates if authenticator app is enabled for 2FA
     /// </summary>

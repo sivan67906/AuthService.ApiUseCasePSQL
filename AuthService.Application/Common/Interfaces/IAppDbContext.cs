@@ -1,4 +1,3 @@
-using AuthService.Domain.Entities;
 using AuthService.Domain.Entities.Masters;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;

@@ -3,6 +3,7 @@ using AuthService.Application.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthService.Application.Features.RolePagePermissionMapping.GetAllRolePagePermissionMappings;
+
 public sealed class GetAllRolePagePermissionMappingsQueryHandler : IRequestHandler<GetAllRolePagePermissionMappingsQuery, List<RolePagePermissionMappingDto>>
 {
     private readonly IAppDbContext _db;

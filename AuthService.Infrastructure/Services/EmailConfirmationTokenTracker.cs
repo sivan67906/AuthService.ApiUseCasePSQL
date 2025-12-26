@@ -2,7 +2,6 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using AuthService.Application.Common.Interfaces;
 
 namespace AuthService.Infrastructure.Services;
 
@@ -29,7 +28,7 @@ public class EmailConfirmationTokenTracker : IEmailConfirmationTokenTracker
     public bool ValidateToken(string email, string token)
     {
         var key = email.ToLowerInvariant();
-        
+
         if (!_latestTokens.TryGetValue(key, out var storedInfo))
         {
             // No tracking yet - allow the token (backward compatibility)

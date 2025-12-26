@@ -1,4 +1,3 @@
-using AuthService.Domain.Entities;
 using AuthService.Application.Features.Company.CreateCompany;
 
 namespace AuthService.Application.Features.Company.UpdateCompany;
@@ -8,7 +7,7 @@ namespace AuthService.Application.Features.Company.UpdateCompany;
 /// </summary>
 public sealed record UpdateCompanyCommand(
     Guid Id,
-    
+
     // Identity (CompanyCode cannot be changed after creation)
     string LegalName,
     string? TradeName,

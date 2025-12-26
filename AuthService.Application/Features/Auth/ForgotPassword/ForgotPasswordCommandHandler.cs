@@ -4,6 +4,7 @@ using AuthService.Application.Common.Interfaces;
 using Microsoft.AspNetCore.Identity;
 
 namespace AuthService.Application.Features.Auth.ForgotPassword;
+
 public class ForgotPasswordCommandHandler : IRequestHandler<ForgotPasswordCommand, bool>
 {
     private readonly UserManager<ApplicationUser> _userManager;

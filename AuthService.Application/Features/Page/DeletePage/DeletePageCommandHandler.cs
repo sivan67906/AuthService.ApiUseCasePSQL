@@ -2,6 +2,7 @@ using AuthService.Application.Common.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthService.Application.Features.Page.DeletePage;
+
 public sealed class DeletePageCommandHandler : IRequestHandler<DeletePageCommand, bool>
 {
     private readonly IAppDbContext _db;
@@ -18,17 +19,17 @@ public sealed class DeletePageCommandHandler : IRequestHandler<DeletePageCommand
             Console.WriteLine($"[DeletePageHandler] Page not found: {request.Id}");
             return false;
         }
-        
+
         // Soft delete
         entity.IsDeleted = true;
         entity.UpdatedAt = DateTime.UtcNow;
-        
+
         // Explicitly mark as modified to ensure EF tracks the changes
         _db.Set<Domain.Entities.Page>().Update(entity);
-        
+
         var savedCount = await _db.SaveChangesAsync(cancellationToken);
         Console.WriteLine($"[DeletePageHandler] Saved {savedCount} entities for Page ID: {request.Id}");
-        
+
         return true;
-}
+    }
 }

@@ -2,6 +2,7 @@ using AuthService.Application.Common.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthService.Application.Features.Department.DeleteDepartment;
+
 public sealed class DeleteDepartmentCommandHandler : IRequestHandler<DeleteDepartmentCommand, bool>
 {
     private readonly IAppDbContext _db;
@@ -20,12 +21,12 @@ public sealed class DeleteDepartmentCommandHandler : IRequestHandler<DeleteDepar
         }
         entity.IsDeleted = true;
         entity.UpdatedAt = DateTime.UtcNow;
-        
+
         // Explicitly mark as modified to ensure EF tracks the changes
         _db.Set<Domain.Entities.Department>().Update(entity);
-        
+
         var savedCount = await _db.SaveChangesAsync(cancellationToken);
         Console.WriteLine($"[DeleteDepartmentHandler] Saved {savedCount} entities for Department ID: {request.Id}");
         return true;
-}
+    }
 }

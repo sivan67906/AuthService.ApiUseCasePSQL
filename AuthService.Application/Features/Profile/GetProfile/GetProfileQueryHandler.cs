@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 
 namespace AuthService.Application.Features.Profile.GetProfile;
+
 public class GetProfileQueryHandler : IRequestHandler<GetProfileQuery, ProfileDto>
 {
     private readonly UserManager<ApplicationUser> _userManager;
@@ -16,8 +17,8 @@ public class GetProfileQueryHandler : IRequestHandler<GetProfileQuery, ProfileDt
         }
         var user = await _userManager.FindByIdAsync(userId.ToString())
             ?? throw new InvalidOperationException("User not found");
-        var twoFactorType = user.TwoFactorEnabled 
-            ? (user.AuthenticatorEnabled ? "Authenticator" : "Email") 
+        var twoFactorType = user.TwoFactorEnabled
+            ? (user.AuthenticatorEnabled ? "Authenticator" : "Email")
             : "None";
         return new ProfileDto
         {
@@ -30,5 +31,5 @@ public class GetProfileQueryHandler : IRequestHandler<GetProfileQuery, ProfileDt
             AuthenticatorEnabled = user.AuthenticatorEnabled,
             TwoFactorType = twoFactorType
         };
-}
+    }
 }

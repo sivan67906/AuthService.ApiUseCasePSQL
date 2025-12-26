@@ -5,7 +5,7 @@ namespace AuthService.Application.Features.Auth.Login;
 /// </summary>
 public sealed record VerifyTwoFactorLoginCommand(
     string Email,
-    string TwoFactorToken,
     string Code,
+    string TwoFactorToken,
     string TwoFactorType
 ) : IRequest<LoginResultDto>;

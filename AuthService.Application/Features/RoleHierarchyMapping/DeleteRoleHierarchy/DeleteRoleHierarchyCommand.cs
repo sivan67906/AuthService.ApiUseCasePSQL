@@ -2,6 +2,7 @@ using AuthService.Application.Common.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthService.Application.Features.RoleHierarchyMapping.DeleteRoleHierarchy;
+
 public record DeleteRoleHierarchyCommand(Guid Id) : IRequest<bool>;
 public class DeleteRoleHierarchyCommandHandler : IRequestHandler<DeleteRoleHierarchyCommand, bool>
 {

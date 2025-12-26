@@ -1,9 +1,6 @@
 using System.Diagnostics;
 using System.Linq;
-using AuthService.Application.Common.Interfaces;
 using AuthService.Domain.Constants;
-using AuthService.Domain.Entities;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace AuthService.Infrastructure.Services;

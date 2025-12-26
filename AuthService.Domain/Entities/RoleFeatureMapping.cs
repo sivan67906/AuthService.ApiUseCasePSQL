@@ -9,7 +9,7 @@ public sealed class RoleFeatureMapping : BaseEntity
     public Guid FeatureId { get; set; }
     public Guid? DepartmentId { get; set; }  // Null for SuperAdmin, required for DepartmentAdmin
     public bool IsActive { get; set; } = true;
-    
+
     // Navigation properties
     public ApplicationRole Role { get; set; } = null!;
     public Feature Feature { get; set; } = null!;

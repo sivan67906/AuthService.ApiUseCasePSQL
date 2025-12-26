@@ -53,7 +53,7 @@ public sealed class ResendTwoFactorLoginCodeCommandHandler : IRequestHandler<Res
         // generation uses the security stamp as entropy. By NOT updating the stamp,
         // the new code will also work with the same TwoFactorToken the client has.
         // The old code will naturally be invalidated by storing the new code.
-        
+
         // Use the existing security stamp - this ensures the client's TwoFactorToken remains valid
         var existingSecurityStamp = user.SecurityStamp!;
 

@@ -27,7 +27,7 @@ public sealed class CreateRoleCommandHandler : IRequestHandler<CreateRoleCommand
         var existingByCode = await _db.ApplicationRoles
             .IgnoreQueryFilters() // Include deleted records
             .FirstOrDefaultAsync(r => r.Code != null && r.Code.ToLower() == request.Code.ToLower(), cancellationToken);
-            
+
         if (existingByCode != null)
         {
             if (existingByCode.IsDeleted)

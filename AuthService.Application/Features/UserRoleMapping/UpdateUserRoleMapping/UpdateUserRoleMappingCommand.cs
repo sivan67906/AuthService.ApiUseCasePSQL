@@ -1,4 +1,5 @@
 namespace AuthService.Application.Features.UserRoleMapping.UpdateUserRoleMapping;
+
 using AuthService.Application.Common.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -54,9 +55,9 @@ public sealed class UpdateUserRoleMappingCommandHandler : IRequestHandler<Update
             }
         }
         var duplicateMapping = await _db.UserRoleMappings
-            .FirstOrDefaultAsync(urm => urm.Id != request.Id && 
-                                       urm.UserId == request.UserId && 
-                                       urm.RoleId == request.RoleId && 
+            .FirstOrDefaultAsync(urm => urm.Id != request.Id &&
+                                       urm.UserId == request.UserId &&
+                                       urm.RoleId == request.RoleId &&
                                        urm.DepartmentId == request.DepartmentId, cancellationToken);
         if (duplicateMapping != null)
         {

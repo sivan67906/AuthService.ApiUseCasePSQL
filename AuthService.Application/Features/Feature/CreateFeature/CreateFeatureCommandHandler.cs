@@ -2,6 +2,7 @@ using AuthService.Application.Common.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthService.Application.Features.Feature.CreateFeature;
+
 public sealed class CreateFeatureCommandHandler : IRequestHandler<CreateFeatureCommand, FeatureDto>
 {
     private readonly IAppDbContext _db;
@@ -16,12 +17,12 @@ public sealed class CreateFeatureCommandHandler : IRequestHandler<CreateFeatureC
         {
             throw new InvalidOperationException("Display Order cannot be negative");
         }
-        
+
         // Check for duplicate code (case-insensitive) - including soft-deleted records
         var existingByCode = await _db.Features
             .IgnoreQueryFilters() // Include deleted records
             .FirstOrDefaultAsync(x => x.Code.ToLower() == request.Code.ToLower(), cancellationToken);
-            
+
         if (existingByCode != null)
         {
             if (existingByCode.IsDeleted)
@@ -33,14 +34,14 @@ public sealed class CreateFeatureCommandHandler : IRequestHandler<CreateFeatureC
                 throw new InvalidOperationException($"Feature with code '{request.Code}' already exists");
             }
         }
-        
+
         // Automatically set Level based on ParentFeatureId
         int level = 0;
         if (request.ParentFeatureId.HasValue)
         {
             // If parent feature is selected, set Level = 1
             level = 1;
-            
+
             // Validate that parent exists
             var parentExists = await _db.Features
                 .AnyAsync(f => f.Id == request.ParentFeatureId.Value && !f.IsDeleted, cancellationToken);
@@ -58,7 +59,7 @@ public sealed class CreateFeatureCommandHandler : IRequestHandler<CreateFeatureC
                 throw new InvalidOperationException("Main features (without parent) must have IsMainMenu checked");
             }
         }
-        
+
         var entity = new Domain.Entities.Feature
         {
             Code = request.Code.ToUpper(),
@@ -75,7 +76,7 @@ public sealed class CreateFeatureCommandHandler : IRequestHandler<CreateFeatureC
         _db.Features.Add(entity);
         await _db.SaveChangesAsync(cancellationToken);
         return entity.Adapt<FeatureDto>();
-}
+    }
 
 
 }

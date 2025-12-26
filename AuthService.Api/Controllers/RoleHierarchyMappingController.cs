@@ -1,9 +1,9 @@
 using AuthService.Application.Features.RoleHierarchyMapping;
 using AuthService.Application.Features.RoleHierarchyMapping.CreateRoleHierarchyMapping;
+using AuthService.Application.Features.RoleHierarchyMapping.DeleteRoleHierarchyMapping;
 using AuthService.Application.Features.RoleHierarchyMapping.GetAllRoleHierarchyMappings;
 using AuthService.Application.Features.RoleHierarchyMapping.GetRoleHierarchyMappingById;
 using AuthService.Application.Features.RoleHierarchyMapping.UpdateRoleHierarchyMapping;
-using AuthService.Application.Features.RoleHierarchyMapping.DeleteRoleHierarchyMapping;
 using AuthService.Domain.Constants;
 
 namespace AuthService.Api.Controllers;

@@ -1,6 +1,5 @@
 using System.Linq;
 using AuthService.Domain.Entities.Masters;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace AuthService.Infrastructure.Persistence;
@@ -336,7 +335,7 @@ public static class MasterDataSeed
 
         // Seed CountryTimeZone mappings
         logger.LogInformation("Seeding country-timezone mappings...");
-        
+
         // Map timezones to countries
         var indiaTimeZone = allTimeZones.FirstOrDefault(t => t.Identifier == "Asia/Kolkata");
         var pstTimeZone = allTimeZones.FirstOrDefault(t => t.Identifier == "America/Los_Angeles");

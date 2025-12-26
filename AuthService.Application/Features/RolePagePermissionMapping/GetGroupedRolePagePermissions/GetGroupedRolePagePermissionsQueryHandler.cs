@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AuthService.Application.Features.RolePagePermissionMapping.GetGroupedRolePagePermissions;
 
-public class GetGroupedRolePagePermissionsQueryHandler 
+public class GetGroupedRolePagePermissionsQueryHandler
     : IRequestHandler<GetGroupedRolePagePermissionsQuery, List<RolePagePermissionGroupDto>>
 {
     private readonly IAppDbContext _db;
@@ -15,7 +15,7 @@ public class GetGroupedRolePagePermissionsQueryHandler
     }
 
     public async Task<List<RolePagePermissionGroupDto>> Handle(
-        GetGroupedRolePagePermissionsQuery request, 
+        GetGroupedRolePagePermissionsQuery request,
         CancellationToken cancellationToken)
     {
         var mappings = await _db.RolePagePermissionMappings
@@ -28,13 +28,14 @@ public class GetGroupedRolePagePermissionsQueryHandler
 
         // Group by Department, Role, Page ONLY (not by CreatedAt or other properties)
         var grouped = mappings
-            .GroupBy(m => new 
-            { 
-                m.DepartmentId, 
-                m.RoleId, 
+            .GroupBy(m => new
+            {
+                m.DepartmentId,
+                m.RoleId,
                 m.PageId
             })
-            .Select(g => {
+            .Select(g =>
+            {
                 var first = g.First();
                 return new RolePagePermissionGroupDto
                 {

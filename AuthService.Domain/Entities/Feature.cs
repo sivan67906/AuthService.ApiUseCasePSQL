@@ -12,7 +12,7 @@ public sealed class Feature : BaseEntity
     public bool IsActive { get; set; } = true;
     public string? RouteUrl { get; set; }  // For navigation to specific page
     public int Level { get; set; }  // 0 for main menu, 1+ for submenus
-    
+
     // Navigation properties
     public Feature? ParentFeature { get; set; }
     public ICollection<Feature> SubFeatures { get; init; } = [];

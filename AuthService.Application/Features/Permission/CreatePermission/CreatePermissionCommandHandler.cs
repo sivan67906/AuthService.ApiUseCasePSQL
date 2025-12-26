@@ -2,6 +2,7 @@ using AuthService.Application.Common.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthService.Application.Features.Permission.CreatePermission;
+
 public sealed class CreatePermissionCommandHandler : IRequestHandler<CreatePermissionCommand, PermissionDto>
 {
     private readonly IAppDbContext _db;
@@ -15,7 +16,7 @@ public sealed class CreatePermissionCommandHandler : IRequestHandler<CreatePermi
         var existingByCode = await _db.Permissions
             .IgnoreQueryFilters() // Include deleted records
             .FirstOrDefaultAsync(x => x.Code.ToLower() == request.Code.ToLower(), cancellationToken);
-            
+
         if (existingByCode != null)
         {
             if (existingByCode.IsDeleted)
@@ -27,7 +28,7 @@ public sealed class CreatePermissionCommandHandler : IRequestHandler<CreatePermi
                 throw new InvalidOperationException($"Permission with code '{request.Code}' already exists");
             }
         }
-        
+
         var entity = new Domain.Entities.Permission
         {
             Code = request.Code.ToUpper(),
@@ -37,7 +38,7 @@ public sealed class CreatePermissionCommandHandler : IRequestHandler<CreatePermi
         _db.Permissions.Add(entity);
         await _db.SaveChangesAsync(cancellationToken);
         return entity.Adapt<PermissionDto>();
-}
+    }
 
 
 }

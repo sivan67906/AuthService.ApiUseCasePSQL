@@ -1,4 +1,5 @@
 namespace AuthService.Application.Features.UserRoleMapping.GetUserRoleMappingById;
+
 using AuthService.Application.Common.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -36,6 +37,6 @@ public sealed class GetUserRoleMappingByIdQueryHandler : IRequestHandler<GetUser
                 UpdatedAt = urm.UpdatedAt
             })
             .FirstOrDefaultAsync(cancellationToken);
-}
+    }
 
 }

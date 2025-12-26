@@ -8,14 +8,14 @@ public class ApplicationRole : IdentityRole<Guid>, IAuditableEntity, ISoftDeleta
     public string? Description { get; set; }
     public Guid? DepartmentId { get; set; }
     public bool IsActive { get; set; } = true;
-    
+
     // Audit fields
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public string? CreatedBy { get; set; }
     public DateTime? UpdatedAt { get; set; }
     public string? ModifiedBy { get; set; }
     public bool IsDeleted { get; set; }
-    
+
     // Navigation properties
     public Department? Department { get; set; }
     public ICollection<RolePermissionMapping> RolePermissions { get; init; } = [];

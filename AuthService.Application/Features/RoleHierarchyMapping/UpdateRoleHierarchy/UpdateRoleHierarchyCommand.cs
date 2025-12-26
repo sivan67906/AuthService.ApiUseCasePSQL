@@ -2,6 +2,7 @@ using AuthService.Application.Common.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthService.Application.Features.RoleHierarchyMapping.UpdateRoleHierarchy;
+
 public record UpdateRoleHierarchyCommand : IRequest<RoleHierarchyDto>
 {
     public Guid Id { get; set; }
@@ -43,8 +44,8 @@ public class UpdateRoleHierarchyCommandHandler : IRequestHandler<UpdateRoleHiera
         }
         // Check for duplicate mapping (excluding current record)
         var duplicate = await _db.RoleHierarchies
-            .FirstOrDefaultAsync(rh => rh.Id != request.Id && 
-                                      rh.ParentRoleId == request.ParentRoleId && 
+            .FirstOrDefaultAsync(rh => rh.Id != request.Id &&
+                                      rh.ParentRoleId == request.ParentRoleId &&
                                       rh.ChildRoleId == request.ChildRoleId, cancellationToken);
         if (duplicate != null)
         {

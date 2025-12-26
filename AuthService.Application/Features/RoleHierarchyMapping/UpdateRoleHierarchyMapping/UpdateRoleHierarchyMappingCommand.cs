@@ -1,4 +1,5 @@
 namespace AuthService.Application.Features.RoleHierarchyMapping.UpdateRoleHierarchyMapping;
+
 using AuthService.Application.Common.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -29,26 +30,26 @@ public sealed class UpdateRoleHierarchyMappingCommandHandler : IRequestHandler<U
         {
             throw new InvalidOperationException("Role hierarchy mapping not found");
         }
-        
+
         // Check if any changes were made
         bool hasChanges = false;
-        if (entity.ParentRoleId != request.ParentRoleId || 
-            entity.ChildRoleId != request.ChildRoleId || 
+        if (entity.ParentRoleId != request.ParentRoleId ||
+            entity.ChildRoleId != request.ChildRoleId ||
             entity.Level != request.Level)
         {
             hasChanges = true;
         }
-        
+
         if (!hasChanges)
         {
             throw new InvalidOperationException("No changes detected. Please modify the data before updating.");
         }
-        
+
         // Validate that roles exist
         var parentRole = await _db.Roles
             .Include(r => r.Department)
             .FirstOrDefaultAsync(r => r.Id == request.ParentRoleId, cancellationToken);
-        
+
         if (parentRole == null)
         {
             throw new InvalidOperationException("Parent role not found");
@@ -61,7 +62,7 @@ public sealed class UpdateRoleHierarchyMappingCommandHandler : IRequestHandler<U
         }
 
         // IMPORTANT: Validate that both roles belong to the same department (or parent has no department for system roles)
-        if (parentRole.DepartmentId.HasValue && childRole.DepartmentId.HasValue && 
+        if (parentRole.DepartmentId.HasValue && childRole.DepartmentId.HasValue &&
             parentRole.DepartmentId != childRole.DepartmentId)
         {
             throw new InvalidOperationException("Parent and child roles must belong to the same department");
@@ -83,8 +84,8 @@ public sealed class UpdateRoleHierarchyMappingCommandHandler : IRequestHandler<U
         // Check for duplicate mapping (excluding current and soft-deleted)
         var duplicateMapping = await _db.RoleHierarchies
             .Where(rh => !rh.IsDeleted)
-            .FirstOrDefaultAsync(rh => rh.Id != request.Id && 
-                                      rh.ParentRoleId == request.ParentRoleId && 
+            .FirstOrDefaultAsync(rh => rh.Id != request.Id &&
+                                      rh.ParentRoleId == request.ParentRoleId &&
                                       rh.ChildRoleId == request.ChildRoleId, cancellationToken);
         if (duplicateMapping != null)
         {

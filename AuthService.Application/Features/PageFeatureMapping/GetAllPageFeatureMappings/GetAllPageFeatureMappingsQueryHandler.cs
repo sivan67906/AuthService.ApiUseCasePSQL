@@ -3,6 +3,7 @@ using AuthService.Application.Features.PageFeatureMapping.CreatePageFeatureMappi
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthService.Application.Features.PageFeatureMapping.GetAllPageFeatureMappings;
+
 public sealed class GetAllPageFeatureMappingsQueryHandler : IRequestHandler<GetAllPageFeatureMappingsQuery, List<PageFeatureMappingDto>>
 {
     private readonly IAppDbContext _db;

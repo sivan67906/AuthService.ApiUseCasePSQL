@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Authorization;
-
 namespace AuthService.Api.Authorization
 {
     /// <summary>

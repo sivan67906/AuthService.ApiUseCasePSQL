@@ -2,6 +2,7 @@ using AuthService.Application.Common.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthService.Application.Features.Department.CreateDepartment;
+
 public sealed class CreateDepartmentCommandHandler : IRequestHandler<CreateDepartmentCommand, DepartmentDto>
 {
     private readonly IAppDbContext _db;
@@ -15,7 +16,7 @@ public sealed class CreateDepartmentCommandHandler : IRequestHandler<CreateDepar
         var existingByCode = await _db.Departments
             .IgnoreQueryFilters() // Include deleted records
             .FirstOrDefaultAsync(x => x.Code.ToLower() == request.Code.ToLower(), cancellationToken);
-            
+
         if (existingByCode != null)
         {
             if (existingByCode.IsDeleted)
@@ -27,7 +28,7 @@ public sealed class CreateDepartmentCommandHandler : IRequestHandler<CreateDepar
                 throw new InvalidOperationException($"Department with code '{request.Code}' already exists");
             }
         }
-        
+
         var entity = new Domain.Entities.Department
         {
             Code = request.Code.ToUpper(),
@@ -37,5 +38,5 @@ public sealed class CreateDepartmentCommandHandler : IRequestHandler<CreateDepar
         _db.Departments.Add(entity);
         await _db.SaveChangesAsync(cancellationToken);
         return entity.Adapt<DepartmentDto>();
-}
+    }
 }

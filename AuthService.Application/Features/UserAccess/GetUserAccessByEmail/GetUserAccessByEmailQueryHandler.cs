@@ -54,7 +54,7 @@ public sealed class GetUserAccessByEmailQueryHandler
 
         var userRoleIds = userRoleData.Select(x => x.RoleId).Distinct().ToList();
         var userDepartmentId = userRoleData.FirstOrDefault()?.DepartmentId;
-        
+
         // Get department name
         string? userDepartmentName = null;
         if (userDepartmentId.HasValue)

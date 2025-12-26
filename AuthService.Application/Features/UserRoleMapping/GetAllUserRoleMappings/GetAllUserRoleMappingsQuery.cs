@@ -36,6 +36,6 @@ public sealed class GetAllUserRoleMappingsQueryHandler : IRequestHandler<GetAllU
             CreatedAt = urm.CreatedAt,
             UpdatedAt = urm.UpdatedAt
         }).ToList();
-}
+    }
 
 }

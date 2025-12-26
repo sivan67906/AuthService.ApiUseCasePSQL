@@ -58,7 +58,7 @@ public class ApiResponse<T>
     {
         var errors = new List<string>();
         var exMessage = ex.Message;
-        
+
         // Remove common prefixes like "Unable to register user: "
         var prefixPatterns = new[] { "Unable to register user: ", "Registration failed: ", "Validation failed: " };
         foreach (var prefix in prefixPatterns)
@@ -69,7 +69,7 @@ public class ApiResponse<T>
                 break;
             }
         }
-        
+
         // Check if this is a validation exception with multiple errors
         // Priority: ||| > ; > newlines
         if (exMessage.Contains("|||"))
@@ -97,7 +97,7 @@ public class ApiResponse<T>
         {
             errors.Add(exMessage);
         }
-        
+
         return new ApiResponse<T>
         {
             Success = false,

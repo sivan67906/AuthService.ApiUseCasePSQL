@@ -41,7 +41,7 @@ public sealed class CreateRoleHierarchyMappingCommandHandler
         }
 
         // IMPORTANT: Validate that both roles belong to the same department (or parent has no department for system roles)
-        if (parentRole.DepartmentId.HasValue && childRole.DepartmentId.HasValue && 
+        if (parentRole.DepartmentId.HasValue && childRole.DepartmentId.HasValue &&
             parentRole.DepartmentId != childRole.DepartmentId)
         {
             throw new InvalidOperationException("Parent and child roles must belong to the same department");

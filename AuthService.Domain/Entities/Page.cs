@@ -11,7 +11,7 @@ public sealed class Page : BaseEntity
     public string? MenuContext { get; set; }  // Tracks which menu/submenu this page belongs to
     public string? ApiEndpoint { get; set; }  // Actual API endpoint for this page
     public string? HttpMethod { get; set; }   // GET, POST, PUT, DELETE
-    
+
     // Navigation properties
     public ICollection<PagePermissionMapping> PagePermissions { get; init; } = [];
     public ICollection<PageFeatureMapping> PageFeatures { get; init; } = [];

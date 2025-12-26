@@ -4,7 +4,6 @@ using AuthService.Application.Features.Company.GetAllCompanies;
 using AuthService.Application.Features.Company.GetCompany;
 using AuthService.Application.Features.Company.UpdateCompany;
 using AuthService.Application.Features.Lookups;
-using AuthService.Domain.Constants;
 
 namespace AuthService.Api.Controllers;
 
@@ -91,7 +90,7 @@ public class CompanyController : ControllerBase
             Console.WriteLine($"[CompanyController] Command.CityId: {command.CityId}");
             Console.WriteLine($"[CompanyController] Command.StateId: {command.StateId}");
             Console.WriteLine($"[CompanyController] Command.CountryId: {command.CountryId}");
-            
+
             if (id != command.Id)
             {
                 Console.WriteLine($"[CompanyController] ID mismatch: URL={id}, Body={command.Id}");

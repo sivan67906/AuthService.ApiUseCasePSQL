@@ -1,5 +1,3 @@
-using AuthService.Domain.Entities;
-
 namespace AuthService.Application.Features.Company.CreateCompany;
 
 /// <summary>

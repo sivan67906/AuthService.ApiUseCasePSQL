@@ -1,10 +1,5 @@
-using System;
-using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
-using AuthService.Domain.Entities;
 
 namespace AuthService.Infrastructure.Persistence;
 
@@ -14,25 +9,25 @@ public static class DatabaseSeeder
     {
         using var scope = serviceProvider.CreateScope();
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<AppDbContext>>();
-        
+
         try
         {
             var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
             var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
-            
+
             logger.LogInformation("Starting database migration and seeding process");
-            
+
             // Ensure database is created and migrations are applied
             await context.Database.MigrateAsync();
             logger.LogInformation("Database migrations completed successfully");
-            
+
             // Seed master data for Company module (Countries, States, Cities, Currencies, TimeZones)
             await MasterDataSeed.SeedMasterDataAsync(context, logger);
-            
+
             // Use comprehensive seed data that matches USER_MAPPING_EXPLAINED.md structure
             await ComprehensiveSeedData.InitializeAsync(serviceProvider);
-            
+
             logger.LogInformation("Database seeded with comprehensive data successfully");
         }
         catch (Exception ex)

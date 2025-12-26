@@ -1,5 +1,4 @@
 ﻿using AuthService.Application.Features.SetPassword.SetPasswords;
-using Microsoft.AspNetCore.Mvc;
 
 namespace AuthService.Api.Controllers;
 

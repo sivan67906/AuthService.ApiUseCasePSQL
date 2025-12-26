@@ -1,6 +1,6 @@
-using Microsoft.AspNetCore.Identity;
 using AuthService.Application.Common.Interfaces;
 using AuthService.Domain.Constants;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthService.Application.Features.UserAccess.GetUserPages;

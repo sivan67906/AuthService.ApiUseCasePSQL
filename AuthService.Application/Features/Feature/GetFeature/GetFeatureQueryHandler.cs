@@ -3,6 +3,7 @@ using AuthService.Application.Features.Feature.CreateFeature;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthService.Application.Features.Feature.GetFeature;
+
 public sealed class GetFeatureQueryHandler : IRequestHandler<GetFeatureQuery, FeatureDto?>
 {
     private readonly IAppDbContext _db;
@@ -35,5 +36,5 @@ public sealed class GetFeatureQueryHandler : IRequestHandler<GetFeatureQuery, Fe
             entity.CreatedAt,
             entity.UpdatedAt
         );
-}
+    }
 }
