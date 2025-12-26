@@ -530,7 +530,7 @@ public static class ComprehensiveSeedData
             
             // Account Pages - mapped directly to Account menu
             (FixedGuids.ProfilePageId, "PROFILE", "Profile", "/profile", "User profile page", "Account", "/api/profile", "GET", 12),
-            (FixedGuids.ChangePasswordPageId, "CHG_PWD", "Change Password", "/change-password", "Change password page", "Account", "/api/auth/change-password", "POST", 13),
+            //(FixedGuids.ChangePasswordPageId, "CHG_PWD", "Change Password", "/change-password", "Change password page", "Account", "/api/auth/change-password", "POST", 13),
             
             // Finance Management - Company Pages - mapped to Company submenu
             (FixedGuids.CompanyPageId, "COMPANY", "Company", "/company", "Company management page", "Company", "/api/company", "GET", 14),
@@ -601,7 +601,7 @@ public static class ComprehensiveSeedData
             
             // Account pages → Account menu (DIRECTLY, no submenus)
             ("Profile", "Account"),
-            ("Change Password", "Account"),
+            //("Change Password", "Account"),
             
             // Company pages → Company submenu (under Finance Management)
             ("Company", "Company"),
@@ -779,7 +779,7 @@ public static class ComprehensiveSeedData
         }
 
         // Department roles only have access to 5 pages: Profile, Change Password, Company, Test Categories, Test Products
-        var deptRolePages = new[] { "Profile", "Change Password", "Company", "Test Categories", "Test Products" };
+        var deptRolePages = new[] { "Profile", "Company", "Test Categories", "Test Products" };
 
         // Permission matrix:
         // Manager: Create, View, Update, Delete (all)
