@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.0.11201.2 d18.0
+VisualStudioVersion = 18.0.11201.2
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthService.Api", "AuthService.Api\AuthService.Api.csproj", "{81FCAF06-845D-4F77-A0D7-F6D23496E279}"
 EndProject
@@ -10,11 +10,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthService.Infrastructure"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthService.Domain", "AuthService.Domain\AuthService.Domain.csproj", "{01275A8F-23D1-4558-BD52-CD1C3E7BA325}"
 EndProject
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8653461A-3291-44BD-8EB5-B83ACF292AE4}"
 	ProjectSection(SolutionItems) = preProject
 		Directory.Packages.props = Directory.Packages.props
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthService.Tests.Unit", "AuthService.Tests.Unit\AuthService.Tests.Unit.csproj", "{E7D19D51-1576-FB05-7CE4-5C55D108473D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -38,6 +39,10 @@ Global
 		{01275A8F-23D1-4558-BD52-CD1C3E7BA325}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{01275A8F-23D1-4558-BD52-CD1C3E7BA325}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{01275A8F-23D1-4558-BD52-CD1C3E7BA325}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E7D19D51-1576-FB05-7CE4-5C55D108473D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7D19D51-1576-FB05-7CE4-5C55D108473D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E7D19D51-1576-FB05-7CE4-5C55D108473D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E7D19D51-1576-FB05-7CE4-5C55D108473D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
